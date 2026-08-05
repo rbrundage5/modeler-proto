@@ -28,3 +28,23 @@
 .tree-disclosure{font-size:12px;color:#526b7b;border-radius:3px}
 .tree-disclosure:hover{background:#d9eaf4;color:#123f58}
 .tree-row .badge{max-width:110px;overflow:hidden;text-overflow:ellipsis}
+
+/* Repository professionalization phase 2 */
+.tree-row{position:relative;user-select:none}
+.tree-row:focus-visible{outline:2px solid currentColor;outline-offset:-2px}
+.tree-row.dragging{opacity:.45}
+.tree-row.drag-target{box-shadow:inset 0 0 0 2px currentColor;background:color-mix(in srgb,currentColor 10%,transparent)}
+.tree-inline-rename{min-width:0;flex:1;height:24px;padding:2px 6px;border:1px solid currentColor;border-radius:3px;font:inherit;background:var(--surface,#fff);color:inherit}
+.tree-context-menu{position:fixed;z-index:10000;min-width:220px;padding:6px;background:var(--panel-bg,#fff);color:var(--text-color,#1f2937);border:1px solid rgba(0,0,0,.2);border-radius:6px;box-shadow:0 12px 32px rgba(0,0,0,.25)}
+.tree-context-menu button,.tree-context-menu summary{width:100%;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:7px 10px;border:0;border-radius:4px;background:transparent;color:inherit;text-align:left;font:inherit;cursor:pointer;list-style:none}
+.tree-context-menu summary::-webkit-details-marker{display:none}
+.tree-context-menu button:hover:not(:disabled),.tree-context-menu summary:hover,.tree-context-menu button:focus-visible,.tree-context-menu summary:focus-visible{background:rgba(59,130,246,.12);outline:none}
+.tree-context-menu button:disabled{opacity:.4;cursor:not-allowed}
+.tree-context-menu .context-danger{color:#b42318}
+.tree-context-menu kbd{font-size:11px;opacity:.65;font-family:inherit}
+.tree-context-divider{height:1px;margin:5px 4px;background:rgba(0,0,0,.14)}
+.tree-context-submenu{position:relative}
+.tree-context-submenu>summary::after{content:'›';margin-left:auto}
+.tree-context-submenu-panel{display:none;position:absolute;left:calc(100% - 2px);top:-6px;min-width:190px;padding:6px;background:var(--panel-bg,#fff);border:1px solid rgba(0,0,0,.2);border-radius:6px;box-shadow:0 12px 30px rgba(0,0,0,.22)}
+.tree-context-submenu[open]>.tree-context-submenu-panel{display:block}
+@media (prefers-color-scheme:dark){.tree-context-menu,.tree-context-submenu-panel{background:#1f2937;color:#f3f4f6;border-color:rgba(255,255,255,.18)}.tree-context-divider{background:rgba(255,255,255,.16)}}
