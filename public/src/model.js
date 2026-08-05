@@ -53,8 +53,8 @@ export function defaultElement(kind,ownerId){
     lifecycleStatus:"Draft",priority:"Medium",risk:"Medium",rationale:"",source:"",requirementOwner:"",verificationMethod:"Analysis",approvalStatus:"Unapproved",approvedBy:"",approvedAt:"",baselineIds:[],suspect:false,
     constraintExpression:"",dimension:"",
     defaultValue:"",unitRef:"",quantityKindRef:"",isAbstract:false,isReadOnly:false,
-    compartments:{parts:[],references:[],values:[],flowProperties:[],operations:[],constraints:[],parameters:[]},
-    compartmentVisibility:{parts:true,references:true,values:true,flowProperties:true,operations:false,constraints:true,parameters:true},
+    compartments:{parts:[],references:[],values:[],flowProperties:[],ports:[],operations:[],constraints:[],parameters:[],providedInterfaces:[],requiredInterfaces:[],literals:[],slots:[]},
+    compartmentVisibility:{parts:true,references:true,values:true,flowProperties:true,ports:true,operations:false,constraints:true,parameters:true,providedInterfaces:true,requiredInterfaces:true,literals:true,slots:true},
     tags:{}};
 }
 export function defaultRelationship(kind,sourceId,targetId,ownerId){
@@ -70,6 +70,7 @@ export function relationshipStyle(kind){
 }
 export function normalizeProject(p){
   p.relationships=p.relationships||[];p.commits=p.commits||[];p.branch=p.branch||"main";p.requirementBaselines=p.requirementBaselines||[];p.analysisRuns=p.analysisRuns||[];p.savedViews=p.savedViews||[];p.savedQueries=p.savedQueries||[];p.libraries=p.libraries||[];p.profiles=p.profiles||[];p.importHistory=p.importHistory||[];p.attachments=p.attachments||[];p.configurations=p.configurations||[];
+  for(const e of allElements(p)){e.compartments=e.compartments||{};e.compartmentVisibility=e.compartmentVisibility||{}}
   for(const d of p.diagrams||[]){d.nodes=d.nodes||[];d.edges=d.edges||[]}
   refreshQualifiedNames(p);return p;
 }
