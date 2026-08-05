@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#12202b">
+  <title>Systems Modeler Collaborative</title>
+  <link rel="stylesheet" href="/src/styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="product-mark" aria-label="Systems Modeler Collaborative">
+      <span class="product-icon">SM</span>
+      <span><strong>Systems Modeler</strong><small>Collaborative SysML Workspace</small></span>
+    </div>
+    <nav class="menu-strip" aria-label="Application menu">
+      <details class="app-menu"><summary>File</summary><div class="menu-popover">
+        <button data-target="newProject">New Project</button><button data-target="openProject">Open Project…</button><button data-target="saveProject">Save Locally</button><button data-target="importWorkbook">Import Workbook…</button><button data-target="exportProject">Export Project…</button>
+      </div></details>
+      <details class="app-menu"><summary>Edit</summary><div class="menu-popover">
+        <button data-target="undo">Undo</button><button data-target="redo">Redo</button><button data-target="deleteSelected">Delete Selected</button>
+      </div></details>
+      <details class="app-menu"><summary>Model</summary><div class="menu-popover">
+        <button data-target="reuseElement">Reuse Existing Element</button><button data-target="openChild">Open or Create Child Diagram</button><button data-target="validateModel">Validate Model</button>
+      </div></details>
+      <details class="app-menu"><summary>Diagram</summary><div class="menu-popover">
+        <button data-target="newDiagram">New Diagram</button><button data-target="routeEdges">Route Relationships</button><button data-target="zoomReset">Reset Zoom</button>
+      </div></details>
+      <details class="app-menu"><summary>Collaboration</summary><div class="menu-popover">
+        <button data-target="connectRoom">Connect to Room</button><button data-target="commitModel">Commit</button><button data-target="newBranch">Create Branch</button><button data-target="mergeBranch">Merge Branch</button><button data-target="lockSelected">Lock Selected</button><button data-target="unlockSelected">Unlock Selected</button>
+      </div></details>
+      <button id="projectManager" class="menu-help">Projects</button><button id="projectEnvironment" class="menu-help">Project Environment</button><button id="advancedWorkbench" class="menu-help">Engineering Workbench</button><button id="help" class="menu-help">Help</button>
+    </nav>
+    <div class="header-state"><span id="connectionStatus" class="status-badge local">Local</span><span id="revisionStatus" class="status-badge">r0</span></div>
+  </header>
+
+  <div class="command-bar" role="toolbar" aria-label="Model commands">
+    <div class="command-group"><span class="group-label">Project</span><button id="newProject" title="Create a new project">New</button><button id="openProject" title="Open a project JSON file">Open</button><button id="saveProject" title="Save to this browser">Save</button><button id="importWorkbook" title="Import an Excel workbook">Import</button><button id="exportProject" title="Export the complete project">Export</button></div>
+    <div class="command-group"><span class="group-label">Edit</span><button id="undo" title="Undo the last local change">Undo</button><button id="redo" title="Redo the last undone change">Redo</button><button id="deleteSelected" class="danger-action" title="Delete the selected presentation, relationship, or element">Delete</button></div>
+    <div class="command-group"><span class="group-label">Model</span><button id="reuseElement" title="Place an existing semantic element on this diagram">Reuse</button><button id="openChild" title="Open or create the valid child diagram">Child Diagram</button><button id="validateModel" title="Run SysML semantic validation">Validate</button><button id="projectDashboard" title="Open project dashboard, tables, matrices, reports, and backups">Environment</button></div>
+    <label class="search-control"><span>Search model</span><input id="searchBox" placeholder="Name, ID, stereotype, kind"><button id="searchButton">Find</button></label>
+    <div class="command-group collaboration-controls"><span class="group-label">Collaboration</span><label>Name<input id="displayName" value="Modeler"></label><label>Room<input id="roomId" value="default"></label><label>Branch<select id="branchSelect"><option value="main">main</option></select></label><button id="connectRoom" class="primary-action">Connect</button><button id="commitModel">Commit</button><button id="newBranch">New Branch</button><button id="mergeBranch">Merge</button><button id="lockSelected">Lock</button><button id="unlockSelected">Unlock</button><span id="presenceStatus" class="presence-chip">0 users</span></div>
+  </div>
+
+  <main class="workspace">
+    <section class="pane browser-pane" aria-label="Model browser">
+      <div class="pane-title"><span>Repository</span><span class="pane-subtitle">Containment and references</span></div>
+      <div class="tabs"><button id="modelTab" class="active">Model</button><button id="diagramTab">Diagrams</button><button id="xrefTab">References</button></div>
+      <div id="tree" class="tree"></div>
+    </section>
+
+    <section class="pane center-pane" aria-label="Diagram editor">
+      <div class="pane-title diagram-header"><div><span id="diagramTitle">Diagram</span><span id="diagramTypeLabel" class="pane-subtitle"></span></div><span class="diagram-actions"><button id="newDiagram">New Diagram</button><select id="diagramSelect" aria-label="Active diagram"></select><button id="routeEdges" title="Recalculate orthogonal relationship routes">Route</button><button id="zoomOut" title="Zoom out">−</button><button id="zoomReset" title="Reset zoom">100%</button><button id="zoomIn" title="Zoom in">+</button></span></div>
+      <div class="editor-body"><aside id="palette" class="palette" aria-label="Diagram palette"></aside><div id="canvasWrap" class="canvas-wrap"><svg id="canvas" width="3200" height="2200" viewBox="0 0 3200 2200" aria-label="SysML diagram canvas"></svg></div></div>
+    </section>
+
+    <section class="pane property-pane" aria-label="Properties">
+      <div class="pane-title"><span>Properties</span><span class="pane-subtitle">Semantic element and presentation</span></div><div id="properties" class="properties"></div>
+    </section>
+
+    <section class="pane bottom-pane" aria-label="Activity log">
+      <div class="pane-title"><span>Problems and Activity</span><span class="pane-subtitle">Validation, import, collaboration, and errors</span><span class="bottom-actions"><button id="clearLog">Clear</button></span></div><div id="log" class="log"></div>
+    </section>
+  </main>
+
+  <input id="fileInput" type="file" hidden accept=".json,.sysml.json">
+  <input id="workbookInput" type="file" hidden accept=".xlsx,.xls,.csv"><input id="archiveInput" type="file" hidden accept=".json,.sysmlarchive.json">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script type="module" src="/src/app.js"></script><script type="module" src="/src/environment.js"></script><script type="module" src="/src/projects.js"></script><script type="module" src="/src/advanced.js"></script>
+<dialog id="environmentDialog" class="environment-dialog">
+  <form method="dialog" class="environment-shell">
+    <header class="environment-header"><div><strong>Project Environment</strong><small>Governance, tables, matrices, reports, interchange, and recovery</small></div><button value="cancel" aria-label="Close">Close</button></header>
+    <nav id="environmentTabs" class="environment-tabs"></nav>
+    <section id="environmentContent" class="environment-content"></section>
+  </form>
+</dialog>
+<dialog id="projectManagerDialog" class="project-manager-dialog"><div class="project-manager-shell"><header><div><strong>Projects</strong><small>Create, save, reopen, duplicate, archive, and restore separate SysML repositories.</small></div><button onclick="this.closest('dialog').close()">Close</button></header><div class="project-manager-actions"><button id="projectManagerNew">New blank project</button><button id="projectManagerSave">Save current project</button><label><input id="showArchived" type="checkbox"> Show archived</label></div><div id="projectList" class="project-list"></div></div></dialog><dialog id="advancedDialog" class="environment-dialog"><form method="dialog" class="environment-shell advanced-shell"><header class="environment-header"><div><strong>SysML Engineering Workbench</strong><small>Structure, behavior, requirements, matrices, analysis, configurations, libraries, and interchange</small></div><button value="cancel">Close</button></header><nav id="advancedTabs" class="environment-tabs"></nav><section id="advancedContent" class="environment-content"></section></form></dialog></body>
+</html>

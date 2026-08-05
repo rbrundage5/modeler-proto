@@ -1,0 +1,33 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "systems-modeler-collaborative",
+  "main": "./worker/index.js",
+  "compatibility_date": "2026-08-05",
+  "workers_dev": true,
+  "preview_urls": true,
+  "upload_source_maps": true,
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "PROJECT_ROOMS",
+        "class_name": "ProjectRoom"
+      }
+    ]
+  },
+  "exports": {
+    "ProjectRoom": {
+      "type": "durable-object",
+      "storage": "sqlite"
+    }
+  },
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1
+  }
+}

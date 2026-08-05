@@ -1,0 +1,12 @@
+These files and folders must be visible directly in the GitHub repository root:
+
+package.json
+wrangler.jsonc
+public/
+worker/
+scripts/
+
+Cloudflare Workers Builds settings:
+Root directory: /
+Build command: npm install && npm test && npm run check
+Deploy command: npx wrangler deploy --config wrangler.jsonc

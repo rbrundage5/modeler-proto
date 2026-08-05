@@ -1,0 +1,3094 @@
+{
+  "FSBS_Top_Level_03_Enterprise_Mission_and_Capabilities_CATIA_SysML_Import_FULLY_REPAIRED_NO_RECOVERY(1).xlsx": [
+    {
+      "name": "README",
+      "headerRow": 22,
+      "headers": [
+        "Import order",
+        "Import repaired 01, repaired 02, then repaired 03 using Merge/update by External ID."
+      ],
+      "dataRows": 2
+    },
+    {
+      "name": "Packages_Import",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Documentation",
+        "Import Action",
+        "Lifecycle Status"
+      ],
+      "dataRows": 2496
+    },
+    {
+      "name": "Mission_Update",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Is Abstract",
+        "Definition",
+        "Enduring Mission Statement",
+        "Operating Concept",
+        "Related Requirement IDs",
+        "Lifecycle Status",
+        "Import Action"
+      ],
+      "dataRows": 1
+    },
+    {
+      "name": "Mission_Objectives",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Objective Statement",
+        "Measure Type",
+        "Related Requirement IDs",
+        "Related Capability IDs",
+        "Lifecycle Status",
+        "Import Action"
+      ],
+      "dataRows": 8
+    },
+    {
+      "name": "Desired_Effects",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Effect Statement",
+        "Persistence",
+        "Related Objective IDs",
+        "Related Requirement IDs",
+        "Lifecycle Status",
+        "Import Action"
+      ],
+      "dataRows": 7
+    },
+    {
+      "name": "Mission_Threads",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Thread Intent",
+        "Recurring Entry Conditions",
+        "Recurring Exit or Handoff Conditions",
+        "Participating Use Case IDs",
+        "Participating Capability IDs",
+        "Related Requirement IDs",
+        "Lifecycle Status",
+        "Import Action"
+      ],
+      "dataRows": 7
+    },
+    {
+      "name": "Capabilities_Update",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Is Abstract",
+        "Continuous Capability Definition",
+        "Activation Pattern",
+        "Related Requirement IDs",
+        "Related Use Case IDs",
+        "Lifecycle Status",
+        "Import Action"
+      ],
+      "dataRows": 10
+    },
+    {
+      "name": "Capability_Decomposition",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Source External ID",
+        "Source Qualified Name String",
+        "Target External ID",
+        "Target Qualified Name String",
+        "Relationship Type",
+        "Documentation",
+        "Import Action",
+        "Lifecycle Status"
+      ],
+      "dataRows": 1596
+    },
+    {
+      "name": "Capability_Dependencies",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Source External ID",
+        "Source Qualified Name String",
+        "Target External ID",
+        "Target Qualified Name String",
+        "Relationship Type",
+        "Documentation",
+        "Import Action",
+        "Lifecycle Status"
+      ],
+      "dataRows": 1596
+    },
+    {
+      "name": "Capability_Measures",
+      "headerRow": 4,
+      "headers": [
+        "Measure ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Type External ID",
+        "Type Qualified Name String",
+        "Measure Definition",
+        "Applies To Capability IDs",
+        "Source Requirement IDs",
+        "Default Value",
+        "Lifecycle Status",
+        "Import Action",
+        "External ID",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "External ID"
+      ],
+      "dataRows": 196
+    },
+    {
+      "name": "Relationships_Import",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Source External ID",
+        "Source Qualified Name String",
+        "Target External ID",
+        "Target Qualified Name String",
+        "Relationship Type",
+        "Documentation",
+        "Import Action"
+      ],
+      "dataRows": 187
+    },
+    {
+      "name": "Diagram_Specifications",
+      "headerRow": 4,
+      "headers": [
+        "Diagram ID",
+        "Diagram Name",
+        "Diagram Type",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Displayed Element IDs",
+        "Relationship Types",
+        "Purpose",
+        "Creation Order",
+        "Import Action"
+      ],
+      "dataRows": 5
+    },
+    {
+      "name": "Source_Crosswalk",
+      "headerRow": 4,
+      "headers": [
+        "Crosswalk ID",
+        "Element Range",
+        "Source Workbook or Document",
+        "Source Sheet or Area",
+        "Preserved Content",
+        "Refinement or New Content",
+        "Target Owner External ID",
+        "Target Owner Qualified Name String",
+        "Status"
+      ],
+      "dataRows": 10
+    },
+    {
+      "name": "Validation",
+      "headerRow": 14,
+      "headers": [
+        "VAL-010",
+        "Duplicate import External IDs",
+        "0",
+        "0",
+        "PASS",
+        "Must pass"
+      ],
+      "dataRows": 16
+    },
+    {
+      "name": "Use_Case_References",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Documentation",
+        "Import Action",
+        "Lifecycle Status"
+      ],
+      "dataRows": 2496
+    },
+    {
+      "name": "Diagrams_Import",
+      "headerRow": 1,
+      "headers": [
+        "Import Order",
+        "Diagram External ID",
+        "Diagram Name",
+        "Diagram Type",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Context External ID",
+        "Context Qualified Name String",
+        "Qualified Name String",
+        "Canvas Width",
+        "Canvas Height",
+        "Import Action",
+        "Lifecycle Status",
+        "Displayed Element IDs",
+        "Relationship IDs",
+        "Auto Layout",
+        "Parent Diagram External ID",
+        "Parent Diagram Qualified Name String",
+        "Child Diagram External IDs",
+        "Navigation Source Diagram External ID"
+      ],
+      "dataRows": 2499
+    },
+    {
+      "name": "Diagram_Shapes",
+      "headerRow": 1,
+      "headers": [
+        "Import Order",
+        "Presentation ID",
+        "Diagram External ID",
+        "Semantic Element External ID",
+        "Semantic Element Qualified Name String",
+        "Presentation Kind",
+        "X",
+        "Y",
+        "Width",
+        "Height",
+        "Z Order",
+        "Parent Presentation ID",
+        "Compartment Display",
+        "Stereotype Display",
+        "Import Action",
+        "Has Child Diagram",
+        "Navigation Target Diagram ID",
+        "Navigation Target Diagram Qualified Name String",
+        "Navigation Label"
+      ],
+      "dataRows": 2499
+    },
+    {
+      "name": "Diagram_Edges",
+      "headerRow": 1,
+      "headers": [
+        "Import Order",
+        "Edge Presentation ID",
+        "Diagram External ID",
+        "Semantic Edge External ID",
+        "Source Presentation ID",
+        "Target Presentation ID",
+        "Source Port Presentation ID",
+        "Target Port Presentation ID",
+        "Routing Style",
+        "Bend Points",
+        "Label Text",
+        "Show Label",
+        "Import Action",
+        "Source Semantic External ID",
+        "Target Semantic External ID",
+        "Presentation Kind"
+      ],
+      "dataRows": 2499
+    },
+    {
+      "name": "Minimal_Import_Validation",
+      "headerRow": 1,
+      "headers": [
+        "Check",
+        "Result"
+      ],
+      "dataRows": 99
+    },
+    {
+      "name": "Requirement_References",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Requirement ID",
+        "Requirement Text",
+        "Documentation",
+        "Import Action",
+        "Lifecycle Status"
+      ],
+      "dataRows": 796
+    },
+    {
+      "name": "Use_Case_Rel_References",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Source External ID",
+        "Source Qualified Name String",
+        "Target External ID",
+        "Target Qualified Name String",
+        "Relationship Type",
+        "Documentation",
+        "Import Action"
+      ],
+      "dataRows": 796
+    },
+    {
+      "name": "Endpoint_Use_Case_Validation",
+      "headerRow": 1,
+      "headers": [
+        "Check",
+        "Result"
+      ],
+      "dataRows": 799
+    },
+    {
+      "name": "Detailed_Capabilities",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Capability Definition",
+        "Related Requirement IDs",
+        "Related Use Case IDs",
+        "Lifecycle Status",
+        "Import Action"
+      ],
+      "dataRows": 1596
+    },
+    {
+      "name": "Relationship_Schema_Validation",
+      "headerRow": 1,
+      "headers": [
+        "Check",
+        "Result"
+      ],
+      "dataRows": 1599
+    },
+    {
+      "name": "Actor_References",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Documentation",
+        "Import Action",
+        "Lifecycle Status"
+      ],
+      "dataRows": 7
+    },
+    {
+      "name": "Package_References",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Documentation",
+        "Import Action",
+        "Lifecycle Status"
+      ],
+      "dataRows": 1
+    },
+    {
+      "name": "Element_Diagram_Links",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Source Element External ID",
+        "Source Element Qualified Name String",
+        "Target Diagram External ID",
+        "Target Diagram Qualified Name String",
+        "Link Type",
+        "Is Primary",
+        "Navigation Label",
+        "Source Diagram External ID",
+        "Documentation",
+        "Import Action"
+      ],
+      "dataRows": 9
+    }
+  ],
+  "FSBS_Top_Level_02_Enterprise_Mission_Capabilities_and_Use_Cases_CATIA_SysML_Import_FULLY_REPAIRED(1).xlsx": [
+    {
+      "name": "README",
+      "headerRow": 20,
+      "headers": [
+        "Import order",
+        "Import repaired Workbook 01 first, then this repaired Workbook 02 using Merge/update by External ID for shared requirement references."
+      ],
+      "dataRows": 0
+    },
+    {
+      "name": "Packages_Import",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Documentation",
+        "Import Action",
+        "Lifecycle Status"
+      ],
+      "dataRows": 2996
+    },
+    {
+      "name": "Enumerations",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Literals",
+        "Documentation",
+        "Import Action"
+      ],
+      "dataRows": 3
+    },
+    {
+      "name": "Mission_Import",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Is Abstract",
+        "Definition",
+        "Source Requirement IDs",
+        "Lifecycle Status",
+        "Import Action",
+        "Linked Diagram IDs",
+        "Primary Diagram External ID",
+        "Diagram Navigation Role"
+      ],
+      "dataRows": 1
+    },
+    {
+      "name": "Capabilities_Import",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Is Abstract",
+        "Definition",
+        "Parent Capability External ID",
+        "Related Requirement IDs",
+        "Related Use Case IDs",
+        "Lifecycle Status",
+        "Import Action",
+        "Linked Diagram IDs",
+        "Primary Diagram External ID",
+        "Diagram Navigation Role"
+      ],
+      "dataRows": 10
+    },
+    {
+      "name": "Use_Cases_Import",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Brief Description",
+        "Primary Actor External IDs",
+        "Supporting External/System IDs",
+        "Trigger",
+        "Preconditions",
+        "Main Success Scenario",
+        "Alternate or Exception Flows",
+        "Postconditions",
+        "Related Requirement IDs",
+        "Related Capability IDs",
+        "Lifecycle Status",
+        "Source Basis",
+        "Import Action",
+        "Linked Diagram IDs",
+        "Primary Diagram External ID",
+        "Diagram Navigation Role"
+      ],
+      "dataRows": 12
+    },
+    {
+      "name": "Scenarios_Import",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Scenario Type",
+        "Operational Mode",
+        "Start Phase",
+        "End Phase",
+        "Primary Use Case IDs",
+        "Description",
+        "Success Outcome",
+        "Related Requirement IDs",
+        "Lifecycle Status",
+        "Import Action"
+      ],
+      "dataRows": 7
+    },
+    {
+      "name": "Relationships_Import",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Source External ID",
+        "Source Qualified Name String",
+        "Target External ID",
+        "Target Qualified Name String",
+        "Relationship Type",
+        "Documentation",
+        "Import Action"
+      ],
+      "dataRows": 139
+    },
+    {
+      "name": "Actor_Associations",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Actor External ID",
+        "Actor Qualified Name String",
+        "Use Case External ID",
+        "Use Case Qualified Name String",
+        "Role",
+        "Dependency Note",
+        "Import Action",
+        "Source External ID",
+        "Source Qualified Name String",
+        "Target External ID",
+        "Target Qualified Name String",
+        "Relationship Type",
+        "Applied Stereotype"
+      ],
+      "dataRows": 2496
+    },
+    {
+      "name": "Diagram_Specifications",
+      "headerRow": 4,
+      "headers": [
+        "Diagram ID",
+        "Diagram Name",
+        "Diagram Type",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Displayed Element IDs",
+        "Relationship IDs or Types",
+        "Purpose",
+        "Creation Order",
+        "Import Action"
+      ],
+      "dataRows": 3
+    },
+    {
+      "name": "Source_Crosswalk",
+      "headerRow": 4,
+      "headers": [
+        "Crosswalk ID",
+        "Element Range",
+        "Source Workbook",
+        "Source Sheet or Area",
+        "Preserved Content",
+        "Refinement Applied",
+        "Target Owner External ID",
+        "Target Owner Qualified Name String",
+        "Status"
+      ],
+      "dataRows": 7
+    },
+    {
+      "name": "Validation",
+      "headerRow": 11,
+      "headers": [
+        "VAL-007",
+        "Duplicate import External IDs",
+        "0",
+        "0",
+        "PASS",
+        "Must pass"
+      ],
+      "dataRows": 14
+    },
+    {
+      "name": "Actors_Import",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Documentation",
+        "Import Action",
+        "Lifecycle Status"
+      ],
+      "dataRows": 2496
+    },
+    {
+      "name": "External_Systems_Import",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Documentation",
+        "Import Action",
+        "Lifecycle Status"
+      ],
+      "dataRows": 2496
+    },
+    {
+      "name": "Diagrams_Import",
+      "headerRow": 1,
+      "headers": [
+        "Import Order",
+        "Diagram External ID",
+        "Diagram Name",
+        "Diagram Type",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Context External ID",
+        "Context Qualified Name String",
+        "Qualified Name String",
+        "Canvas Width",
+        "Canvas Height",
+        "Import Action",
+        "Lifecycle Status",
+        "Displayed Element IDs",
+        "Relationship IDs",
+        "Auto Layout",
+        "Parent Diagram External ID",
+        "Parent Diagram Qualified Name String",
+        "Child Diagram External IDs",
+        "Navigation Source Diagram External ID"
+      ],
+      "dataRows": 2999
+    },
+    {
+      "name": "Diagram_Shapes",
+      "headerRow": 1,
+      "headers": [
+        "Import Order",
+        "Presentation ID",
+        "Diagram External ID",
+        "Semantic Element External ID",
+        "Semantic Element Qualified Name String",
+        "Presentation Kind",
+        "X",
+        "Y",
+        "Width",
+        "Height",
+        "Z Order",
+        "Parent Presentation ID",
+        "Compartment Display",
+        "Stereotype Display",
+        "Import Action",
+        "Display Name",
+        "Definition",
+        "Is Abstract",
+        "Related Requirement IDs",
+        "Related Use Case IDs",
+        "Brief Description",
+        "Trigger",
+        "Preconditions",
+        "Postconditions",
+        "Compartment Order",
+        "Text Wrap",
+        "Has Child Diagram",
+        "Navigation Target Diagram ID",
+        "Navigation Target Diagram Qualified Name String",
+        "Navigation Label"
+      ],
+      "dataRows": 2999
+    },
+    {
+      "name": "Diagram_Edges",
+      "headerRow": 1,
+      "headers": [
+        "Import Order",
+        "Edge Presentation ID",
+        "Diagram External ID",
+        "Semantic Edge External ID",
+        "Source Presentation ID",
+        "Target Presentation ID",
+        "Source Port Presentation ID",
+        "Target Port Presentation ID",
+        "Routing Style",
+        "Bend Points",
+        "Label Text",
+        "Show Label",
+        "Import Action",
+        "Source Semantic External ID",
+        "Target Semantic External ID",
+        "Presentation Kind"
+      ],
+      "dataRows": 2999
+    },
+    {
+      "name": "Minimal_Import_Validation",
+      "headerRow": 1,
+      "headers": [
+        "Check",
+        "Result"
+      ],
+      "dataRows": 99
+    },
+    {
+      "name": "Requirement_References",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Requirement ID",
+        "Requirement Text",
+        "Documentation",
+        "Import Action"
+      ],
+      "dataRows": 2996
+    },
+    {
+      "name": "External_System_Associations",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Source External ID",
+        "Source Qualified Name String",
+        "Target External ID",
+        "Target Qualified Name String",
+        "Relationship Type",
+        "Documentation",
+        "Import Action"
+      ],
+      "dataRows": 2996
+    },
+    {
+      "name": "Diagram_Compartment_Manifest",
+      "headerRow": 1,
+      "headers": [
+        "Import Order",
+        "Diagram External ID",
+        "Semantic Element External ID",
+        "Element Kind",
+        "Display Compartments",
+        "Definition or Description",
+        "Owned Attribute Count",
+        "Owned Port Count",
+        "Owned Part Count",
+        "Validation Result"
+      ],
+      "dataRows": 2999
+    },
+    {
+      "name": "Import_Readiness_Validation",
+      "headerRow": 1,
+      "headers": [
+        "Check",
+        "Result"
+      ],
+      "dataRows": 2999
+    },
+    {
+      "name": "Element_Diagram_Links",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Source Element External ID",
+        "Source Element Qualified Name String",
+        "Target Diagram External ID",
+        "Target Diagram Qualified Name String",
+        "Link Type",
+        "Is Primary",
+        "Navigation Label",
+        "Source Diagram External ID",
+        "Documentation",
+        "Import Action"
+      ],
+      "dataRows": 5
+    }
+  ],
+  "FSBS_Top_Level_01_Enterprise_Requirements_CATIA_SysML_Import_FULLY_REPAIRED(1).xlsx": [
+    {
+      "name": "README",
+      "headerRow": 18,
+      "headers": [
+        "Requirement text protection",
+        "All 146 Requirement rows and all 161 Requirement diagram shapes carry normalized, nonblank Requirement Text."
+      ],
+      "dataRows": 2
+    },
+    {
+      "name": "Packages_Import",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Documentation",
+        "Import Action",
+        "Lifecycle Status",
+        "Source Basis"
+      ],
+      "dataRows": 1796
+    },
+    {
+      "name": "Requirements_Import",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Requirement ID",
+        "Requirement Text",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Parent Requirement External ID",
+        "Requirement Level",
+        "Domain",
+        "Applies To",
+        "Verification Method Kinds",
+        "Priority",
+        "Lifecycle Status",
+        "Risk",
+        "Basis Type",
+        "Source Document",
+        "Source Page or Section",
+        "Engineering Basis or Rationale",
+        "Review Notes",
+        "Import Action",
+        "Linked Diagram IDs",
+        "Primary Diagram External ID",
+        "Diagram Navigation Role"
+      ],
+      "dataRows": 3496
+    },
+    {
+      "name": "Relationships_Import",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Source External ID",
+        "Source Qualified Name String",
+        "Target External ID",
+        "Target Qualified Name String",
+        "Relationship Type",
+        "Source Document",
+        "Source Section",
+        "Documentation",
+        "Import Action"
+      ],
+      "dataRows": 145
+    },
+    {
+      "name": "Domain_Package_Map",
+      "headerRow": 4,
+      "headers": [
+        "Domain",
+        "Package External ID",
+        "Package Name",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Source CATIA Target Pattern",
+        "Requirement Count",
+        "Status"
+      ],
+      "dataRows": 16
+    },
+    {
+      "name": "ID_Crosswalk",
+      "headerRow": 4,
+      "headers": [
+        "Crosswalk ID",
+        "Source External ID",
+        "Source Name",
+        "Source Owner Package",
+        "Source CATIA Target Package",
+        "Refined External ID",
+        "Refined Name",
+        "Refined Owner External ID",
+        "Refined Owner Qualified Name String",
+        "Refined Qualified Name String",
+        "Identity Action",
+        "Status"
+      ],
+      "dataRows": 146
+    },
+    {
+      "name": "Source_Crosswalk",
+      "headerRow": 4,
+      "headers": [
+        "Crosswalk ID",
+        "Target External ID",
+        "Target Qualified Name String",
+        "Source Workbook",
+        "Source Sheet",
+        "Source Row ID",
+        "Source Document",
+        "Source Page or Section",
+        "Basis Type",
+        "Normalization Decision",
+        "Review Requirement",
+        "Status"
+      ],
+      "dataRows": 146
+    },
+    {
+      "name": "Validation",
+      "headerRow": 8,
+      "headers": [
+        "VAL-004",
+        "Duplicate Requirement External IDs",
+        "0",
+        "0",
+        "PASS",
+        "Must pass"
+      ],
+      "dataRows": 17
+    },
+    {
+      "name": "Diagrams_Import",
+      "headerRow": 1,
+      "headers": [
+        "Import Order",
+        "Diagram External ID",
+        "Diagram Name",
+        "Diagram Type",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Context External ID",
+        "Context Qualified Name String",
+        "Qualified Name String",
+        "Canvas Width",
+        "Canvas Height",
+        "Import Action",
+        "Lifecycle Status",
+        "Displayed Element IDs",
+        "Relationship IDs",
+        "Auto Layout",
+        "Linked From Element IDs",
+        "Related Element IDs",
+        "Navigation Role",
+        "Parent Diagram External ID",
+        "Parent Diagram Qualified Name String",
+        "Child Diagram External IDs",
+        "Navigation Source Diagram External ID"
+      ],
+      "dataRows": 3499
+    },
+    {
+      "name": "Diagram_Shapes",
+      "headerRow": 1,
+      "headers": [
+        "Import Order",
+        "Presentation ID",
+        "Diagram External ID",
+        "Semantic Element External ID",
+        "Semantic Element Qualified Name String",
+        "Presentation Kind",
+        "X",
+        "Y",
+        "Width",
+        "Height",
+        "Z Order",
+        "Parent Presentation ID",
+        "Compartment Display",
+        "Stereotype Display",
+        "Import Action",
+        "Display Name",
+        "Requirement ID",
+        "Requirement Text",
+        "Compartment Order",
+        "Text Wrap",
+        "Navigation Target Diagram ID",
+        "Navigation Target Diagram Qualified Name String",
+        "Navigation Label",
+        "Navigation Link Type"
+      ],
+      "dataRows": 3499
+    },
+    {
+      "name": "Diagram_Edges",
+      "headerRow": 1,
+      "headers": [
+        "Import Order",
+        "Edge Presentation ID",
+        "Diagram External ID",
+        "Semantic Edge External ID",
+        "Source Presentation ID",
+        "Target Presentation ID",
+        "Source Port Presentation ID",
+        "Target Port Presentation ID",
+        "Routing Style",
+        "Bend Points",
+        "Label Text",
+        "Show Label",
+        "Import Action",
+        "Source Semantic External ID",
+        "Target Semantic External ID",
+        "Presentation Kind"
+      ],
+      "dataRows": 2499
+    },
+    {
+      "name": "Minimal_Import_Validation",
+      "headerRow": 1,
+      "headers": [
+        "Check",
+        "Result"
+      ],
+      "dataRows": 1799
+    },
+    {
+      "name": "Diagram_Build_Validation",
+      "headerRow": 1,
+      "headers": [
+        "Check",
+        "Result"
+      ],
+      "dataRows": 49
+    },
+    {
+      "name": "Diagram_Compartment_Manifest",
+      "headerRow": 1,
+      "headers": [
+        "Import Order",
+        "Diagram External ID",
+        "Presentation ID",
+        "Semantic Element External ID",
+        "Element Metaclass",
+        "Applied Stereotype",
+        "Display Name",
+        "Requirement ID",
+        "Requirement Text",
+        "Displayed Compartments",
+        "Owned Attribute Count",
+        "Owned Port Count",
+        "Owned Part Count",
+        "Validation Result"
+      ],
+      "dataRows": 2499
+    },
+    {
+      "name": "Text_and_Compartment_Validation",
+      "headerRow": 3,
+      "headers": [
+        "Requirements with nonblank Requirement Text",
+        "146"
+      ],
+      "dataRows": 2497
+    },
+    {
+      "name": "Element_Diagram_Links",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Source Element External ID",
+        "Source Element Qualified Name String",
+        "Target Diagram External ID",
+        "Target Diagram Qualified Name String",
+        "Link Type",
+        "Is Primary",
+        "Navigation Label",
+        "Source Diagram External ID",
+        "Documentation",
+        "Import Action"
+      ],
+      "dataRows": 3496
+    },
+    {
+      "name": "Navigation_Context_Validation",
+      "headerRow": 1,
+      "headers": [
+        "Check",
+        "Result"
+      ],
+      "dataRows": 3499
+    }
+  ],
+  "FSBS_Top_Level_04_Enterprise_Logical_Structure_CATIA_SysML_Import_COMPLETE_FIX(2).xlsx": [
+    {
+      "name": "README",
+      "headerRow": 10,
+      "headers": [
+        "Common Library reuse",
+        "Enterprise and site-role Blocks specialize approved Common Library generalized Blocks where equivalent semantics exist. Common Library classifiers are referenced by exact External ID and Qualified Name String."
+      ],
+      "dataRows": 5
+    },
+    {
+      "name": "Packages_Import",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Documentation",
+        "Import Action",
+        "Lifecycle Status"
+      ],
+      "dataRows": 1796
+    },
+    {
+      "name": "Blocks_Import",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Is Abstract",
+        "Definition",
+        "Source Basis",
+        "Import Action",
+        "Lifecycle Status"
+      ],
+      "dataRows": 1796
+    },
+    {
+      "name": "Generalizations_Import",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Specific External ID",
+        "Specific Qualified Name String",
+        "General External ID",
+        "General Qualified Name String",
+        "Relationship Type",
+        "Documentation",
+        "Import Action",
+        "Source External ID",
+        "Source Qualified Name String",
+        "Target External ID",
+        "Target Qualified Name String"
+      ],
+      "dataRows": 1796
+    },
+    {
+      "name": "Part_Properties",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Type External ID",
+        "Type Qualified Name String",
+        "Lower",
+        "Upper",
+        "Aggregation",
+        "Definition",
+        "Import Action"
+      ],
+      "dataRows": 21
+    },
+    {
+      "name": "Reference_Properties",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Type External ID",
+        "Type Qualified Name String",
+        "Lower",
+        "Upper",
+        "Aggregation",
+        "Definition",
+        "Import Action"
+      ],
+      "dataRows": 11
+    },
+    {
+      "name": "Value_Properties",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Type External ID",
+        "Type Qualified Name String",
+        "Lower",
+        "Upper",
+        "Default Value",
+        "Definition",
+        "Source Measure ID",
+        "Import Action"
+      ],
+      "dataRows": 9
+    },
+    {
+      "name": "Site_Participation",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Type External ID",
+        "Type Qualified Name String",
+        "Site Package External ID",
+        "Site Package Qualified Name String",
+        "Frequency Group",
+        "Multiplicity",
+        "Aggregation",
+        "Source Site ID",
+        "Documentation",
+        "Import Action",
+        "Lower",
+        "Upper"
+      ],
+      "dataRows": 1796
+    },
+    {
+      "name": "Capability_Allocations",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Source External ID",
+        "Source Qualified Name String",
+        "Target External ID",
+        "Target Qualified Name String",
+        "Relationship Type",
+        "Documentation",
+        "Import Action"
+      ],
+      "dataRows": 1796
+    },
+    {
+      "name": "Requirement_Satisfaction",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Source External ID",
+        "Source Qualified Name String",
+        "Target Requirement External ID",
+        "Target Requirement Qualified Name String",
+        "Relationship Type",
+        "Rationale",
+        "Import Action",
+        "Target External ID",
+        "Target Qualified Name String",
+        "Documentation"
+      ],
+      "dataRows": 1796
+    },
+    {
+      "name": "Relationships_Import",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Source External ID",
+        "Source Qualified Name String",
+        "Target External ID",
+        "Target Qualified Name String",
+        "Relationship Type",
+        "Documentation",
+        "Import Action"
+      ],
+      "dataRows": 1796
+    },
+    {
+      "name": "Diagram_Specifications",
+      "headerRow": 4,
+      "headers": [
+        "Diagram ID",
+        "Diagram Name",
+        "Diagram Type",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Displayed Element IDs",
+        "Displayed Property IDs",
+        "Relationship Types",
+        "Purpose",
+        "Creation Order",
+        "Import Action"
+      ],
+      "dataRows": 1796
+    },
+    {
+      "name": "ID_Name_Crosswalk",
+      "headerRow": 4,
+      "headers": [
+        "Crosswalk ID",
+        "Stable External ID",
+        "Base Workbook Name",
+        "Refined Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Qualified Name String",
+        "Disposition",
+        "Rationale"
+      ],
+      "dataRows": 1796
+    },
+    {
+      "name": "Source_Crosswalk",
+      "headerRow": 4,
+      "headers": [
+        "Crosswalk ID",
+        "Element Range",
+        "Source Workbook or Document",
+        "Source Sheet or Area",
+        "Preserved Content",
+        "Refinement Applied",
+        "Target Owner External ID",
+        "Target Owner Qualified Name String",
+        "Status"
+      ],
+      "dataRows": 1796
+    },
+    {
+      "name": "Validation",
+      "headerRow": 16,
+      "headers": [
+        "VAL-012",
+        "Duplicate import External IDs",
+        "0",
+        "0",
+        "PASS",
+        "Must pass"
+      ],
+      "dataRows": 8
+    },
+    {
+      "name": "Common_Library_Block_References",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Is Abstract",
+        "Documentation",
+        "Import Action"
+      ],
+      "dataRows": 1796
+    },
+    {
+      "name": "Common_Library_ValueType_References",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Import Action"
+      ],
+      "dataRows": 1796
+    },
+    {
+      "name": "External_System_References",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Documentation",
+        "Import Action"
+      ],
+      "dataRows": 1796
+    },
+    {
+      "name": "Capability_References",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Documentation",
+        "Import Action"
+      ],
+      "dataRows": 1796
+    },
+    {
+      "name": "Requirement_References",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Applied Stereotype",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Requirement ID",
+        "Requirement Text",
+        "Documentation",
+        "Import Action"
+      ],
+      "dataRows": 1796
+    },
+    {
+      "name": "Site_Package_References",
+      "headerRow": 4,
+      "headers": [
+        "Import Order",
+        "External ID",
+        "Name",
+        "Metaclass",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Qualified Name String",
+        "Documentation",
+        "Import Action"
+      ],
+      "dataRows": 1796
+    },
+    {
+      "name": "Diagrams_Import",
+      "headerRow": 1,
+      "headers": [
+        "Import Order",
+        "Diagram External ID",
+        "Diagram Name",
+        "Diagram Type",
+        "Owner External ID",
+        "Owner Qualified Name String",
+        "Context External ID",
+        "Context Qualified Name String",
+        "Qualified Name String",
+        "Canvas Width",
+        "Canvas Height",
+        "Import Action",
+        "Lifecycle Status",
+        "Displayed Element IDs",
+        "Relationship IDs",
+        "Auto Layout"
+      ],
+      "dataRows": 2499
+    },
+    {
+      "name": "Diagram_Shapes",
+      "headerRow": 1,
+      "headers": [
+        "Import Order",
+        "Presentation ID",
+        "Diagram External ID",
+        "Semantic Element External ID",
+        "Semantic Element Qualified Name String",
+        "Presentation Kind",
+        "X",
+        "Y",
+        "Width",
+        "Height",
+        "Z Order",
+        "Parent Presentation ID",
+        "Compartment Display",
+        "Stereotype Display",
+        "Import Action"
+      ],
+      "dataRows": 2499
+    },
+    {
+      "name": "Diagram_Edges",
+      "headerRow": 1,
+      "headers": [
+        "Import Order",
+        "Edge Presentation ID",
+        "Diagram External ID",
+        "Semantic Edge External ID",
+        "Source Presentation ID",
+        "Target Presentation ID",
+        "Source Port Presentation ID",
+        "Target Port Presentation ID",
+        "Routing Style",
+        "Bend Points",
+        "Label Text",
+        "Show Label",
+        "Import Action",
+        "Source Semantic External ID",
+        "Target Semantic External ID",
+        "Presentation Kind"
+      ],
+      "dataRows": 2499
+    },
+    {
+      "name": "Complete_Import_Validation",
+      "headerRow": 1,
+      "headers": [
+        "Check",
+        "Result"
+      ],
+      "dataRows": 2499
+    }
+  ],
+  "GRINDAVIK_1000FT_CATIA_SysML_Parametric_Instances_and_Model_Completeness_Import(4).xlsx": [
+    {
+      "name": "Summary",
+      "headerRow": 2,
+      "headers": [
+        "Topic",
+        "Detail"
+      ],
+      "dataRows": 8
+    },
+    {
+      "name": "Import_Instructions",
+      "headerRow": 2,
+      "headers": [
+        "Order",
+        "Action",
+        "Guidance"
+      ],
+      "dataRows": 19
+    },
+    {
+      "name": "Value_Types",
+      "headerRow": 2,
+      "headers": [
+        "Element ID",
+        "Name",
+        "Metaclass",
+        "Unit Symbol",
+        "Base Type",
+        "Quantity/Range",
+        "Documentation",
+        "Basis"
+      ],
+      "dataRows": 29
+    },
+    {
+      "name": "Value_Properties",
+      "headerRow": 2,
+      "headers": [
+        "Element ID",
+        "Name",
+        "Metaclass",
+        "Owner Block ID",
+        "Type ID",
+        "Default Value",
+        "Unit",
+        "Visibility",
+        "Changeability",
+        "Source/Basis",
+        "Status",
+        "Documentation"
+      ],
+      "dataRows": 60
+    },
+    {
+      "name": "Constraint_Blocks",
+      "headerRow": 2,
+      "headers": [
+        "Element ID",
+        "Name",
+        "Metaclass",
+        "Primary Equation Summary",
+        "Domain",
+        "Documentation",
+        "Status"
+      ],
+      "dataRows": 15
+    },
+    {
+      "name": "Constraint_Parameters",
+      "headerRow": 2,
+      "headers": [
+        "Element ID",
+        "Name",
+        "Metaclass",
+        "Owner Constraint Block ID",
+        "Type ID",
+        "Direction",
+        "Multiplicity",
+        "Status",
+        "Documentation"
+      ],
+      "dataRows": 73
+    },
+    {
+      "name": "Constraint_Equations",
+      "headerRow": 2,
+      "headers": [
+        "Equation ID",
+        "Constraint Block ID",
+        "Sequence",
+        "Expression",
+        "Language/Profile",
+        "Import/Validation Note",
+        "Status"
+      ],
+      "dataRows": 19
+    },
+    {
+      "name": "Constraint_Properties",
+      "headerRow": 2,
+      "headers": [
+        "Element ID",
+        "Name",
+        "Metaclass",
+        "Owner/Context Block ID",
+        "Type Constraint Block ID",
+        "Multiplicity",
+        "Parametric Diagram ID",
+        "Diagram Name",
+        "Status"
+      ],
+      "dataRows": 14
+    },
+    {
+      "name": "Binding_Connectors",
+      "headerRow": 2,
+      "headers": [
+        "Element ID",
+        "Metaclass",
+        "Owner/Context Block ID",
+        "Constraint Property ID",
+        "Constraint Parameter ID",
+        "Bound Value Property ID",
+        "Binding Semantics",
+        "Documentation",
+        "Status"
+      ],
+      "dataRows": 39
+    },
+    {
+      "name": "Parametric_Diagrams",
+      "headerRow": 2,
+      "headers": [
+        "Diagram ID",
+        "Diagram Name",
+        "Diagram Type",
+        "Context Block ID",
+        "Owner Package",
+        "Population Rule / Content",
+        "CATIA Build Note",
+        "Status"
+      ],
+      "dataRows": 18
+    },
+    {
+      "name": "Allocations_and_Trace",
+      "headerRow": 2,
+      "headers": [
+        "Relationship ID",
+        "Relationship Type",
+        "Source Element ID",
+        "Target Element ID",
+        "Source Metaclass",
+        "Target Metaclass",
+        "Rationale",
+        "Status"
+      ],
+      "dataRows": 117
+    },
+    {
+      "name": "Model_Completeness",
+      "headerRow": 2,
+      "headers": [
+        "Model Area",
+        "Expected Content",
+        "Coverage",
+        "Workbook/Sheet",
+        "Closure Action"
+      ],
+      "dataRows": 14
+    },
+    {
+      "name": "Model_Statistics",
+      "headerRow": 2,
+      "headers": [
+        "Metric",
+        "Count"
+      ],
+      "dataRows": 17
+    },
+    {
+      "name": "Instance_Specifications",
+      "headerRow": 2,
+      "headers": [
+        "Instance ID",
+        "Instance Name",
+        "Metaclass",
+        "Classifier Block ID",
+        "Classifier Name",
+        "Parent Instance ID",
+        "Configuration ID",
+        "Multiplicity",
+        "Unit Group",
+        "Primary Domain",
+        "Documentation",
+        "Status"
+      ],
+      "dataRows": 107
+    },
+    {
+      "name": "Instance_Part_Slots",
+      "headerRow": 2,
+      "headers": [
+        "Slot ID",
+        "Slot Name",
+        "Metaclass",
+        "Owning Instance ID",
+        "Defining Part Property ID",
+        "Value Instance ID",
+        "Value Classifier Block ID",
+        "Lower",
+        "Upper",
+        "Aggregation",
+        "Documentation",
+        "Status"
+      ],
+      "dataRows": 106
+    },
+    {
+      "name": "Instance_Value_Slots",
+      "headerRow": 2,
+      "headers": [
+        "Slot ID",
+        "Slot Name",
+        "Metaclass",
+        "Owning Instance ID",
+        "Defining Value Property ID",
+        "Value Type ID",
+        "Value",
+        "Unit",
+        "Value Kind",
+        "Source/Basis",
+        "Status",
+        "Documentation"
+      ],
+      "dataRows": 60
+    },
+    {
+      "name": "Instance_Connectors",
+      "headerRow": 2,
+      "headers": [
+        "Connector Instance ID",
+        "Name",
+        "Metaclass",
+        "Source Instance ID",
+        "Source Port ID",
+        "Target Instance ID",
+        "Target Port ID",
+        "Classifier Connector ID",
+        "Connector Type ID",
+        "Description",
+        "Status"
+      ],
+      "dataRows": 17
+    },
+    {
+      "name": "Configurations",
+      "headerRow": 2,
+      "headers": [
+        "Configuration ID",
+        "Configuration Name",
+        "Metaclass",
+        "Root Instance ID",
+        "Description",
+        "Usage",
+        "Status"
+      ],
+      "dataRows": 4
+    },
+    {
+      "name": "Configuration_Memberships",
+      "headerRow": 2,
+      "headers": [
+        "Relationship ID",
+        "Relationship Type",
+        "Configuration ID",
+        "Instance ID",
+        "Membership State",
+        "Rationale",
+        "Status"
+      ],
+      "dataRows": 296
+    },
+    {
+      "name": "Instance_Diagrams",
+      "headerRow": 2,
+      "headers": [
+        "Diagram ID",
+        "Diagram Name",
+        "Diagram Type",
+        "Context Instance ID",
+        "Owner Package",
+        "Population Rule / Content",
+        "CATIA Build Note",
+        "Status"
+      ],
+      "dataRows": 7
+    }
+  ],
+  "GRINDAVIK_1000FT_CATIA_SysML_BDD_IBD_Import(4).xlsx": [
+    {
+      "name": "Summary",
+      "headerRow": 4,
+      "headers": [
+        "Metric",
+        "Count",
+        "",
+        "Important Baseline Note",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "dataRows": 28
+    },
+    {
+      "name": "Requirements_Import",
+      "headerRow": 1,
+      "headers": [
+        "ID",
+        "Name",
+        "Requirement Text",
+        "Element Type",
+        "Owner Package",
+        "Parent ID",
+        "Requirement Level",
+        "Domain",
+        "Site",
+        "Subsystem / Allocated Item",
+        "Verification Method",
+        "Priority",
+        "Status",
+        "Risk",
+        "Basis Type",
+        "Source Document",
+        "Source Page / Section",
+        "Source Extract / Engineering Basis",
+        "Rationale",
+        "Assumptions / Review Notes",
+        "CATIA Target Package"
+      ],
+      "dataRows": 502
+    },
+    {
+      "name": "Use_Cases_Import",
+      "headerRow": 1,
+      "headers": [
+        "ID",
+        "Name",
+        "Brief Description",
+        "Element Type",
+        "Owner Package",
+        "Primary Actors",
+        "Supporting Actors / Systems",
+        "Trigger",
+        "Preconditions",
+        "Main Success Scenario",
+        "Alternate / Exception Flows",
+        "Postconditions",
+        "Related Requirement IDs",
+        "CATIA Target Package"
+      ],
+      "dataRows": 50
+    },
+    {
+      "name": "Verification_Cases",
+      "headerRow": 1,
+      "headers": [
+        "ID",
+        "Name",
+        "Objective",
+        "Element Type",
+        "Owner Package",
+        "Verification Method",
+        "Preconditions",
+        "Procedure / Stimulus",
+        "Expected Result / Acceptance Criteria",
+        "Source Document",
+        "Source Section",
+        "Status",
+        "Verifies Requirement ID",
+        "CATIA Target Package"
+      ],
+      "dataRows": 490
+    },
+    {
+      "name": "Relationships_Import",
+      "headerRow": 1,
+      "headers": [
+        "Relationship ID",
+        "Relationship Type",
+        "Source Element ID",
+        "Target Element ID",
+        "Source Element Type",
+        "Target Element Type",
+        "Source Document",
+        "Source Section",
+        "Rationale / Import Note"
+      ],
+      "dataRows": 1141
+    },
+    {
+      "name": "Source_Documents",
+      "headerRow": 1,
+      "headers": [
+        "Source Key",
+        "Document",
+        "Date / Revision",
+        "Use in Model",
+        "Handling / Quality Note"
+      ],
+      "dataRows": 6
+    },
+    {
+      "name": "Import_Instructions",
+      "headerRow": 4,
+      "headers": [
+        "Requirements mapping",
+        "ID -> Requirement.id; Name -> Element.name; Requirement Text -> Requirement.text; Owner/CATIA package -> model owner; Parent ID -> hierarchy or containment."
+      ],
+      "dataRows": 17
+    },
+    {
+      "name": "Model_Statistics",
+      "headerRow": 1,
+      "headers": [
+        "Requirements by Domain",
+        "Count",
+        "",
+        "Requirements by Basis Type",
+        "Count"
+      ],
+      "dataRows": 12
+    },
+    {
+      "name": "Unit_Index",
+      "headerRow": 1,
+      "headers": [
+        "Unit Group",
+        "Unit ID",
+        "Unit Name",
+        "Parent Unit ID",
+        "Unit Type",
+        "Requirement Count",
+        "Primary Domain",
+        "CATIA Target Package",
+        "Review Status",
+        "Notes"
+      ],
+      "dataRows": 107
+    },
+    {
+      "name": "Requirements_By_Unit",
+      "headerRow": 1,
+      "headers": [
+        "Unit Group",
+        "Unit ID",
+        "Unit Name",
+        "Requirement ID",
+        "Requirement Name",
+        "Requirement Text",
+        "Parent Requirement ID",
+        "Requirement Level",
+        "Domain",
+        "Verification Method",
+        "Priority",
+        "Status",
+        "Risk",
+        "Basis Type",
+        "Source Document",
+        "Source Page / Section",
+        "Engineering Basis / Extract",
+        "Rationale",
+        "Review Notes",
+        "CATIA Unit Package"
+      ],
+      "dataRows": 502
+    },
+    {
+      "name": "Verification_By_Unit",
+      "headerRow": 7,
+      "headers": [
+        "10 Control and SCADA",
+        "GRINDAVIK1000.UNIT.10.004",
+        "DC Control Voltage Assembly",
+        "GRINDAVIK1000.VC.00259",
+        "Verify DC Control Voltage Assembly Functional Capability",
+        "Test",
+        "Configure or inspect the DC Control Voltage Assembly using the approved maintenance or SOVT procedure.",
+        "The DC Control Voltage Assembly satisfies the requirement text and produces recorded objective evidence.",
+        "GRINDAVIK1000.REQ.PWR.1029.01",
+        "SOVT equipment list and Report 10-504",
+        "Architecture mapping",
+        "Draft",
+        "FSBS Verification Model > Grindavik 1000-Foot > Units > 10 Control and SCADA > GRINDAVIK1000.UNIT.10.004 DC Control Voltage Assembly"
+      ],
+      "dataRows": 484
+    },
+    {
+      "name": "Use_Cases_By_Unit",
+      "headerRow": 1,
+      "headers": [
+        "Use Case ID",
+        "Use Case Name",
+        "Primary Actors",
+        "Affected Unit IDs",
+        "Affected Units",
+        "Trigger",
+        "Preconditions",
+        "Main Success Scenario",
+        "Alternate / Exception Flows",
+        "Postconditions",
+        "Related Requirement IDs",
+        "CATIA Target Package"
+      ],
+      "dataRows": 50
+    },
+    {
+      "name": "Unit_Interfaces",
+      "headerRow": 1,
+      "headers": [
+        "Interface ID",
+        "Source Unit ID",
+        "Source Unit",
+        "Target Unit ID",
+        "Target Unit",
+        "Interface Type",
+        "Description",
+        "Basis",
+        "Review Status"
+      ],
+      "dataRows": 51
+    },
+    {
+      "name": "Unit_Statistics",
+      "headerRow": 1,
+      "headers": [
+        "Unit Group",
+        "Unit Count"
+      ],
+      "dataRows": 8
+    },
+    {
+      "name": "SysML_Elements",
+      "headerRow": 1,
+      "headers": [
+        "Element ID",
+        "Name",
+        "Metaclass",
+        "Stereotype",
+        "Owner Package",
+        "Owner/Parent ID",
+        "Status",
+        "Domain",
+        "Documentation",
+        "Source Sheet"
+      ],
+      "dataRows": 108
+    },
+    {
+      "name": "Blocks_BDD",
+      "headerRow": 1,
+      "headers": [
+        "Block ID",
+        "Block Name",
+        "Stereotype",
+        "Parent Block ID",
+        "Block Type",
+        "Unit Group",
+        "Primary Domain",
+        "Requirement Count",
+        "CATIA Target Package",
+        "Review Status",
+        "Documentation"
+      ],
+      "dataRows": 107
+    },
+    {
+      "name": "Part_Properties",
+      "headerRow": 1,
+      "headers": [
+        "Part Property ID",
+        "Role Name",
+        "Owning Block ID",
+        "Type Block ID",
+        "Lower",
+        "Upper",
+        "Aggregation",
+        "Property Kind",
+        "Unit Group",
+        "Review Status",
+        "Documentation"
+      ],
+      "dataRows": 106
+    },
+    {
+      "name": "Ports",
+      "headerRow": 1,
+      "headers": [
+        "Port ID",
+        "Port Name",
+        "Owning Block ID",
+        "Port Kind",
+        "Type Interface Block ID",
+        "Direction",
+        "Multiplicity",
+        "Source Interface ID",
+        "Interface Classification",
+        "Review Status",
+        "Documentation"
+      ],
+      "dataRows": 102
+    },
+    {
+      "name": "Interface_Blocks",
+      "headerRow": 1,
+      "headers": [
+        "Interface Block ID",
+        "Name",
+        "Metaclass",
+        "Stereotype",
+        "Owner Package",
+        "Source Classification",
+        "Conveyed Item / Flow Type",
+        "Direction",
+        "Review Status",
+        "Documentation"
+      ],
+      "dataRows": 1
+    },
+    {
+      "name": "Connectors_IBD",
+      "headerRow": 1,
+      "headers": [
+        "Connector ID",
+        "Connector Name",
+        "Source Block ID",
+        "Source Port ID",
+        "Target Block ID",
+        "Target Port ID",
+        "Connector Type ID",
+        "Metaclass",
+        "Description",
+        "Basis",
+        "Review Status"
+      ],
+      "dataRows": 51
+    },
+    {
+      "name": "Item_Flows",
+      "headerRow": 1,
+      "headers": [
+        "Item Flow ID",
+        "Conveyed Item",
+        "Connector ID",
+        "Type Interface Block ID",
+        "Source Block ID",
+        "Source Port ID",
+        "Target Block ID",
+        "Target Port ID",
+        "Direction",
+        "Description",
+        "Basis",
+        "Review Status"
+      ],
+      "dataRows": 51
+    },
+    {
+      "name": "Diagram_Specifications",
+      "headerRow": 1,
+      "headers": [
+        "Diagram ID",
+        "Diagram Name",
+        "Diagram Type",
+        "Context Block ID",
+        "Owner Package",
+        "Population Rule / Content",
+        "CATIA Build Note",
+        "Status"
+      ],
+      "dataRows": 13
+    },
+    {
+      "name": "SysML_Relationships",
+      "headerRow": 1,
+      "headers": [
+        "Relationship ID",
+        "Relationship Type",
+        "Source Element ID",
+        "Target Element ID",
+        "Source Metaclass",
+        "Target Metaclass",
+        "Realizing Element ID",
+        "Diagram View",
+        "Rationale"
+      ],
+      "dataRows": 208
+    }
+  ],
+  "GRINDAVIK_1000FT_CATIA_SysML_Behavioral_Only_Import(4).xlsx": [
+    {
+      "name": "Summary",
+      "headerRow": 3,
+      "headers": [
+        "Metric",
+        "Value"
+      ],
+      "dataRows": 16
+    },
+    {
+      "name": "Activities",
+      "headerRow": 1,
+      "headers": [
+        "Activity ID",
+        "Name",
+        "Metaclass",
+        "Stereotype",
+        "Realized Use Case ID",
+        "Owner Package",
+        "Primary Actor",
+        "Trigger",
+        "Preconditions",
+        "Postconditions",
+        "Related Requirement IDs",
+        "CATIA Target Package",
+        "Status",
+        "Documentation"
+      ],
+      "dataRows": 50
+    },
+    {
+      "name": "Actions",
+      "headerRow": 1,
+      "headers": [
+        "Action ID",
+        "Name",
+        "Action Type",
+        "Owning Activity ID",
+        "Sequence",
+        "Allocated Block ID",
+        "Invocation",
+        "Documentation",
+        "Status"
+      ],
+      "dataRows": 250
+    },
+    {
+      "name": "Activity_Parameters",
+      "headerRow": 1,
+      "headers": [
+        "Parameter ID",
+        "Name",
+        "Owning Activity ID",
+        "Direction",
+        "Type",
+        "Multiplicity",
+        "Documentation"
+      ],
+      "dataRows": 100
+    },
+    {
+      "name": "Control_Flows",
+      "headerRow": 1,
+      "headers": [
+        "Control Flow ID",
+        "Owning Activity ID",
+        "Source Node ID",
+        "Target Node ID",
+        "Guard",
+        "Sequence",
+        "Metaclass",
+        "Status"
+      ],
+      "dataRows": 200
+    },
+    {
+      "name": "Object_Flows",
+      "headerRow": 1,
+      "headers": [
+        "Object Flow ID",
+        "Owning Activity ID",
+        "Source Node ID",
+        "Target Node ID",
+        "Conveyed Type",
+        "Direction",
+        "Metaclass",
+        "Status"
+      ],
+      "dataRows": 150
+    },
+    {
+      "name": "State_Machines",
+      "headerRow": 1,
+      "headers": [
+        "State Machine ID",
+        "Name",
+        "Context Block ID",
+        "Metaclass",
+        "Owner Package",
+        "Status"
+      ],
+      "dataRows": 5
+    },
+    {
+      "name": "States",
+      "headerRow": 1,
+      "headers": [
+        "State ID",
+        "State Machine ID",
+        "Name",
+        "Metaclass",
+        "Order",
+        "Entry/Do/Exit Behavior",
+        "Status"
+      ],
+      "dataRows": 31
+    },
+    {
+      "name": "Transitions",
+      "headerRow": 1,
+      "headers": [
+        "Transition ID",
+        "State Machine ID",
+        "Source State ID",
+        "Target State ID",
+        "Trigger Event",
+        "Guard",
+        "Effect",
+        "State Update",
+        "Order",
+        "Status"
+      ],
+      "dataRows": 31
+    },
+    {
+      "name": "Signals_Events",
+      "headerRow": 1,
+      "headers": [
+        "Signal/Event ID",
+        "Name",
+        "Metaclass",
+        "Owner Package",
+        "Direction",
+        "Documentation",
+        "Status"
+      ],
+      "dataRows": 12
+    },
+    {
+      "name": "Lifelines",
+      "headerRow": 1,
+      "headers": [
+        "Lifeline ID",
+        "Interaction ID",
+        "Name",
+        "Represents Block ID",
+        "Order",
+        "Metaclass",
+        "Status"
+      ],
+      "dataRows": 289
+    },
+    {
+      "name": "Messages",
+      "headerRow": 1,
+      "headers": [
+        "Message ID",
+        "Interaction ID",
+        "Sequence",
+        "Name",
+        "Sending Lifeline ID",
+        "Receiving Lifeline ID",
+        "Message Sort",
+        "Guard / Condition",
+        "Status"
+      ],
+      "dataRows": 250
+    },
+    {
+      "name": "Behavior_Allocations",
+      "headerRow": 1,
+      "headers": [
+        "Allocation ID",
+        "Behavior Element ID",
+        "Allocated Block ID",
+        "Relationship Type",
+        "Source Metaclass",
+        "Target Metaclass",
+        "Basis",
+        "Status"
+      ],
+      "dataRows": 250
+    },
+    {
+      "name": "Behavior_Relationships",
+      "headerRow": 1,
+      "headers": [
+        "Relationship ID",
+        "Relationship Type",
+        "Source Element ID",
+        "Target Element ID",
+        "Source Metaclass",
+        "Target Metaclass",
+        "Rationale"
+      ],
+      "dataRows": 50
+    },
+    {
+      "name": "Diagram_Specifications",
+      "headerRow": 1,
+      "headers": [
+        "Diagram ID",
+        "Diagram Name",
+        "Diagram Type",
+        "Context Element ID",
+        "Owner Package",
+        "Population Rule",
+        "Status"
+      ],
+      "dataRows": 105
+    },
+    {
+      "name": "Import_Instructions",
+      "headerRow": 1,
+      "headers": [
+        "Sequence",
+        "CATIA / Cameo Import Action"
+      ],
+      "dataRows": 11
+    }
+  ],
+  "GRINDAVIK_1000FT_ANFRT95A_Combined_Comprehensive_and_Unit_Organized_CATIA_Import_RevTechManual(4).xlsx": [
+    {
+      "name": "Summary",
+      "headerRow": 4,
+      "headers": [
+        "Metric",
+        "Count",
+        "",
+        "Important Baseline Note",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "dataRows": 19
+    },
+    {
+      "name": "Requirements_Import",
+      "headerRow": 1,
+      "headers": [
+        "ID",
+        "Name",
+        "Requirement Text",
+        "Element Type",
+        "Owner Package",
+        "Parent ID",
+        "Requirement Level",
+        "Domain",
+        "Site",
+        "Subsystem / Allocated Item",
+        "Verification Method",
+        "Priority",
+        "Status",
+        "Risk",
+        "Basis Type",
+        "Source Document",
+        "Source Page / Section",
+        "Source Extract / Engineering Basis",
+        "Rationale",
+        "Assumptions / Review Notes",
+        "CATIA Target Package"
+      ],
+      "dataRows": 502
+    },
+    {
+      "name": "Use_Cases_Import",
+      "headerRow": 1,
+      "headers": [
+        "ID",
+        "Name",
+        "Brief Description",
+        "Element Type",
+        "Owner Package",
+        "Primary Actors",
+        "Supporting Actors / Systems",
+        "Trigger",
+        "Preconditions",
+        "Main Success Scenario",
+        "Alternate / Exception Flows",
+        "Postconditions",
+        "Related Requirement IDs",
+        "CATIA Target Package"
+      ],
+      "dataRows": 50
+    },
+    {
+      "name": "Verification_Cases",
+      "headerRow": 1,
+      "headers": [
+        "ID",
+        "Name",
+        "Objective",
+        "Element Type",
+        "Owner Package",
+        "Verification Method",
+        "Preconditions",
+        "Procedure / Stimulus",
+        "Expected Result / Acceptance Criteria",
+        "Source Document",
+        "Source Section",
+        "Status",
+        "Verifies Requirement ID",
+        "CATIA Target Package"
+      ],
+      "dataRows": 490
+    },
+    {
+      "name": "Relationships_Import",
+      "headerRow": 1,
+      "headers": [
+        "Relationship ID",
+        "Relationship Type",
+        "Source Element ID",
+        "Target Element ID",
+        "Source Element Type",
+        "Target Element Type",
+        "Source Document",
+        "Source Section",
+        "Rationale / Import Note"
+      ],
+      "dataRows": 1141
+    },
+    {
+      "name": "Source_Documents",
+      "headerRow": 1,
+      "headers": [
+        "Source Key",
+        "Document",
+        "Date / Revision",
+        "Use in Model",
+        "Handling / Quality Note"
+      ],
+      "dataRows": 6
+    },
+    {
+      "name": "Import_Instructions",
+      "headerRow": 4,
+      "headers": [
+        "Requirements mapping",
+        "ID -> Requirement.id; Name -> Element.name; Requirement Text -> Requirement.text; Owner/CATIA package -> model owner; Parent ID -> hierarchy or containment."
+      ],
+      "dataRows": 6
+    },
+    {
+      "name": "Model_Statistics",
+      "headerRow": 1,
+      "headers": [
+        "Requirements by Domain",
+        "Count",
+        "",
+        "Requirements by Basis Type",
+        "Count"
+      ],
+      "dataRows": 12
+    },
+    {
+      "name": "Unit_Index",
+      "headerRow": 1,
+      "headers": [
+        "Unit Group",
+        "Unit ID",
+        "Unit Name",
+        "Parent Unit ID",
+        "Unit Type",
+        "Requirement Count",
+        "Primary Domain",
+        "CATIA Target Package",
+        "Review Status",
+        "Notes"
+      ],
+      "dataRows": 107
+    },
+    {
+      "name": "Requirements_By_Unit",
+      "headerRow": 1,
+      "headers": [
+        "Unit Group",
+        "Unit ID",
+        "Unit Name",
+        "Requirement ID",
+        "Requirement Name",
+        "Requirement Text",
+        "Parent Requirement ID",
+        "Requirement Level",
+        "Domain",
+        "Verification Method",
+        "Priority",
+        "Status",
+        "Risk",
+        "Basis Type",
+        "Source Document",
+        "Source Page / Section",
+        "Engineering Basis / Extract",
+        "Rationale",
+        "Review Notes",
+        "CATIA Unit Package"
+      ],
+      "dataRows": 502
+    },
+    {
+      "name": "Verification_By_Unit",
+      "headerRow": 7,
+      "headers": [
+        "10 Control and SCADA",
+        "GRINDAVIK1000.UNIT.10.004",
+        "DC Control Voltage Assembly",
+        "GRINDAVIK1000.VC.00259",
+        "Verify DC Control Voltage Assembly Functional Capability",
+        "Test",
+        "Configure or inspect the DC Control Voltage Assembly using the approved maintenance or SOVT procedure.",
+        "The DC Control Voltage Assembly satisfies the requirement text and produces recorded objective evidence.",
+        "GRINDAVIK1000.REQ.PWR.1029.01",
+        "SOVT equipment list and Report 10-504",
+        "Architecture mapping",
+        "Draft",
+        "FSBS Verification Model > Grindavik 1000-Foot > Units > 10 Control and SCADA > GRINDAVIK1000.UNIT.10.004 DC Control Voltage Assembly"
+      ],
+      "dataRows": 484
+    },
+    {
+      "name": "Use_Cases_By_Unit",
+      "headerRow": 1,
+      "headers": [
+        "Use Case ID",
+        "Use Case Name",
+        "Primary Actors",
+        "Affected Unit IDs",
+        "Affected Units",
+        "Trigger",
+        "Preconditions",
+        "Main Success Scenario",
+        "Alternate / Exception Flows",
+        "Postconditions",
+        "Related Requirement IDs",
+        "CATIA Target Package"
+      ],
+      "dataRows": 50
+    },
+    {
+      "name": "Unit_Interfaces",
+      "headerRow": 1,
+      "headers": [
+        "Interface ID",
+        "Source Unit ID",
+        "Source Unit",
+        "Target Unit ID",
+        "Target Unit",
+        "Interface Type",
+        "Description",
+        "Basis",
+        "Review Status"
+      ],
+      "dataRows": 51
+    },
+    {
+      "name": "Unit_Statistics",
+      "headerRow": 1,
+      "headers": [
+        "Unit Group",
+        "Unit Count"
+      ],
+      "dataRows": 8
+    }
+  ],
+  "GRINDAVIK_1000FT_ANFRT95A_Comprehensive_CATIA_Cameo_Import_RevTechManual(4).xlsx": [
+    {
+      "name": "Summary",
+      "headerRow": 4,
+      "headers": [
+        "Metric",
+        "Count",
+        "",
+        "Important Baseline Note",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "dataRows": 15
+    },
+    {
+      "name": "Requirements_Import",
+      "headerRow": 1,
+      "headers": [
+        "ID",
+        "Name",
+        "Requirement Text",
+        "Element Type",
+        "Owner Package",
+        "Parent ID",
+        "Requirement Level",
+        "Domain",
+        "Site",
+        "Subsystem / Allocated Item",
+        "Verification Method",
+        "Priority",
+        "Status",
+        "Risk",
+        "Basis Type",
+        "Source Document",
+        "Source Page / Section",
+        "Source Extract / Engineering Basis",
+        "Rationale",
+        "Assumptions / Review Notes",
+        "CATIA Target Package"
+      ],
+      "dataRows": 502
+    },
+    {
+      "name": "Use_Cases_Import",
+      "headerRow": 1,
+      "headers": [
+        "ID",
+        "Name",
+        "Brief Description",
+        "Element Type",
+        "Owner Package",
+        "Primary Actors",
+        "Supporting Actors / Systems",
+        "Trigger",
+        "Preconditions",
+        "Main Success Scenario",
+        "Alternate / Exception Flows",
+        "Postconditions",
+        "Related Requirement IDs",
+        "CATIA Target Package"
+      ],
+      "dataRows": 50
+    },
+    {
+      "name": "Verification_Cases",
+      "headerRow": 1,
+      "headers": [
+        "ID",
+        "Name",
+        "Objective",
+        "Element Type",
+        "Owner Package",
+        "Verification Method",
+        "Preconditions",
+        "Procedure / Stimulus",
+        "Expected Result / Acceptance Criteria",
+        "Source Document",
+        "Source Section",
+        "Status",
+        "Verifies Requirement ID",
+        "CATIA Target Package"
+      ],
+      "dataRows": 490
+    },
+    {
+      "name": "Relationships_Import",
+      "headerRow": 1,
+      "headers": [
+        "Relationship ID",
+        "Relationship Type",
+        "Source Element ID",
+        "Target Element ID",
+        "Source Element Type",
+        "Target Element Type",
+        "Source Document",
+        "Source Section",
+        "Rationale / Import Note"
+      ],
+      "dataRows": 1141
+    },
+    {
+      "name": "Source_Documents",
+      "headerRow": 1,
+      "headers": [
+        "Source Key",
+        "Document",
+        "Date / Revision",
+        "Use in Model",
+        "Handling / Quality Note"
+      ],
+      "dataRows": 6
+    },
+    {
+      "name": "Import_Instructions",
+      "headerRow": 4,
+      "headers": [
+        "Requirements mapping",
+        "ID -> Requirement.id; Name -> Element.name; Requirement Text -> Requirement.text; Owner/CATIA package -> model owner; Parent ID -> hierarchy or containment."
+      ],
+      "dataRows": 6
+    },
+    {
+      "name": "Model_Statistics",
+      "headerRow": 1,
+      "headers": [
+        "Requirements by Domain",
+        "Count",
+        "",
+        "Requirements by Basis Type",
+        "Count"
+      ],
+      "dataRows": 12
+    }
+  ]
+}
