@@ -1,4 +1,4 @@
-# Requirements Workbench — Phase 1
+# Requirements Workbench
 
 Phase 1 establishes a backward-compatible Requirement semantic record and policy-driven validation. It intentionally does not change diagram, connector, import, collaboration, or repository engines.
 
@@ -32,4 +32,24 @@ Phase 2 adds Requirement-to-Requirement containment, parent selection, child cre
 
 To reorganize a hierarchy, drag Requirements in the repository, choose a Parent in Properties, or use the child ordering controls. Moves retain semantic and External IDs. Invalid owners, self-containment, and descendant-to-ancestor cycles are rejected.
 
-This focused phase does not yet add tables, matrices, baselines, suspect-link propagation, verification executions, coverage analysis, impact traversal, or importer mappings. Those capabilities require later phases built on this semantic foundation.
+## Phase 3 — Tables, matrices, and verification
+
+Saved Requirement Table definitions retain scope, visible/reordered/resized columns, filters, multi-column sorting, and grouping. Table evaluation and CSV/workbook-shaped export use the same definition. Inline and batch edits reject identity, kind, and containment changes and validate the complete edit set before mutation.
+
+The shared relationship-matrix engine provides Satisfy, Verify, Derive Requirement, Refine, Trace, and Allocate presets. It uses a relationship index, validates cell semantics, creates ordinary semantic relationships, requires confirmation before deletion, and returns bounded row and column windows for virtualized rendering.
+
+Reusable Test Cases are semantic elements with procedure, expected result, method, level, owner, status, and evidence. Verification Executions are independent records so a Test Case can be executed repeatedly. Plans report assigned Test Cases, latest execution, verdict, role, configuration, evidence, and unplanned or unverified Requirements. Coverage distinguishes assigned, executed, passed, failed, and not-run Requirements.
+
+All definitions, Test Cases, executions, and relationships are part of project JSON and archive snapshots. Matrix relationship and execution changes use the normal operation forms for undo/redo and collaboration replay without duplicating semantic records.
+
+### Phase 3 manual test
+
+1. Save a Requirement Table with a filter, reorder and resize columns, edit a cell, then export CSV and reopen the project.
+2. Open each matrix preset. Create an allowed relationship from an empty cell, select it, then delete it after confirmation; confirm invalid diagonal/type cells stay disabled.
+3. Create one Test Case, assign it to a Requirement, and add two executions with different dates and verdicts.
+4. Confirm Verification Plan uses the latest execution and that coverage changes from assigned to executed and passed or failed.
+5. Undo and redo a matrix edit, replay it through collaboration, export project JSON, and restore the archive.
+
+### Known limitations
+
+XLSX export is exposed as workbook-shaped data and is serialized by the application's existing SheetJS browser integration. Large grids use fixed-size virtual windows; variable-height rows are not supported. Workbook import continues to follow `IMPORT_WORKBOOK_RULES.md` and does not infer Verification Executions from undocumented worksheets.
