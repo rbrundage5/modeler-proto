@@ -28,4 +28,8 @@ Phase 1 adds `REQUIREMENT_ID_REQUIRED`, `REQUIREMENT_ID_DUPLICATE`, `REQUIREMENT
 
 ## Known limitations
 
-This focused phase does not yet add hierarchy commands, tables, matrices, baselines, suspect-link propagation, verification executions, coverage analysis, impact traversal, or importer mappings. Those capabilities require later phases built on this semantic foundation.
+Phase 2 adds Requirement-to-Requirement containment, parent selection, child creation and navigation, stable sibling ordering, breadcrumbs, recursive repository expansion/collapse, cycle prevention, and replayable move operations. Containment does not create or imply a Derive Requirement relationship.
+
+To reorganize a hierarchy, drag Requirements in the repository, choose a Parent in Properties, or use the child ordering controls. Moves retain semantic and External IDs. Invalid owners, self-containment, and descendant-to-ancestor cycles are rejected.
+
+This focused phase does not yet add tables, matrices, baselines, suspect-link propagation, verification executions, coverage analysis, impact traversal, or importer mappings. Those capabilities require later phases built on this semantic foundation.

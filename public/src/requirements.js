@@ -19,6 +19,9 @@ export function requirementIssues(project){
   const issues=[];
   for(const requirement of requirements){
     const id=String(requirement.requirementId||'').trim(),add=(severity,code,message,field)=>issues.push({severity,code,message,id:requirement.id,field});
+    const owner=requirement.ownerId===project.root?.id?project.root:(project.elements||[]).find(element=>element.id===requirement.ownerId);
+    if(!owner||!['Model','Package','ModelLibrary','Requirement'].includes(owner.kind))add('error','REQUIREMENT_OWNER_INVALID',`${id||requirement.name} has an invalid owner.`,'ownerId');
+    const ancestry=new Set([requirement.id]);let current=owner;while(current){if(ancestry.has(current.id)){add('error','REQUIREMENT_CONTAINMENT_CYCLE',`${id||requirement.name} participates in a containment cycle.`,'ownerId');break}ancestry.add(current.id);current=current.ownerId===project.root?.id?project.root:(project.elements||[]).find(element=>element.id===current.ownerId)}
     if(policy.requireId&&!id)add('error','REQUIREMENT_ID_REQUIRED',`${requirement.name} requires a Requirement ID.`,'requirementId');
     if(policy.uniqueId&&id&&counts.get(id)>1)add('error','REQUIREMENT_ID_DUPLICATE',`Requirement ID ${id} is not unique.`,'requirementId');
     if(policy.requireText&&!String(requirement.requirementText||'').trim())add('error','REQUIREMENT_TEXT_REQUIRED',`${id||requirement.name} requires text.`,'requirementText');
@@ -28,3 +31,9 @@ export function requirementIssues(project){
   }
   return issues;
 }
+
+export function requirementChildren(project,parentId){return(project.elements||[]).filter(element=>element.kind==='Requirement'&&element.ownerId===parentId).sort((a,b)=>(a.requirementOrder??0)-(b.requirementOrder??0)||a.name.localeCompare(b.name))}
+export function requirementAncestors(project,requirementId){const result=[],seen=new Set([requirementId]);let current=(project.elements||[]).find(element=>element.id===requirementId);while(current?.ownerId){const owner=current.ownerId===project.root?.id?project.root:(project.elements||[]).find(element=>element.id===current.ownerId);if(!owner||seen.has(owner.id))break;seen.add(owner.id);result.unshift(owner);current=owner}return result}
+export function requirementBreadcrumb(project,requirementId){return[...requirementAncestors(project,requirementId),(project.elements||[]).find(element=>element.id===requirementId)].filter(Boolean).map(element=>element.name||element.requirementId||element.id).join(' › ')}
+export function canMoveRequirement(project,requirementId,newOwnerId){const requirement=(project.elements||[]).find(element=>element.id===requirementId&&element.kind==='Requirement'),owner=newOwnerId===project.root?.id?project.root:(project.elements||[]).find(element=>element.id===newOwnerId);if(!requirement||!owner||requirement.id===owner.id||!['Model','Package','ModelLibrary','Requirement'].includes(owner.kind))return false;const seen=new Set([requirement.id]);let current=owner;while(current){if(seen.has(current.id))return false;seen.add(current.id);current=current.ownerId===project.root?.id?project.root:(project.elements||[]).find(element=>element.id===current.ownerId)}return true}
+export function moveRequirement(project,requirementId,newOwnerId,index=null){if(!canMoveRequirement(project,requirementId,newOwnerId))throw Error('Requirement containment move would be invalid or cyclic.');const requirement=project.elements.find(element=>element.id===requirementId),siblings=requirementChildren(project,newOwnerId).filter(element=>element.id!==requirementId);requirement.ownerId=newOwnerId;siblings.splice(index==null?siblings.length:Math.max(0,Math.min(index,siblings.length)),0,requirement);siblings.forEach((element,order)=>element.requirementOrder=order);return requirement}

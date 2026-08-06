@@ -1,5 +1,6 @@
 import {synchronizeSemanticModel} from './semantic-core.js';
 import {assertIBDContext,attachPortPresentation,createItemFlow,normalizeIBDProject,removeItemFlow,updateItemFlow} from './ibd-engine.js';
+import {moveRequirement} from './requirements.js';
 
 export function deepClone(value){return globalThis.structuredClone?structuredClone(value):JSON.parse(JSON.stringify(value))}
 
@@ -29,6 +30,7 @@ export function currentValue(project,operation){
   if(operation.type==='nest-presentation'){const node=findNode(project,operation.diagramId,operation.nodeId);return node&&{parentPresentationId:node.parentPresentationId,relativeX:node.relativeX,relativeY:node.relativeY,propertyPath:node.propertyPath}}
   if(operation.type==='set-connector-kind'){const relationship=findTarget(project,'relationship',operation.relationshipId);return relationship&&{kind:relationship.kind,connectorKind:relationship.connectorKind}}
   if(operation.type==='set-diagram-context')return findDiagram(project,operation.diagramId)?.contextId;
+  if(operation.type==='move-element')return findTarget(project,'element',operation.elementId)?.ownerId;
   return undefined;
 }
 
@@ -37,7 +39,7 @@ export function canRebaseOperation(project,operation){
     const id=operation.element?.id||operation.relationship?.id||operation.diagram?.id||operation.node?.id;
     return operation.type==='bulk-import'||Boolean(id&&!containsId(project,id));
   }
-  if(['set-property','move-node','resize-node','set-edge-points','set-compartment','set-compartment-visibility','set-property-path','set-port-placement','nest-presentation','set-connector-kind','set-diagram-context'].includes(operation.type))return JSON.stringify(currentValue(project,operation))===JSON.stringify(operation.expectedValue);
+  if(['set-property','move-node','resize-node','set-edge-points','set-compartment','set-compartment-visibility','set-property-path','set-port-placement','nest-presentation','set-connector-kind','set-diagram-context','move-element'].includes(operation.type))return JSON.stringify(currentValue(project,operation))===JSON.stringify(operation.expectedValue??operation.expectedOwnerId);
   if(['add-item-flow','update-item-flow','remove-item-flow'].includes(operation.type))return true;
   return ['delete-element','delete-relationship','delete-diagram','remove-presentation'].includes(operation.type);
 }
@@ -50,6 +52,12 @@ export function applyOperation(project,operation){
     case'set-property':{
       const target=required(findTarget(project,operation.targetType||'element',operation.targetId),'Target not found');
       target[operation.property]=deepClone(operation.value);break;
+    }
+    case'move-element':{
+      const element=required(findTarget(project,'element',operation.elementId),'Element not found');
+      if(element.kind==='Requirement')moveRequirement(project,element.id,operation.targetOwnerId,operation.index);
+      else{const owner=required(findTarget(project,'element',operation.targetOwnerId),'Owner not found');if(element.id===owner.id)throw Error('An element cannot own itself');let current=owner;while(current){if(current.id===element.id)throw Error('Containment cycle');current=findTarget(project,'element',current.ownerId)}element.ownerId=owner.id}
+      break;
     }
     case'create-element':{
       assertNewId(project,operation.element,'Element');
