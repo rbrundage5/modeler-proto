@@ -2,6 +2,7 @@ import {allElements,findElement,findRelationship,qualifiedName} from "./model.js
 import {isTypedFeature,validTypeKinds,normalizeBound,supportsDirection} from './semantic-editor.js';
 import {ELEMENTS,RELATIONSHIPS,DIAGRAMS,endpointAllowed} from "./sysml-profile.js";
 import {validateIBD} from './ibd-engine.js';
+import {requirementIssues} from './requirements.js';
 export function validate(project){
   const issues=[],seen=new Set();
   const add=(severity,code,message,id=null)=>issues.push({severity,code,message,id});
@@ -74,6 +75,7 @@ export function validate(project){
     if(r.kind==='Transition'&&!r.guard&&!r.triggerId&&!r.effect)add("warning","EMPTY_TRANSITION",`${r.id} has no trigger, guard, or effect.`,r.id);
     if(r.kind==='Message'&&!['synchronous','asynchronous','reply','create','delete'].includes(r.messageSort||'synchronous'))add("error","MESSAGE_SORT",`${r.id} has invalid message sort.`,r.id);
   }
+  issues.push(...requirementIssues(project));
   return issues;
 }
 
