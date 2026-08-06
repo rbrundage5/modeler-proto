@@ -78,3 +78,29 @@ export function validate(project){
   issues.push(...requirementIssues(project));
   return issues;
 }
+
+const QUICK_FIXES={
+  NAME_REQUIRED:{label:'Use kind as name',apply:target=>{target.name=target.kind||'Element'}},
+  MULTIPLICITY:{label:'Reset multiplicity to 1',apply:target=>{target.multiplicity='1';target.multiplicityLower='1';target.multiplicityUpper='1'}},
+  FEATURE_DIRECTION:{label:'Set direction to inout',apply:target=>{target.direction='inout'}},
+  ASSOCIATION_MULTIPLICITY:{label:'Reset association multiplicities',apply:target=>{target.sourceMultiplicity='1';target.targetMultiplicity='1'}},
+  ASSOCIATION_AGGREGATION:{label:'Reset association aggregation',apply:target=>{target.sourceAggregation='none';target.targetAggregation='none'}},
+  CONNECTOR_KIND:{label:'Infer connector kind',apply:target=>{target.connectorKind=target.kind==='DelegationConnector'?'delegation':'assembly'}},
+  ITEMFLOW_DIRECTION:{label:'Set direction source to target',apply:target=>{target.direction='sourceToTarget'}},
+  MESSAGE_SORT:{label:'Set synchronous message',apply:target=>{target.messageSort='synchronous'}}
+};
+
+export function validationQuickFix(project,issue){
+  const definition=QUICK_FIXES[issue?.code];
+  if(!definition||!issue?.id)return null;
+  const target=findElement(project,issue.id)||findRelationship(project,issue.id);
+  return target?{code:issue.code,id:issue.id,label:definition.label}:null;
+}
+
+export function applyValidationQuickFix(project,issue){
+  const fix=validationQuickFix(project,issue),definition=fix&&QUICK_FIXES[fix.code];
+  if(!fix||!definition)return false;
+  const target=findElement(project,fix.id)||findRelationship(project,fix.id);
+  definition.apply(target);
+  return true;
+}
