@@ -41,9 +41,17 @@ This is an independent systems-modeling application. It is not Dassault Système
 Local development:
 
 ```bash
+nvm use
 npm install
+cp .dev.vars.example .dev.vars
+npm test
+npm run check
 npm run dev
 ```
+
+Node.js 22 is the supported local runtime. Cloudflare credentials are not
+needed for local mode. See [`docs/DEVELOPMENT_ENVIRONMENT.md`](docs/DEVELOPMENT_ENVIRONMENT.md)
+for environment setup, command reference, secrets handling, and reset steps.
 
 ## Collaboration behavior
 
@@ -144,3 +152,9 @@ See `docs/V8_ENGINEERING_WORKBENCH.md`.
 The importer profile in `public/src/import/profiles/catia-cameo.js` was expanded and regression-tested against the sheet layouts of nine supplied FSBS and Grindavik workbooks. It supports title/guidance rows above headers, CATIA stable IDs and qualified names, package paths, BDD/IBD structure, requirements, verification cases, behavior, parametrics, instances/configurations, diagram shapes/edges, connector ends, navigation links, reimport/merge, provenance, dry-run reporting, and transactional rollback.
 
 Run `npm run import-audit` after changing workbook mappings in GitHub.
+
+## Semantic modeling core
+
+Typed classifiers, live type-name resolution, inherited and overridden
+features, composition-backed properties, and complete association ends are
+documented in [`docs/SEMANTIC_MODELING_CORE.md`](docs/SEMANTIC_MODELING_CORE.md).

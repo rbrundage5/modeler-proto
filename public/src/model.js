@@ -1,4 +1,5 @@
 import {ELEMENTS,RELATIONSHIPS,DIAGRAMS} from "./sysml-profile.js";
+import {synchronizeSemanticModel} from './semantic-core.js';
 export const DIAGRAM_TYPES=Object.keys(DIAGRAMS);
 export function uid(prefix="id"){return `${prefix}-${crypto.randomUUID()}`}
 export function createProject(name="New Systems Model"){
@@ -61,7 +62,7 @@ export function defaultRelationship(kind,sourceId,targetId,ownerId){
   const d=RELATIONSHIPS[kind]||{};
   return {id:uid("rel"),externalId:uid("EXT").toUpperCase(),name:"",kind,
     metaclass:kind,stereotype:d.stereotype||"",sourceId,targetId,ownerId,
-    sourceRole:"",targetRole:"",sourceMultiplicity:"1",targetMultiplicity:"1",sourceNavigable:true,targetNavigable:true,
+    sourceRole:"",targetRole:"",sourceMultiplicity:"1",targetMultiplicity:"1",sourceNavigable:true,targetNavigable:true,sourceAggregation:"none",targetAggregation:kind==="Composition"?"composite":kind==="Aggregation"?"shared":"none",sourceEndOwned:false,targetEndOwned:["Association","Composition","Aggregation"].includes(kind),
     sourceEndId:uid("end"),targetEndId:uid("end"),sourcePartWithPortPath:[],targetPartWithPortPath:[],connectorTypeRef:"",connectorKind:"assembly",conveyedIds:[],guard:"",weight:"1",triggerId:"",eventId:"",effect:"",messageSort:"synchronous",sequenceOrder:0,documentation:"",tags:{}};
 }
 export function relationshipStyle(kind){
@@ -73,5 +74,5 @@ export function normalizeProject(p){
   p.relationships=p.relationships||[];p.commits=p.commits||[];p.branch=p.branch||"main";p.requirementBaselines=p.requirementBaselines||[];p.analysisRuns=p.analysisRuns||[];p.savedViews=p.savedViews||[];p.savedQueries=p.savedQueries||[];p.libraries=p.libraries||[];p.profiles=p.profiles||[];p.importHistory=p.importHistory||[];p.attachments=p.attachments||[];p.configurations=p.configurations||[];
   for(const e of allElements(p)){e.compartments=e.compartments||{};e.compartmentVisibility=e.compartmentVisibility||{};if(e.multiplicityLower==null||e.multiplicityUpper==null){const m=String(e.multiplicity||"1").trim();if(m.includes("..")){const [lo,hi]=m.split("..",2);e.multiplicityLower=lo||"0";e.multiplicityUpper=hi||"*"}else{e.multiplicityLower=m||"1";e.multiplicityUpper=m||"1"}}e.multiplicity=multiplicityFromBounds(e.multiplicityLower,e.multiplicityUpper)}
   for(const d of p.diagrams||[]){d.nodes=d.nodes||[];d.edges=d.edges||[]}
-  refreshQualifiedNames(p);return p;
+  synchronizeSemanticModel(p);refreshQualifiedNames(p);return p;
 }

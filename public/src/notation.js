@@ -1,4 +1,5 @@
 import {ELEMENTS} from './sysml-profile.js';
+import {inheritedFeatures} from './semantic-core.js';
 
 export const COMPARTMENT_DEFINITIONS = Object.freeze({
   parts:{label:'parts',kinds:['PartProperty']},
@@ -52,7 +53,8 @@ export function formatFeature(project,e){
   if(e.kind==='Slot')return `${e.name}${defaultText(e)}`;
   const type=e.typeRef?`: ${typeName(project,e.typeRef)}`:'';
   const conjugated=e.isConjugated?' ~':'';
-  return `${directionText(e)}${e.name}${conjugated}${type}${multiplicityText(e)}${defaultText(e)}`.trim();
+  const inheritance=e.isInherited?'^ ':'';
+  return `${inheritance}${directionText(e)}${e.name}${conjugated}${type}${multiplicityText(e)}${defaultText(e)}`.trim();
 }
 
 export function getCompartmentRows(project,element,name){
@@ -60,7 +62,7 @@ export function getCompartmentRows(project,element,name){
   if(name==='providedInterfaces')return (element.providedInterfaceIds||[]).map(id=>typeName(project,id)).filter(Boolean);
   if(name==='requiredInterfaces')return (element.requiredInterfaceIds||[]).map(id=>typeName(project,id)).filter(Boolean);
   const kinds=COMPARTMENT_DEFINITIONS[name]?.kinds||[];
-  const semantic=kinds.length?project.elements.filter(e=>e.ownerId===element.id&&kinds.includes(e.kind)):[];
+  const semantic=kinds.length?[...project.elements.filter(e=>e.ownerId===element.id&&kinds.includes(e.kind)),...inheritedFeatures(project,element.id).filter(e=>kinds.includes(e.kind))]:[];
   const legacy=(element.compartments?.[name]||[]).filter(item=>{
     const value=formatFeature(project,item);
     return value&&!semantic.some(e=>formatFeature(project,e)===value);

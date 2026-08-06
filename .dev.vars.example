@@ -1,0 +1,6 @@
+# Copy this file to .dev.vars for local-only Worker secrets.
+#
+# The application does not require secrets for its default local mode. Add
+# future secret bindings here instead of committing them to wrangler.jsonc.
+# EXAMPLE_API_TOKEN="replace-me"
+
