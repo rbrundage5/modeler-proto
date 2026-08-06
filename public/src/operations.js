@@ -1,6 +1,7 @@
 import {synchronizeSemanticModel} from './semantic-core.js';
 import {assertIBDContext,attachPortPresentation,createItemFlow,normalizeIBDProject,removeItemFlow,updateItemFlow} from './ibd-engine.js';
 import {moveRequirement} from './requirements.js';
+import {normalizeVerificationProject,VERDICTS} from './verification-model.js';
 
 export function deepClone(value){return globalThis.structuredClone?structuredClone(value):JSON.parse(JSON.stringify(value))}
 
@@ -31,6 +32,7 @@ export function currentValue(project,operation){
   if(operation.type==='set-connector-kind'){const relationship=findTarget(project,'relationship',operation.relationshipId);return relationship&&{kind:relationship.kind,connectorKind:relationship.connectorKind}}
   if(operation.type==='set-diagram-context')return findDiagram(project,operation.diagramId)?.contextId;
   if(operation.type==='move-element')return findTarget(project,'element',operation.elementId)?.ownerId;
+  if(operation.type==='batch-requirement-edit')return operation.changes.map(change=>findTarget(project,'element',change.id)?.[change.field]);
   return undefined;
 }
 
@@ -40,11 +42,13 @@ export function canRebaseOperation(project,operation){
     return operation.type==='bulk-import'||Boolean(id&&!containsId(project,id));
   }
   if(['set-property','move-node','resize-node','set-edge-points','set-compartment','set-compartment-visibility','set-property-path','set-port-placement','nest-presentation','set-connector-kind','set-diagram-context','move-element'].includes(operation.type))return JSON.stringify(currentValue(project,operation))===JSON.stringify(operation.expectedValue??operation.expectedOwnerId);
+  if(operation.type==='batch-requirement-edit')return operation.changes.every(change=>JSON.stringify(findTarget(project,'element',change.id)?.[change.field])===JSON.stringify(change.before));
+  if(operation.type==='create-verification-execution')return !project.verificationExecutions?.some(item=>item.id===operation.execution?.id);
   if(['add-item-flow','update-item-flow','remove-item-flow'].includes(operation.type))return true;
   return ['delete-element','delete-relationship','delete-diagram','remove-presentation'].includes(operation.type);
 }
 
-function synchronizeProject(project){synchronizeSemanticModel(project);normalizeIBDProject(project);return project}
+function synchronizeProject(project){normalizeVerificationProject(project);synchronizeSemanticModel(project);normalizeIBDProject(project);return project}
 function replaceProject(operation){return synchronizeProject(deepClone(operation.project))}
 
 export function applyOperation(project,operation){
@@ -53,6 +57,13 @@ export function applyOperation(project,operation){
       const target=required(findTarget(project,operation.targetType||'element',operation.targetId),'Target not found');
       target[operation.property]=deepClone(operation.value);break;
     }
+    case'batch-requirement-edit':{
+      for(const change of operation.changes||[]){const requirement=required(findTarget(project,'element',change.id),'Requirement not found');if(requirement.kind!=='Requirement')throw Error('Batch edits only support Requirements');if(['id','externalId','kind','ownerId'].includes(change.field))throw Error(`Field is not editable: ${change.field}`);requirement[change.field]=deepClone(change.after)}break;
+    }
+    case'create-verification-execution':{
+      const execution=required(operation.execution,'Verification execution is required');required(findTarget(project,'element',execution.testCaseId),'Test Case not found');if(!VERDICTS.includes(execution.verdict))throw Error('Invalid verification verdict');project.verificationExecutions=project.verificationExecutions||[];if(project.verificationExecutions.some(item=>item.id===execution.id))throw Error(`Duplicate ID: ${execution.id}`);project.verificationExecutions.push(deepClone(execution));break;
+    }
+    case'delete-verification-execution':project.verificationExecutions=(project.verificationExecutions||[]).filter(item=>item.id!==operation.executionId);break;
     case'move-element':{
       const element=required(findTarget(project,'element',operation.elementId),'Element not found');
       if(element.kind==='Requirement')moveRequirement(project,element.id,operation.targetOwnerId,operation.index);
