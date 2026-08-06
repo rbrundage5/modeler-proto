@@ -1,5 +1,7 @@
 import {DurableObject} from "cloudflare:workers";
 import {applyOperation,canRebaseOperation,deepClone} from '../public/src/operations.js';
+import {acceptedOperation,migrateCollaborationOperation,validateCollaborationOperation} from '../public/src/collaboration-operation.js';
+import {createRevision} from '../public/src/revision-journal.js';
 
 const json=v=>JSON.stringify(v);
 const now=()=>new Date().toISOString();
@@ -16,12 +18,19 @@ export class ProjectRoom extends DurableObject{
       CREATE TABLE IF NOT EXISTS commits (id TEXT PRIMARY KEY,branch_id TEXT NOT NULL,revision INTEGER NOT NULL,message TEXT NOT NULL,author TEXT,created_at TEXT NOT NULL,snapshot TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS members (identity TEXT PRIMARY KEY,role TEXT NOT NULL,display_name TEXT,created_at TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS locks (resource_id TEXT PRIMARY KEY,owner_identity TEXT NOT NULL,owner_name TEXT,expires_at INTEGER NOT NULL,branch_id TEXT NOT NULL DEFAULT 'main');
+      CREATE TABLE IF NOT EXISTS revisions (revision_id TEXT PRIMARY KEY,project_id TEXT NOT NULL,branch_id TEXT NOT NULL,sequence INTEGER NOT NULL,parent_revision_ids TEXT NOT NULL,author TEXT NOT NULL,created_at TEXT NOT NULL,message TEXT NOT NULL,operation_ids TEXT NOT NULL,validation_summary TEXT NOT NULL,metadata TEXT NOT NULL,review_id TEXT);
+      CREATE TABLE IF NOT EXISTS operation_records (operation_id TEXT PRIMARY KEY,project_id TEXT NOT NULL,branch_id TEXT NOT NULL,revision_id TEXT NOT NULL,sequence INTEGER NOT NULL DEFAULT 0,target_id TEXT,actor_user_id TEXT,status TEXT NOT NULL,record TEXT NOT NULL,created_at TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS snapshots (branch_id TEXT NOT NULL,sequence INTEGER NOT NULL,revision_id TEXT NOT NULL,project TEXT NOT NULL,created_at TEXT NOT NULL,PRIMARY KEY(branch_id,sequence));
+      CREATE TABLE IF NOT EXISTS audit_events (event_id TEXT PRIMARY KEY,event_type TEXT NOT NULL,actor_user_id TEXT,actor_name TEXT,branch_id TEXT,target_id TEXT,created_at TEXT NOT NULL,details TEXT NOT NULL);
       CREATE INDEX IF NOT EXISTS idx_operations_branch ON operations(branch_id,revision);
       CREATE INDEX IF NOT EXISTS idx_commits_branch ON commits(branch_id,revision);`);
+    const operationColumns=[...this.sql.exec('PRAGMA table_info(operation_records)')].map(column=>column.name);if(!operationColumns.includes('sequence'))this.sql.exec('ALTER TABLE operation_records ADD COLUMN sequence INTEGER NOT NULL DEFAULT 0');if(!operationColumns.includes('target_id'))this.sql.exec('ALTER TABLE operation_records ADD COLUMN target_id TEXT');if(!operationColumns.includes('actor_user_id'))this.sql.exec('ALTER TABLE operation_records ADD COLUMN actor_user_id TEXT');
+    this.sql.exec('CREATE INDEX IF NOT EXISTS idx_revisions_branch ON revisions(branch_id,sequence); CREATE INDEX IF NOT EXISTS idx_operation_records_target ON operation_records(branch_id,target_id,sequence); CREATE INDEX IF NOT EXISTS idx_operation_records_actor ON operation_records(branch_id,actor_user_id,sequence); CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_events(created_at);');
     const lockColumns=[...this.sql.exec('PRAGMA table_info(locks)')].map(column=>column.name);
     if(!lockColumns.includes('branch_id'))this.sql.exec("ALTER TABLE locks ADD COLUMN branch_id TEXT NOT NULL DEFAULT 'main'");
     const existing=[...this.sql.exec('SELECT id FROM branches LIMIT 1')];
     if(!existing.length)this.sql.exec('INSERT INTO branches(id,name,head_revision,snapshot,created_at,created_by) VALUES(?,?,?,?,?,?)','main','main',0,null,now(),'system');
+    for(const branch of this.sql.exec('SELECT id,snapshot FROM branches WHERE snapshot IS NOT NULL'))this.sql.exec('INSERT OR IGNORE INTO snapshots(branch_id,sequence,revision_id,project,created_at) VALUES(?,?,?,?,?)',branch.id,0,`${branch.id}:0`,branch.snapshot,now());
   }
   identity(request){const authenticated=request.headers.get('Cf-Access-Authenticated-User-Email')||request.headers.get('X-Modeler-User');return{identity:authenticated||'',authenticated:Boolean(authenticated)}}
   async fetch(request){
@@ -52,7 +61,7 @@ export class ProjectRoom extends DurableObject{
       const branchId=msg.branchId||'main',identity=attachment.authenticated?attachment.identity:`guest:${String(msg.sessionId||msg.clientId||crypto.randomUUID()).slice(0,128)}`,member=this.member(identity,msg.name);
       ws.serializeAttachment({...attachment,identity,clientId:msg.clientId,name:msg.name||member.display_name,branchId,role:member.role,device:msg.device||{},lastSeen:Date.now()});
       let branch;try{branch=this.branch(branchId)}catch(error){ws.send(json({type:'operation-error',message:error.message}));return}
-      if(!branch.project&&msg.initialProject){this.sql.exec('UPDATE branches SET snapshot=? WHERE id=?',json(msg.initialProject),branchId);branch=this.branch(branchId);}
+      if(!branch.project&&msg.initialProject){this.sql.exec('UPDATE branches SET snapshot=? WHERE id=?',json(msg.initialProject),branchId);this.sql.exec('INSERT OR IGNORE INTO snapshots(branch_id,sequence,revision_id,project,created_at) VALUES(?,?,?,?,?)',branchId,0,`${branchId}:0`,json(msg.initialProject),now());branch=this.branch(branchId);}
       ws.send(json({type:'snapshot',project:branch.project,revision:branch.head_revision,branchId,branches:this.listBranches(),commits:this.listCommits(branchId),presence:this.presence(branchId),locks:this.listLocks(branchId),role:member.role}));
       this.broadcast(branchId,{type:'presence',users:this.presence(branchId)});return;
     }
@@ -61,6 +70,8 @@ export class ProjectRoom extends DurableObject{
     if(msg.type==='ping'){ws.send(json({type:'pong',at:msg.at,serverAt:Date.now()}));return}
     if(msg.type==='resync'){const branch=this.branch(session.branchId);ws.send(json({type:'snapshot',project:branch.project,revision:branch.head_revision,branchId:branch.id,branches:this.listBranches(),commits:this.listCommits(branch.id),presence:this.presence(branch.id),locks:this.listLocks(branch.id),role:member.role}));return}
     if(msg.type==='awareness'){ws.serializeAttachment({...session,lastSeen:Date.now(),awareness:{selectedId:msg.state?.selectedId||null,diagramId:msg.state?.diagramId||null,mode:msg.state?.mode||'modeling'}});this.broadcast(session.branchId,{type:'presence',users:this.presence(session.branchId)});return}
+    if(msg.type==='history'){ws.send(json({type:'history',...this.history(session.branchId,msg)}));return}
+    if(msg.type==='time-travel'){try{const project=this.projectAtRevision(session.branchId,Number(msg.sequence));ws.send(json({type:'time-travel',project,branchId:session.branchId,sequence:Number(msg.sequence),readOnly:true}))}catch(error){ws.send(json({type:'operation-error',message:error.message}));}return}
     if(member.role==='viewer'&&!['switch-branch'].includes(msg.type)){ws.send(json({type:'permission-error',message:'Viewer role cannot modify the model.'}));return;}
     if(msg.type==='operation'){await this.handleOperation(ws,msg,session);return;}
     if(msg.type==='commit'){this.handleCommit(ws,msg,session);return;}
@@ -76,6 +87,9 @@ export class ProjectRoom extends DurableObject{
     if(!msg.operationId||!op?.type){ws.send(json({type:'operation-error',operationId:msg.operationId,message:'Operation ID and type are required.'}));return}
     const prior=[...this.sql.exec('SELECT revision,actor,client_id,operation FROM operations WHERE operation_id=?',msg.operationId)][0];
     if(prior){ws.send(json({type:'operation',operationId:msg.operationId,clientId:prior.client_id,author:prior.actor,operation:JSON.parse(prior.operation),revision:prior.revision,duplicate:true}));return}
+    const submitted=migrateCollaborationOperation(msg.record||{operation:op,operationId:msg.operationId,clientId:msg.clientId,author:session.name,createdAt:msg.createdAt},{projectId:branch.project?.id||'unknown',branchId:session.branchId,actorUserId:session.identity,actorDisplayName:session.name,clientId:msg.clientId});
+    Object.assign(submitted,{projectId:branch.project?.id||submitted.projectId,branchId:session.branchId,actorUserId:session.identity,actorDisplayName:session.name,clientId:msg.clientId,operationId:msg.operationId,operationType:op.type,operation:deepClone(op)});
+    const schema=validateCollaborationOperation(submitted,{allowRecovery:['import','merge','recovery'].includes(submitted.source)});if(!schema.ok){ws.send(json({type:'operation-error',operationId:msg.operationId,message:schema.errors.join('; ')}));this.audit('operation-rejected',session,{targetId:submitted.semanticTargetId,errors:schema.errors});return}
     const lock=this.activeLock(op.targetId||op.elementId||op.diagramId||op.relationshipId,session.branchId);
     if(lock&&lock.owner_identity!==session.identity){ws.send(json({type:'locked',resourceId:op.targetId||op.elementId||op.diagramId||op.relationshipId,owner:lock.owner_name,operationId:msg.operationId}));return;}
     const current=branch.project;
@@ -86,9 +100,14 @@ export class ProjectRoom extends DurableObject{
     let updated;
     try{updated=applyOperation(deepClone(current),op)}catch(error){ws.send(json({type:'operation-error',message:error.message,operationId:msg.operationId}));return;}
     const revision=branch.head_revision+1;updated.revision=revision;updated.branch=session.branchId;
+    const revisionId=`${session.branchId}:${revision}`,parentRevisionId=branch.head_revision?`${session.branchId}:${branch.head_revision}`:`${session.branchId}:0`,accepted=acceptedOperation(submitted,{revisionId,parentRevisionId,actorUserId:session.identity,actorDisplayName:session.name,timestamp:now()}),revisionRecord=createRevision({revisionId,projectId:updated.id,branchId:session.branchId,parentRevisionIds:[parentRevisionId],author:{userId:session.identity,displayName:session.name},message:op.type,operationIds:[msg.operationId],metadata:{source:accepted.source,rebased:stale,forced:Boolean(msg.force)}});
     this.sql.exec('UPDATE branches SET head_revision=?,snapshot=? WHERE id=?',revision,json(updated),session.branchId);
     this.sql.exec('INSERT INTO operations(branch_id,revision,operation_id,actor,client_id,operation,created_at) VALUES(?,?,?,?,?,?,?)',session.branchId,revision,msg.operationId,session.name,msg.clientId,json(op),now());
-    this.broadcast(session.branchId,{type:'operation',operationId:msg.operationId,clientId:msg.clientId,author:session.name,operation:op,revision,rebased:stale,forced:Boolean(msg.force)});
+    this.sql.exec('INSERT INTO operation_records(operation_id,project_id,branch_id,revision_id,sequence,target_id,actor_user_id,status,record,created_at) VALUES(?,?,?,?,?,?,?,?,?,?)',msg.operationId,updated.id,session.branchId,revisionId,revision,accepted.semanticTargetId||accepted.presentationTargetId||'',accepted.actorUserId,'accepted',json(accepted),accepted.timestamp);
+    this.sql.exec('INSERT INTO revisions(revision_id,project_id,branch_id,sequence,parent_revision_ids,author,created_at,message,operation_ids,validation_summary,metadata,review_id) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)',revisionId,updated.id,session.branchId,revision,json(revisionRecord.parentRevisionIds),json(revisionRecord.author),revisionRecord.createdAt,revisionRecord.message,json(revisionRecord.operationIds),json(revisionRecord.validationSummary),json(revisionRecord.metadata),revisionRecord.reviewId);
+    if(revision%50===0)this.sql.exec('INSERT OR REPLACE INTO snapshots(branch_id,sequence,revision_id,project,created_at) VALUES(?,?,?,?,?)',session.branchId,revision,revisionId,json(updated),now());
+    this.audit('operation-accepted',session,{targetId:accepted.semanticTargetId,operationId:msg.operationId,revisionId,operationType:op.type});
+    this.broadcast(session.branchId,{type:'operation',operationId:msg.operationId,clientId:msg.clientId,author:session.name,operation:op,record:accepted,revision,revisionId,rebased:stale,forced:Boolean(msg.force)});
   }
   handleCommit(ws,msg,session){
     const branch=this.branch(session.branchId);if(!branch.project)return;
@@ -127,6 +146,9 @@ export class ProjectRoom extends DurableObject{
   listLocks(branchId='main'){this.sql.exec('DELETE FROM locks WHERE expires_at<?',Date.now());return [...this.sql.exec('SELECT resource_id,owner_name,expires_at FROM locks WHERE branch_id=?',branchId)].map(lock=>({...lock,resource_id:String(lock.resource_id).split('\0').at(-1)}));}
   listBranches(){return [...this.sql.exec('SELECT id,name,head_revision,created_at,created_by FROM branches ORDER BY created_at')];}
   listCommits(branchId){return [...this.sql.exec('SELECT id,branch_id,revision,message,author,created_at FROM commits WHERE branch_id=? ORDER BY created_at DESC LIMIT 100',branchId)];}
+  history(branchId,{cursor=null,limit=100,targetId='',actorUserId=''}={}){const size=Math.min(Math.max(Number(limit)||100,1),250),before=cursor==null?Number.MAX_SAFE_INTEGER:Number(cursor),conditions=['branch_id=?','sequence<?'],params=[branchId,before];if(targetId){conditions.push('target_id=?');params.push(targetId)}if(actorUserId){conditions.push('actor_user_id=?');params.push(actorUserId)}params.push(size);const records=[...this.sql.exec(`SELECT record FROM operation_records WHERE ${conditions.join(' AND ')} ORDER BY sequence DESC LIMIT ?`,...params)].map(row=>JSON.parse(row.record)),nextCursor=records.length===size?Number(String(records.at(-1).revisionId).split(':').at(-1)):null;return{records,nextCursor}}
+  projectAtRevision(branchId,sequence){if(!Number.isInteger(sequence)||sequence<0)throw Error('Revision sequence must be a non-negative integer');const head=this.branch(branchId);if(sequence>head.head_revision)throw Error('Revision is newer than the branch head');const snapshot=[...this.sql.exec('SELECT sequence,project FROM snapshots WHERE branch_id=? AND sequence<=? ORDER BY sequence DESC LIMIT 1',branchId,sequence)][0];if(!snapshot)throw Error('No compatible branch snapshot is available');let project=JSON.parse(snapshot.project);for(const row of this.sql.exec('SELECT operation FROM operations WHERE branch_id=? AND revision>? AND revision<=? ORDER BY revision',branchId,snapshot.sequence,sequence))project=applyOperation(project,JSON.parse(row.operation));project.revision=sequence;project.branch=branchId;return project}
+  audit(eventType,session,details={}){this.sql.exec('INSERT INTO audit_events(event_id,event_type,actor_user_id,actor_name,branch_id,target_id,created_at,details) VALUES(?,?,?,?,?,?,?,?)',crypto.randomUUID(),eventType,session.identity||'',session.name||'',session.branchId||'main',details.targetId||'',now(),json(details))}
   presence(branchId){return this.state.getWebSockets().map(x=>x.deserializeAttachment()).filter(x=>x?.clientId&&x.branchId===branchId).map(x=>({clientId:x.clientId,name:x.name,role:x.role,branchId:x.branchId,device:x.device||{},awareness:x.awareness||{},lastSeen:x.lastSeen||Date.now()}));}
   broadcast(branchId,message){const data=json(message);for(const ws of this.state.getWebSockets()){const a=ws.deserializeAttachment();if(a?.branchId===branchId)try{ws.send(data)}catch{}}}
   async webSocketClose(ws){const a=ws.deserializeAttachment();if(a?.branchId)this.broadcast(a.branchId,{type:'presence',users:this.presence(a.branchId)})}

@@ -1,4 +1,5 @@
 import {applyOperation} from './operations.js';
+import {createCollaborationOperation} from './collaboration-operation.js';
 
 const PENDING_PREFIX='systems-modeler.collaboration.pending';
 const SESSION_KEY='systems-modeler.collaboration.session';
@@ -40,7 +41,7 @@ export class CollaborationClient{
   if(message.type==='conflict'){this.baseRevision=message.revision;const pending=this.pending.find(item=>item.operationId===message.operationId);if(pending){pending.sentAt=0;this.conflicts.set(message.operationId,{message,pending});this.persistPending()}this.onConflict?.({...message,resolve:strategy=>this.resolveConflict(message.operationId,strategy)});return}
   if(message.type==='presence'){this.onPresence(message.users||[]);return}
   if(message.type==='pong')return;
-  if(['branches','commit','locks','merge-result','members'].includes(message.type)){this.onMeta?.(message);return}
+  if(['branches','commit','locks','merge-result','members','history','time-travel'].includes(message.type)){this.onMeta?.(message);return}
   if(['permission-error','operation-error','locked'].includes(message.type)){if(message.operationId)this.acknowledge(message.operationId);this.onLog?.(message.message||`Locked by ${message.owner}`,'error');this.onMeta?.(message)}
  }
  resolveConflict(operationId,strategy='accept-remote'){
@@ -48,7 +49,7 @@ export class CollaborationClient{
   if(strategy==='retry-local'){conflict.pending.baseRevision=this.baseRevision;conflict.pending.force=true;conflict.pending.sentAt=0;this.conflicts.delete(operationId);this.persistPending();this.send(conflict.pending);return true}
   this.acknowledge(operationId);if(conflict.message.project)this.onProject(conflict.message.project,'conflict resolution');return true;
  }
- publish(operation){if(!this.activated)return null;const envelope={type:'operation',operationId:crypto.randomUUID(),clientId:this.clientId,author:this.name,baseRevision:this.baseRevision,operation:clone(operation),createdAt:new Date().toISOString()};this.pending.push(envelope);this.persistPending();this.flush(true);return envelope.operationId}
+ publish(operation,{source='user',causalDependencies=[],undoMetadata={}}={}){if(!this.activated)return null;const project=this.getProject(),operationId=crypto.randomUUID(),timestamp=new Date().toISOString(),effectiveSource=source==='user'&&operation.type==='bulk-import'?'import':source==='user'&&operation.type==='replace-project'?'recovery':source,record=createCollaborationOperation(operation,{operationId,projectId:project.id,branchId:this.branchId,actorUserId:this.sessionId,actorDisplayName:this.name,clientId:this.clientId,timestamp,parentRevisionId:this.baseRevision?`${this.branchId}:${this.baseRevision}`:null,causalDependencies,undoMetadata,source:effectiveSource});const envelope={type:'operation',operationId,clientId:this.clientId,author:this.name,baseRevision:this.baseRevision,operation:clone(operation),record,createdAt:timestamp};this.pending.push(envelope);this.persistPending();this.flush(true);return envelope.operationId}
  flush(force=false){if(this.socket?.readyState!==this.WebSocketClass.OPEN)return;for(const item of this.pending){if(this.conflicts.has(item.operationId))continue;if(!force&&item.sentAt&&Date.now()-item.sentAt<5000)continue;item.baseRevision=this.baseRevision;item.sentAt=Date.now();this.send(item)}}
  commit(message){this.send({type:'commit',message,baseRevision:this.baseRevision})}
  createBranch(name){this.send({type:'create-branch',name,branchId:name})}
@@ -56,6 +57,8 @@ export class CollaborationClient{
  lock(resourceId,ttlMs=120000){this.send({type:'lock',resourceId,ttlMs})}
  unlock(resourceId){this.send({type:'unlock',resourceId})}
  awareness(state={}){this.send({type:'awareness',state:{selectedId:state.selectedId||null,diagramId:state.diagramId||null,mode:state.mode||'modeling'}})}
+ requestHistory({cursor=null,limit=100,targetId='',actorUserId=''}={}){this.send({type:'history',cursor,limit,targetId,actorUserId})}
+ timeTravel(sequence){this.send({type:'time-travel',sequence})}
  setName(name){this.name=name;this.storage?.setItem('modeler.displayName',name)}
  send(value){if(this.socket?.readyState===this.WebSocketClass.OPEN)this.socket.send(JSON.stringify(value))}
  disconnect(intentional=true){this.intentional=intentional;this.connectionGeneration++;this.stopHeartbeat();if(this.reconnectTimer){this.timer.clearTimeout(this.reconnectTimer);this.reconnectTimer=null}const socket=this.socket;this.socket=null;if(socket)socket.close()}
