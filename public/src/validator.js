@@ -1,6 +1,7 @@
 import {allElements,findElement,findRelationship,qualifiedName} from "./model.js";
 import {isTypedFeature,validTypeKinds,normalizeBound,supportsDirection} from './semantic-editor.js';
 import {ELEMENTS,RELATIONSHIPS,DIAGRAMS,endpointAllowed} from "./sysml-profile.js";
+import {validateIBD} from './ibd-engine.js';
 export function validate(project){
   const issues=[],seen=new Set();
   const add=(severity,code,message,id=null)=>issues.push({severity,code,message,id});
@@ -13,7 +14,7 @@ export function validate(project){
     if(!def)add("warning","UNKNOWN_KIND",`${qualifiedName(project,e.id)} uses unsupported kind ${e.kind}.`,e.id);
     for(const f of def?.required||[])if(!String(e[f]||"").trim())add("error","REQUIRED_FIELD",`${qualifiedName(project,e.id)} requires ${f}.`,e.id);
     if(def?.ownerKinds&&owner&&!def.ownerKinds.includes(owner.kind))add("error","OWNER_KIND",`${e.kind} ${e.name} must be owned by ${def.ownerKinds.join(" or ")}, not ${owner.kind}.`,e.id);
-    if(isTypedFeature(e)&&!e.typeRef)add("warning","TYPE_REQUIRED",`${qualifiedName(project,e.id)} should be typed.`,e.id);
+    if(isTypedFeature(e)&&!e.typeRef)add("error","TYPE_REQUIRED",`${qualifiedName(project,e.id)} must reference a classifier.`,e.id);
     if(e.typeRef){const t=findElement(project,e.typeRef);if(!t)add("error","TYPE_UNRESOLVED",`${qualifiedName(project,e.id)} has unresolved type ${e.typeRef}.`,e.id);else if(!validTypeKinds(e.kind).includes(t.kind))add("error","TYPE_KIND",`${e.kind} ${e.name} cannot be typed by ${t.kind} ${t.name}.`,e.id)}
     const lo=normalizeBound(e.multiplicityLower??String(e.multiplicity||"1").split("..")[0]),hi=normalizeBound(e.multiplicityUpper??(String(e.multiplicity||"1").split("..")[1]||String(e.multiplicity||"1").split("..")[0]),true);
     if(isTypedFeature(e)&&(lo==null||hi==null||(hi!=="*"&&Number(lo)>Number(hi))))add("error","MULTIPLICITY",`${e.name} has invalid multiplicity ${e.multiplicity}.`,e.id);
@@ -26,6 +27,10 @@ export function validate(project){
     if(!def){add("warning","UNKNOWN_RELATIONSHIP",`${r.kind} is not supported.`,r.id);continue}
     if(!endpointAllowed(def.source,s.kind))add("error","INVALID_SOURCE",`${r.kind} cannot start at ${s.kind} ${s.name}.`,r.id);
     if(!endpointAllowed(def.target,t.kind))add("error","INVALID_TARGET",`${r.kind} cannot end at ${t.kind} ${t.name}.`,r.id);
+    if(['Association','Composition','Aggregation'].includes(r.kind)){
+      for(const [end,value] of [['source',r.sourceMultiplicity||'1'],['target',r.targetMultiplicity||'1']]){const [lower,upper]=String(value).includes('..')?String(value).split('..',2):[String(value),String(value)];const lo=normalizeBound(lower),hi=normalizeBound(upper,true);if(lo==null||hi==null||(hi!=='*'&&Number(lo)>Number(hi)))add('error','ASSOCIATION_MULTIPLICITY',`${r.kind} ${end} end has invalid multiplicity ${value}.`,r.id)}
+      for(const end of ['source','target'])if(!['none','shared','composite'].includes(r[`${end}Aggregation`]||'none'))add('error','ASSOCIATION_AGGREGATION',`${r.kind} ${end} end has invalid aggregation.`,r.id);
+    }
     if(r.kind==="ItemFlow"&&!r.conveyedIds?.length)add("warning","ITEMFLOW_CONVEYED",`ItemFlow ${r.id} has no conveyed classifier.`,r.id);
   }
   for(const d of project.diagrams||[]){
@@ -44,6 +49,7 @@ export function validate(project){
       if(!r)add("error","MISSING_RELATIONSHIP",`${d.name} references missing relationship ${edge.relationshipId}.`,d.id);
       else if(!def.relationships.includes(r.kind))add("warning","INVALID_REL_PRESENTATION",`${r.kind} is not valid on ${d.diagramType}.`,r.id);
     }
+    issues.push(...validateIBD(project,d));
   }
   // Structural and project-environment validation.
   for(const e of project.elements||[]){
@@ -60,6 +66,10 @@ export function validate(project){
     if(["Connector","DelegationConnector"].includes(r.kind)){
       if(!['assembly','delegation'].includes(r.connectorKind||'assembly'))add("error","CONNECTOR_KIND",`${r.id} has invalid connector kind.`,r.id);
       for(const id of [...(r.sourcePartWithPortPath||[]),...(r.targetPartWithPortPath||[])])if(!findElement(project,id))add("error","PART_WITH_PORT_PATH",`${r.id} has unresolved partWithPort path ${id}.`,r.id);
+    }
+    if(r.kind==='ItemFlow'){
+      const connector=findRelationship(project,r.connectorId);if(!connector||!["Connector","DelegationConnector"].includes(connector.kind))add('error','ITEMFLOW_CONNECTOR',`${r.id} must be attached to a connector.`,r.id);
+      if(!['sourceToTarget','targetToSource','bidirectional'].includes(r.direction||'sourceToTarget'))add('error','ITEMFLOW_DIRECTION',`${r.id} has invalid ItemFlow direction.`,r.id);
     }
     if(r.kind==='Transition'&&!r.guard&&!r.triggerId&&!r.effect)add("warning","EMPTY_TRANSITION",`${r.id} has no trigger, guard, or effect.`,r.id);
     if(r.kind==='Message'&&!['synchronous','asynchronous','reply','create','delete'].includes(r.messageSort||'synchronous'))add("error","MESSAGE_SORT",`${r.id} has invalid message sort.`,r.id);
