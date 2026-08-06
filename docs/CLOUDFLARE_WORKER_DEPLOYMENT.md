@@ -30,10 +30,23 @@ Wrangler provisions the `ProjectRoom` SQLite Durable Object namespace from the d
 Use these settings when importing the GitHub repository as a Worker:
 
 - Root directory: repository root
-- Build command: `npm install && npm run check`
-- Deploy command: `npx wrangler deploy`
+- Build command: `npm test && npm run check && npm run versions:dry-run`
+- Deploy command: `npx wrangler versions upload --config wrangler.jsonc`
+
+The committed `package-lock.json` makes Cloudflare select npm and install the
+same dependency graph with `npm ci`. Do not commit a second Bun lockfile; mixed
+lockfiles can make the build image select a different package manager.
+
+`npm run check` parses every JavaScript module and rejects unresolved Git merge
+markers. This catches duplicated declarations left behind by a bad conflict
+resolution before Wrangler bundles the Worker. The version-upload dry run uses
+the same Wrangler command family as the dashboard deploy command.
 
 Do not create this as a Pages project. It is a Worker with Static Assets and Durable Objects.
+
+If the dashboard should immediately replace production traffic instead of
+creating a version for staged rollout, use `npx wrangler deploy --config
+wrangler.jsonc` as the deploy command instead.
 
 ## GitHub Actions secrets
 

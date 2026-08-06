@@ -3,16 +3,21 @@
   "version": "10.0.0",
   "private": true,
   "type": "module",
+  "packageManager": "npm@10.9.2",
+  "engines": {
+    "node": ">=22 <23"
+  },
   "scripts": {
     "dev": "wrangler dev --config wrangler.jsonc --local",
     "deploy": "wrangler deploy --config wrangler.jsonc",
-    "check": "node scripts/check.mjs && node scripts/ui-audit.mjs && node scripts/environment-audit.mjs && node scripts/wrangler-audit.mjs && node scripts/interaction-audit.mjs",
+    "check": "node scripts/check.mjs && node scripts/ui-audit.mjs && node scripts/environment-audit.mjs && node scripts/wrangler-audit.mjs && node scripts/interaction-audit.mjs && node scripts/visual-audit.mjs",
     "test": "node --test",
     "ui-audit": "node scripts/ui-audit.mjs",
     "environment-audit": "node scripts/environment-audit.mjs",
     "dev:remote": "wrangler dev --config wrangler.jsonc --remote",
     "deploy:staging": "wrangler deploy --env staging",
     "deploy:dry-run": "wrangler deploy --dry-run --config wrangler.jsonc",
+    "versions:dry-run": "wrangler versions upload --dry-run --config wrangler.jsonc",
     "tail": "wrangler tail",
     "types": "wrangler types",
     "interaction-audit": "node scripts/interaction-audit.mjs",

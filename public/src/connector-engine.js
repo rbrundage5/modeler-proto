@@ -28,6 +28,24 @@ export function orthogonalRoute(source,target,index=0,total=1){
   return[{x:a.x,y:my},{x:b.x,y:my}];
 }
 
+function inflated(rect,padding){return{x:rect.x-padding,y:rect.y-padding,width:rect.width+padding*2,height:rect.height+padding*2}}
+function segmentCrossesRect(a,b,rect){
+  if(a.x===b.x)return a.x>rect.x&&a.x<rect.x+rect.width&&Math.max(a.y,b.y)>rect.y&&Math.min(a.y,b.y)<rect.y+rect.height;
+  if(a.y===b.y)return a.y>rect.y&&a.y<rect.y+rect.height&&Math.max(a.x,b.x)>rect.x&&Math.min(a.x,b.x)<rect.x+rect.width;
+  return false;
+}
+function routeIsClear(points,obstacles,padding){for(let index=0;index<points.length-1;index++)for(const obstacle of obstacles)if(segmentCrossesRect(points[index],points[index+1],inflated(obstacle,padding)))return false;return true}
+function routeLength(points){let length=0;for(let index=0;index<points.length-1;index++)length+=Math.abs(points[index+1].x-points[index].x)+Math.abs(points[index+1].y-points[index].y);return length}
+
+/** A dependency-free obstacle layer for the existing orthogonal router. */
+export function obstacleAwareRoute(source,target,obstacles=[],options={}){
+  const {padding=12,index=0,total=1}=options,a=centerOf(source),b=centerOf(target),ignored=new Set([source.id,target.id]),blocks=obstacles.filter(item=>item&&!ignored.has(item.id));
+  const base=[a,...orthogonalRoute(source,target,index,total),b],offset=(index-(total-1)/2)*14,candidates=[base];
+  for(const obstacle of blocks){const box=inflated(obstacle,padding),xs=[box.x,box.x+box.width],ys=[box.y,box.y+box.height];for(const x of xs)candidates.push([a,{x,y:a.y+offset},{x,y:b.y+offset},b]);for(const y of ys)candidates.push([a,{x:a.x+offset,y},{x:b.x+offset,y},b])}
+  const clean=candidates.filter(points=>routeIsClear(points,blocks,padding)).sort((left,right)=>routeLength(left)-routeLength(right))[0];
+  return(clean||base).slice(1,-1);
+}
+
 export function pathData(points){return points.map((p,i)=>`${i?'L':'M'}${p.x},${p.y}`).join(' ')}
 
 export function nearestSegmentIndex(points,p){
