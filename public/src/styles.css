@@ -48,3 +48,5 @@
 .tree-context-submenu-panel{display:none;position:absolute;left:calc(100% - 2px);top:-6px;min-width:190px;padding:6px;background:var(--panel-bg,#fff);border:1px solid rgba(0,0,0,.2);border-radius:6px;box-shadow:0 12px 30px rgba(0,0,0,.22)}
 .tree-context-submenu[open]>.tree-context-submenu-panel{display:block}
 @media (prefers-color-scheme:dark){.tree-context-menu,.tree-context-submenu-panel{background:#1f2937;color:#f3f4f6;border-color:rgba(255,255,255,.18)}.tree-context-divider{background:rgba(255,255,255,.16)}}
+
+.marquee-selection{fill:rgba(22,132,192,.12);stroke:#1684c0;stroke-width:1.5;stroke-dasharray:6 4;pointer-events:none}.multi-selection-bounds{fill:none;stroke:#1684c0;stroke-width:1.5;stroke-dasharray:5 4;pointer-events:none}.diagram-layout-controls button{min-width:auto}.node.selected .port-shape{stroke:#1684c0;stroke-width:3}
