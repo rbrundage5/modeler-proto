@@ -41,9 +41,17 @@ This is an independent systems-modeling application. It is not Dassault Système
 Local development:
 
 ```bash
+nvm use
 npm install
+cp .dev.vars.example .dev.vars
+npm test
+npm run check
 npm run dev
 ```
+
+Node.js 22 is the supported local runtime. Cloudflare credentials are not
+needed for local mode. See [`docs/DEVELOPMENT_ENVIRONMENT.md`](docs/DEVELOPMENT_ENVIRONMENT.md)
+for environment setup, command reference, secrets handling, and reset steps.
 
 ## Collaboration behavior
 
