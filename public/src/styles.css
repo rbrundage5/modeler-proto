@@ -69,3 +69,4 @@
 .semantic-issue.error{border-left-color:#b42318;background:#fff0ee}
 .compartment-item.has-warning::after,.compartment-item.has-error::after{content:'!';float:right;display:inline-grid;place-items:center;width:15px;height:15px;border-radius:50%;font-size:10px;font-weight:700;margin-left:6px;background:#f4c95d;color:#352600}
 .compartment-item.has-error::after{background:#d92d20;color:white}
+.node.inherited .shape{stroke-dasharray:6 3}.node.inherited .element-name{font-style:italic}
