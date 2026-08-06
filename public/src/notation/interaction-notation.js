@@ -1,0 +1,1 @@
+export const INTERACTION_NOTATION={Interaction:['interaction-frame','sd'],Lifeline:['lifeline',''],ExecutionSpecification:['execution',''],CombinedFragment:['interaction-frame',''],InteractionOperand:['interaction-operand',''],Gate:['gate',''],InteractionUse:['interaction-frame','ref'],TimeConstraint:['constraint',''],DurationConstraint:['constraint','']};

@@ -8,7 +8,7 @@ export function createProject(name="New Systems Model"){
   const now=new Date().toISOString();
   return {
     schemaVersion:"3.0",
-    sysmlVersion:"1.6",
+    sysmlVersion:"1.7",
     id:uid("project"),
     name,
     revision:0,
@@ -74,6 +74,7 @@ export function multiplicityFromBounds(lower="1",upper="1"){const lo=String(lowe
 export function normalizeProject(p){
   p.relationships=p.relationships||[];p.commits=p.commits||[];p.branch=p.branch||"main";p.requirementBaselines=p.requirementBaselines||[];p.analysisRuns=p.analysisRuns||[];p.savedViews=p.savedViews||[];p.savedQueries=p.savedQueries||[];p.libraries=p.libraries||[];p.profiles=p.profiles||[];p.importHistory=p.importHistory||[];p.attachments=p.attachments||[];p.configurations=p.configurations||[];
   for(const e of allElements(p)){e.compartments=e.compartments||{};e.compartmentVisibility=e.compartmentVisibility||{};if(e.multiplicityLower==null||e.multiplicityUpper==null){const m=String(e.multiplicity||"1").trim();if(m.includes("..")){const [lo,hi]=m.split("..",2);e.multiplicityLower=lo||"0";e.multiplicityUpper=hi||"*"}else{e.multiplicityLower=m||"1";e.multiplicityUpper=m||"1"}}e.multiplicity=multiplicityFromBounds(e.multiplicityLower,e.multiplicityUpper)}
-  for(const d of p.diagrams||[]){d.nodes=d.nodes||[];d.edges=d.edges||[]}
+  for(const d of p.diagrams||[]){d.nodes=d.nodes||[];d.edges=d.edges||[];d.frame={visible:d.frame?.visible!==false,x:d.frame?.x??12,y:d.frame?.y??12,width:d.frame?.width??3160,height:d.frame?.height??2160,showQualifiedName:Boolean(d.frame?.showQualifiedName),showDescription:Boolean(d.frame?.showDescription)};if(!d.contextId&&d.ownerId){const def=DIAGRAMS[d.diagramType];const owner=findElement(p,d.ownerId);if(owner&&(!def?.contextKinds||def.contextKinds.includes(owner.kind)))d.contextId=d.ownerId}}
+  p.metadata=p.metadata||{};if(!p.metadata.notationVersion){p.metadata.notationVersion='sysml-1.7-visual-1';p.metadata.schemaMigrations=[...(p.metadata.schemaMigrations||[]),{id:'sysml-1.7-visual-1',appliedAt:new Date().toISOString()}]}
   synchronizeSemanticModel(p);normalizeIBDProject(p);refreshQualifiedNames(p);return p;
 }

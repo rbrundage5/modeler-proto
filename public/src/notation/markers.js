@@ -1,0 +1,1 @@
+export const MARKERS=Object.freeze({none:{shape:'none'},open:{shape:'open-arrow'},filled:{shape:'filled-arrow'},triangle:{shape:'hollow-triangle'},diamond:{shape:'hollow-diamond'},diamondFilled:{shape:'filled-diamond'},flow:{shape:'flow-arrow'},destruction:{shape:'cross'},lostFound:{shape:'circle'}});

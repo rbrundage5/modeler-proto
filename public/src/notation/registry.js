@@ -1,0 +1,13 @@
+import {ELEMENTS,RELATIONSHIPS,DIAGRAMS} from '../sysml-profile.js';
+import {CLASSIFIER_NOTATION} from './classifier-notation.js';import {PROPERTY_NOTATION} from './property-notation.js';import {REQUIREMENT_NOTATION} from './requirement-notation.js';import {ACTIVITY_NOTATION} from './activity-notation.js';import {STATE_NOTATION} from './state-notation.js';import {INTERACTION_NOTATION} from './interaction-notation.js';import {sizeForShape} from './geometry.js';import {relationshipNotation,relationshipPresentation} from './relationship-notation.js';
+const specialized={...CLASSIFIER_NOTATION,...PROPERTY_NOTATION,...REQUIREMENT_NOTATION,...ACTIVITY_NOTATION,...STATE_NOTATION,...INTERACTION_NOTATION,Actor:['actor',''],UseCase:['ellipse',''],Comment:['comment','']};
+const diagramsFor=kind=>Object.entries(DIAGRAMS).filter(([,d])=>d.elements.includes(kind)).map(([name])=>name);
+export const ELEMENT_NOTATION=Object.freeze(Object.fromEntries(Object.keys(ELEMENTS).map(kind=>{
+ const [shape,keyword]=specialized[kind]||['classifier',ELEMENTS[kind].stereotype||''];
+ const size=sizeForShape(shape);
+ return [kind,Object.freeze({semanticKind:kind,allowedDiagramTypes:diagramsFor(kind),shape,keyword:keyword||ELEMENTS[kind].stereotype||'',defaultSize:size.default,minimumSize:size.minimum,compartments:ELEMENTS[kind].compartments||[],boundaryAttachment:['ProxyPort','FullPort','InputPin','OutputPin'].includes(kind),fallback:specialized[kind]?'none':'uml-classifier'})];
+})));
+export const RELATIONSHIP_NOTATION=Object.freeze(Object.fromEntries(Object.keys(RELATIONSHIPS).map(kind=>[kind,Object.freeze({...relationshipNotation(kind),semanticKind:kind,allowedDiagramTypes:Object.entries(DIAGRAMS).filter(([,d])=>d.relationships.includes(kind)).map(([name])=>name)})])));
+export const notationFor=(kind,diagramType)=>{const n=ELEMENT_NOTATION[kind];return n&&(!diagramType||n.allowedDiagramTypes.includes(diagramType))?n:null};
+export const relationshipFor=relationship=>relationshipPresentation(typeof relationship==='string'?{kind:relationship}:relationship);
+export function assertNotationRegistry(){const errors=[];for(const [kind,n] of Object.entries(ELEMENT_NOTATION)){if(!n.shape)errors.push(`${kind}: missing shape`);if(!n.allowedDiagramTypes.length&&!['Stereotype','TagDefinition','EnumerationLiteral','Operation','Parameter','Reception','Trigger','Event','Slot','Configuration','Variant','VariationPoint','StateMachine','Interaction'].includes(kind))errors.push(`${kind}: no diagram`)}for(const [kind,n] of Object.entries(RELATIONSHIP_NOTATION))if(!n.allowedDiagramTypes.length&&kind!=='VariantBinding')errors.push(`${kind}: no diagram`);return errors}

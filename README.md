@@ -159,6 +159,16 @@ Typed classifiers, live type-name resolution, inherited and overridden
 features, composition-backed properties, and complete association ends are
 documented in [`docs/SEMANTIC_MODELING_CORE.md`](docs/SEMANTIC_MODELING_CORE.md).
 
+## SysML v1 visual notation
+
+The diagram canvas resolves enabled symbols and relationships through a
+central SysML v1 notation registry, renders persisted diagram frames, and
+includes a read-only review project under **Help → Open SysML Notation
+Gallery**. See the
+[conformance matrix](docs/SYSML_V1_NOTATION_CONFORMANCE.md),
+[notation guide](docs/SYSML_V1_NOTATION_GUIDE.md), and
+[visual testing procedure](docs/SYSML_V1_VISUAL_TESTING.md).
+
 ## Internal Block Diagram engine
 
 Phase 1 adds Block-context IBDs, reusable owned and inherited part
