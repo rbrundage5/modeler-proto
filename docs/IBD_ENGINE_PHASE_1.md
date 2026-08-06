@@ -38,3 +38,12 @@ Workbook import preserves connector ends and recognizes presentation-side,
 relative-position, endpoint-path, connector-kind, ItemFlow connector, conveyed
 classifier, and direction columns.
 
+## Presentation resizing
+
+Selected non-port presentations expose eight directional resize handles.
+Corner handles resize two axes and edge handles resize one axis while preserving
+the opposite edge. Semantic minimum sizes keep names and compartments readable;
+IBD context boundaries use a larger minimum workspace. Ports remain fixed to
+their stored side and relative perimeter offset throughout owner resizing. All
+resize results are committed as project operations, so undo, reload, and
+collaboration use the same presentation geometry.
