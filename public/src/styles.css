@@ -50,3 +50,11 @@
 @media (prefers-color-scheme:dark){.tree-context-menu,.tree-context-submenu-panel{background:#1f2937;color:#f3f4f6;border-color:rgba(255,255,255,.18)}.tree-context-divider{background:rgba(255,255,255,.16)}}
 
 .marquee-selection{fill:rgba(22,132,192,.12);stroke:#1684c0;stroke-width:1.5;stroke-dasharray:6 4;pointer-events:none}.multi-selection-bounds{fill:none;stroke:#1684c0;stroke-width:1.5;stroke-dasharray:5 4;pointer-events:none}.diagram-layout-controls button{min-width:auto}.node.selected .port-shape{stroke:#1684c0;stroke-width:3}
+
+/* Connector engine */
+.edge-hit-target{pointer-events:stroke;cursor:pointer;stroke-linejoin:round;stroke-linecap:square}
+.edge-bendpoint{fill:#fff;stroke:#1684c0;stroke-width:2;cursor:move}
+.edge-endpoint{fill:#fff;stroke:#1684c0;stroke-width:2;cursor:crosshair}
+.edge-label-group{cursor:move;pointer-events:all}
+.edge-label-group .edge-label{paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round;fill:#263746}
+.canvas-wrap.relationship-editing{cursor:crosshair}
