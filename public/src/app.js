@@ -1,7 +1,7 @@
 import {DIAGRAM_TYPES,uid,createProject,allElements,findElement,findRelationship,qualifiedName,defaultElement,defaultRelationship,relationshipStyle,normalizeProject,refreshQualifiedNames} from './model.js';
 import {isTypedFeature,supportsDirection,supportsDefault,supportsConjugation,typeOptions,setMultiplicity,semanticIssues} from './semantic-editor.js';
 import {sysmlIcon} from './sysml-icons.js';
-import {allowed,RELATIONSHIPS,DIAGRAMS,ELEMENTS} from './sysml-profile.js';import {supportsCompartments,ensureCompartmentState,visibleCompartments,formatFeature,minimumNodeHeight,compartmentAddKind,COMPARTMENT_DEFINITIONS} from './notation.js';import {importWorkbook} from './importer.js';import {validate} from './validator.js';import {CollaborationClient} from './collaboration.js';
+import {allowed,RELATIONSHIPS,DIAGRAMS,ELEMENTS} from './sysml-profile.js';import {supportsCompartments,ensureCompartmentState,visibleCompartments,formatFeature,minimumNodeHeight,compartmentAddKind,COMPARTMENT_DEFINITIONS} from './notation.js';import {importWorkbook} from './importer.js';import {applyValidationQuickFix,validate,validationQuickFix} from './validator.js';import {CollaborationClient} from './collaboration.js';
 import {centerOf,boundaryPoint as connectorBoundaryPoint,orthogonalRoute,pathData,nearestSegmentIndex,midpointAlong} from './connector-engine.js';
 import {synchronizeSemanticModel} from './semantic-core.js';
 import {RESIZE_HANDLES,resizePresentation,presentationMinimum} from './presentation-layout.js';
@@ -187,6 +187,8 @@ window.SystemsModelerAPI={
  createBlankProject:name=>createProject(name),
  setProject:p=>{project=normalizeProject(p);save();render();},
  validate:()=>validate(project),
+ validationQuickFix:issue=>validationQuickFix(project,issue),
+ applyValidationQuickFix:issue=>{const before=structuredClone(project);if(!applyValidationQuickFix(project,issue))return false;commitLocal({type:'replace-project',project:structuredClone(project),expectedValue:before},`Applied validation fix ${issue.code}`);return true},
  getSelection:()=>structuredClone(selected),
  selectElement:id=>{selected={type:'element',id,nodeId:null,edgeId:null};render();},
  activeDiagram:()=>activeDiagram(),
