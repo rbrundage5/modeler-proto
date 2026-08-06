@@ -13,6 +13,7 @@ import {framePresentation} from './notation/diagram-frame-notation.js';
 import {stereotypeLabel,transitionLabel} from './notation/labels.js';
 import {createNotationGallery} from './notation/gallery.js';
 const $=id=>document.getElementById(id);let project=normalizeProject(load()||createProject()),selected={type:null,id:null,nodeId:null,edgeId:null},tool=null,sourceId=null,sourceNodeId=null,zoom=1,drag=null,resize=null,history=[],future=[],view='model',locks=[],connectionState='Local',panState=null,spacePan=false,navigationBack=[],navigationForward=[],treeClipboard=null,treeContextMenu=null,draggedTreeElementId=null,selectedNodeIds=new Set(),marquee=null,edgeEdit=null;
+const initialCollaboration=collaborationSettings({search:location.search,stored:loadCollaborationSettings(localStorage)});
 const collab=new CollaborationClient({getProject:()=>project,onProject:(p,r)=>{project=normalizeProject(p);save();render();log(`Loaded ${r}`,'ok')},onPresence:u=>{$('presenceStatus').textContent=`${u.length} users`},onStatus:s=>{connectionState=s;const badge=$('connectionStatus');badge.textContent=s;badge.className=`status-badge ${String(s).toLowerCase()}`;updateActionStates()},onLog:log,onConflict:m=>{project=normalizeProject(m.project);save();render();log(`Conflict: ${m.message}`,'error')},onMeta:m=>{if(m.revision!==undefined)$('revisionStatus').textContent=`r${m.revision}`;if(m.branches)renderBranches(m.branches);if(m.locks){locks=m.locks;renderProperties()}}});
 function load(){try{return JSON.parse(localStorage.getItem('systems-modeler.v6.2'))}catch{return null}}function save(){localStorage.setItem('systems-modeler.v6.2',JSON.stringify(project))}function activeDiagram(){return project.diagrams.find(d=>d.id===project.activeDiagramId)||project.diagrams[0]}
 function checkpoint(){history.push(JSON.stringify(project));if(history.length>100)history.shift();future=[]}function commitLocal(op,msg){synchronizeSemanticModel(project);normalizeIBDProject(project);refreshQualifiedNames(project);project.revision=(project.revision||0)+1;save();render();collab.publish(op);log(msg,'ok')}
@@ -128,6 +129,8 @@ wrapEl.addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.metaKey)return;e.preventDe
 wrapEl.addEventListener('pointerdown',e=>{if(e.button===1||spacePan){panState={x:e.clientX,y:e.clientY,left:wrapEl.scrollLeft,top:wrapEl.scrollTop};wrapEl.classList.add('panning');wrapEl.setPointerCapture(e.pointerId);e.preventDefault()}});
 wrapEl.addEventListener('pointermove',e=>{if(!panState)return;wrapEl.scrollLeft=panState.left-(e.clientX-panState.x);wrapEl.scrollTop=panState.top-(e.clientY-panState.y)});
 wrapEl.addEventListener('pointerup',()=>{panState=null;wrapEl.classList.remove('panning')});
+
+$('displayName').value=initialCollaboration.displayName;$('roomId').value=initialCollaboration.roomId;if(![...$('branchSelect').options].some(option=>option.value===initialCollaboration.branchId))$('branchSelect').add(new Option(initialCollaboration.branchId,initialCollaboration.branchId));$('branchSelect').value=initialCollaboration.branchId;
 
 wireMenus();render();log('Systems Modeler Collaborative v5 loaded. All visible commands are wired or explicitly disabled when unavailable.','ok');
 

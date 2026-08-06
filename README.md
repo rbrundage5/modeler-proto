@@ -57,6 +57,10 @@ for environment setup, command reference, secrets handling, and reset steps.
 
 Users who open the same deployed URL and connect to the same room name share one project snapshot. Changes are broadcast to other users. This first repository-level implementation uses revision-checked collaborative operations with conflict rejection, presence, commits, and a durable operation journal; production engineering should add authentication, permissions, operation-based conflict resolution, version branches, audit retention, and backups.
 
+The collaboration toolbar remembers the modeler name, room, and branch after a
+connection. **Copy Link** creates a room URL that teammates can open to preload
+the same room and branch before connecting.
+
 ## Workbook import
 
 The importer accepts `.xlsx`, `.xls`, and `.csv` files and recognizes common CATIA/Cameo-style sheets and headers including:
