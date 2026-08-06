@@ -1,6 +1,7 @@
 import {ELEMENTS,RELATIONSHIPS,DIAGRAMS} from "./sysml-profile.js";
 import {synchronizeSemanticModel} from './semantic-core.js';
 import {normalizeIBDProject} from './ibd-engine.js';
+import {initializeRequirement,requirementPolicy} from './requirements.js';
 export const DIAGRAM_TYPES=Object.keys(DIAGRAMS);
 export function uid(prefix="id"){return `${prefix}-${crypto.randomUUID()}`}
 export function createProject(name="New Systems Model"){
@@ -48,7 +49,7 @@ export function qualifiedName(p,id){
 export function refreshQualifiedNames(p){for(const e of allElements(p))e.qualifiedNameString=qualifiedName(p,e.id)}
 export function defaultElement(kind,ownerId){
   const d=ELEMENTS[kind]||{metaclass:kind};
-  return {id:uid(kind.toLowerCase()),externalId:uid("EXT").toUpperCase(),name:kind,kind,
+  const element={id:uid(kind.toLowerCase()),externalId:uid("EXT").toUpperCase(),name:kind,kind,
     metaclass:d.metaclass||kind,stereotype:d.stereotype||"",ownerId,documentation:"",
     multiplicity:"1",multiplicityLower:"1",multiplicityUpper:"1",typeRef:"",direction:"inout",requirementId:"",requirementText:"",
     associationEnds:[],navigable:true,redefinedPropertyIds:[],subsettedPropertyIds:[],isConjugated:false,providedInterfaceIds:[],requiredInterfaceIds:[],nestedPropertyPath:[],partWithPortPath:[],connectorTypeRef:"",connectorKind:"assembly",conveyedIds:[],
@@ -58,6 +59,7 @@ export function defaultElement(kind,ownerId){
     compartments:{parts:[],references:[],values:[],flowProperties:[],ports:[],operations:[],constraints:[],parameters:[],providedInterfaces:[],requiredInterfaces:[],literals:[],slots:[]},
     compartmentVisibility:{parts:true,references:true,values:true,flowProperties:true,ports:true,operations:false,constraints:true,parameters:true,providedInterfaces:true,requiredInterfaces:true,literals:true,slots:true},
     tags:{}};
+  return kind==='Requirement'?initializeRequirement(element):element;
 }
 export function defaultRelationship(kind,sourceId,targetId,ownerId){
   const d=RELATIONSHIPS[kind]||{};
@@ -73,7 +75,8 @@ export function relationshipStyle(kind){
 export function multiplicityFromBounds(lower="1",upper="1"){const lo=String(lower??"1").trim()||"0",hi=String(upper??lo).trim()||lo;return lo===hi?lo:`${lo}..${hi}`}
 export function normalizeProject(p){
   p.relationships=p.relationships||[];p.commits=p.commits||[];p.branch=p.branch||"main";p.requirementBaselines=p.requirementBaselines||[];p.analysisRuns=p.analysisRuns||[];p.savedViews=p.savedViews||[];p.savedQueries=p.savedQueries||[];p.libraries=p.libraries||[];p.profiles=p.profiles||[];p.importHistory=p.importHistory||[];p.attachments=p.attachments||[];p.configurations=p.configurations||[];
-  for(const e of allElements(p)){e.compartments=e.compartments||{};e.compartmentVisibility=e.compartmentVisibility||{};if(e.multiplicityLower==null||e.multiplicityUpper==null){const m=String(e.multiplicity||"1").trim();if(m.includes("..")){const [lo,hi]=m.split("..",2);e.multiplicityLower=lo||"0";e.multiplicityUpper=hi||"*"}else{e.multiplicityLower=m||"1";e.multiplicityUpper=m||"1"}}e.multiplicity=multiplicityFromBounds(e.multiplicityLower,e.multiplicityUpper)}
+  requirementPolicy(p);
+  for(const e of allElements(p)){if(e.kind==='Requirement')initializeRequirement(e);e.compartments=e.compartments||{};e.compartmentVisibility=e.compartmentVisibility||{};if(e.multiplicityLower==null||e.multiplicityUpper==null){const m=String(e.multiplicity||"1").trim();if(m.includes("..")){const [lo,hi]=m.split("..",2);e.multiplicityLower=lo||"0";e.multiplicityUpper=hi||"*"}else{e.multiplicityLower=m||"1";e.multiplicityUpper=m||"1"}}e.multiplicity=multiplicityFromBounds(e.multiplicityLower,e.multiplicityUpper)}
   for(const d of p.diagrams||[]){d.nodes=d.nodes||[];d.edges=d.edges||[]}
   synchronizeSemanticModel(p);normalizeIBDProject(p);refreshQualifiedNames(p);return p;
 }
