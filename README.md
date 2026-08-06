@@ -158,3 +158,10 @@ Run `npm run import-audit` after changing workbook mappings in GitHub.
 Typed classifiers, live type-name resolution, inherited and overridden
 features, composition-backed properties, and complete association ends are
 documented in [`docs/SEMANTIC_MODELING_CORE.md`](docs/SEMANTIC_MODELING_CORE.md).
+
+## Internal Block Diagram engine
+
+Phase 1 adds Block-context IBDs, reusable owned and inherited part
+presentations, perimeter-attached ports, assembly and delegation connector
+paths, and connector-owned ItemFlows. See
+[`docs/IBD_ENGINE_PHASE_1.md`](docs/IBD_ENGINE_PHASE_1.md).

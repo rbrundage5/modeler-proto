@@ -1,6 +1,7 @@
 import {allElements,findElement,findRelationship,qualifiedName} from "./model.js";
 import {isTypedFeature,validTypeKinds,normalizeBound,supportsDirection} from './semantic-editor.js';
 import {ELEMENTS,RELATIONSHIPS,DIAGRAMS,endpointAllowed} from "./sysml-profile.js";
+import {validateIBD} from './ibd-engine.js';
 export function validate(project){
   const issues=[],seen=new Set();
   const add=(severity,code,message,id=null)=>issues.push({severity,code,message,id});
@@ -48,6 +49,7 @@ export function validate(project){
       if(!r)add("error","MISSING_RELATIONSHIP",`${d.name} references missing relationship ${edge.relationshipId}.`,d.id);
       else if(!def.relationships.includes(r.kind))add("warning","INVALID_REL_PRESENTATION",`${r.kind} is not valid on ${d.diagramType}.`,r.id);
     }
+    issues.push(...validateIBD(project,d));
   }
   // Structural and project-environment validation.
   for(const e of project.elements||[]){
@@ -64,6 +66,10 @@ export function validate(project){
     if(["Connector","DelegationConnector"].includes(r.kind)){
       if(!['assembly','delegation'].includes(r.connectorKind||'assembly'))add("error","CONNECTOR_KIND",`${r.id} has invalid connector kind.`,r.id);
       for(const id of [...(r.sourcePartWithPortPath||[]),...(r.targetPartWithPortPath||[])])if(!findElement(project,id))add("error","PART_WITH_PORT_PATH",`${r.id} has unresolved partWithPort path ${id}.`,r.id);
+    }
+    if(r.kind==='ItemFlow'){
+      const connector=findRelationship(project,r.connectorId);if(!connector||!["Connector","DelegationConnector"].includes(connector.kind))add('error','ITEMFLOW_CONNECTOR',`${r.id} must be attached to a connector.`,r.id);
+      if(!['sourceToTarget','targetToSource','bidirectional'].includes(r.direction||'sourceToTarget'))add('error','ITEMFLOW_DIRECTION',`${r.id} has invalid ItemFlow direction.`,r.id);
     }
     if(r.kind==='Transition'&&!r.guard&&!r.triggerId&&!r.effect)add("warning","EMPTY_TRANSITION",`${r.id} has no trigger, guard, or effect.`,r.id);
     if(r.kind==='Message'&&!['synchronous','asynchronous','reply','create','delete'].includes(r.messageSort||'synchronous'))add("error","MESSAGE_SORT",`${r.id} has invalid message sort.`,r.id);

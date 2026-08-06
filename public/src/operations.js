@@ -1,4 +1,5 @@
 import {synchronizeSemanticModel} from './semantic-core.js';
+import {assertIBDContext,normalizeIBDProject} from './ibd-engine.js';
 
 export function deepClone(value){return globalThis.structuredClone?structuredClone(value):JSON.parse(JSON.stringify(value))}
 
@@ -35,7 +36,8 @@ export function canRebaseOperation(project,operation){
   return ['delete-element','delete-relationship','delete-diagram','remove-presentation'].includes(operation.type);
 }
 
-function replaceProject(operation){return synchronizeSemanticModel(deepClone(operation.project))}
+function synchronizeProject(project){synchronizeSemanticModel(project);normalizeIBDProject(project);return project}
+function replaceProject(operation){return synchronizeProject(deepClone(operation.project))}
 
 export function applyOperation(project,operation){
   switch(operation.type){
@@ -69,7 +71,7 @@ export function applyOperation(project,operation){
       project.relationships=project.relationships.filter(relationship=>relationship.id!==operation.relationshipId);
       for(const diagram of project.diagrams)diagram.edges=diagram.edges.filter(edge=>edge.relationshipId!==operation.relationshipId);
       break;
-    case'create-diagram':assertNewId(project,operation.diagram,'Diagram');project.diagrams.push(deepClone(operation.diagram));break;
+    case'create-diagram':assertNewId(project,operation.diagram,'Diagram');assertIBDContext(project,operation.diagram);project.diagrams.push(deepClone(operation.diagram));break;
     case'delete-diagram':
       project.diagrams=project.diagrams.filter(diagram=>diagram.id!==operation.diagramId);
       if(project.activeDiagramId===operation.diagramId)project.activeDiagramId=project.diagrams[0]?.id||null;
@@ -98,7 +100,7 @@ export function applyOperation(project,operation){
     case'bulk-import':case'replace-project':return replaceProject(operation);
     default:throw Error(`Unsupported operation ${operation.type}`);
   }
-  synchronizeSemanticModel(project);
+  synchronizeProject(project);
   project.metadata=project.metadata||{};project.metadata.updatedAt=new Date().toISOString();
   return project;
 }
