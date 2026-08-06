@@ -26,6 +26,9 @@
       <details class="app-menu"><summary>Diagram</summary><div class="menu-popover">
         <button data-target="newDiagram">New Diagram</button><button data-target="routeEdges">Route Relationships</button><button data-target="zoomReset">Reset Zoom</button>
       </div></details>
+      <details class="app-menu"><summary>Workspace</summary><div class="menu-popover">
+        <button id="layoutModeling">Modeling Layout</button><button id="layoutReview">Review Layout</button><button id="layoutDiagram">Diagram Focus Layout</button>
+      </div></details>
       <details class="app-menu"><summary>Collaboration</summary><div class="menu-popover">
         <button data-target="connectRoom">Connect to Room</button><button data-target="commitModel">Commit</button><button data-target="newBranch">Create Branch</button><button data-target="mergeBranch">Merge Branch</button><button data-target="lockSelected">Lock Selected</button><button data-target="unlockSelected">Unlock Selected</button>
       </div></details>
@@ -52,6 +55,7 @@
 
     <section class="pane center-pane" aria-label="Diagram editor">
       <div class="pane-title diagram-header"><div><span id="diagramTitle">Diagram</span><span id="diagramTypeLabel" class="pane-subtitle"></span></div><span class="diagram-actions"><button id="newDiagram">New Diagram</button><select id="diagramSelect" aria-label="Active diagram"></select><button id="routeEdges" title="Recalculate orthogonal relationship routes">Route</button><button id="zoomOut" title="Zoom out">−</button><button id="zoomReset" title="Reset zoom">100%</button><button id="zoomIn" title="Zoom in">+</button></span></div>
+      <div class="workbench-strip"><button id="navigateBack" title="Back (Alt+Left)" aria-label="Back">←</button><button id="navigateForward" title="Forward (Alt+Right)" aria-label="Forward">→</button><nav id="breadcrumbs" class="breadcrumbs" aria-label="Diagram context"></nav><div id="openDiagramTabs" class="open-diagram-tabs" role="tablist" aria-label="Open diagrams"></div></div>
       <div class="editor-body"><aside id="palette" class="palette" aria-label="Diagram palette"></aside><div id="canvasWrap" class="canvas-wrap"><svg id="canvas" width="3200" height="2200" viewBox="0 0 3200 2200" aria-label="SysML diagram canvas"></svg></div></div>
     </section>
 
@@ -63,6 +67,7 @@
       <div class="pane-title"><span>Problems and Activity</span><span class="pane-subtitle">Validation, import, collaboration, and errors</span><span class="bottom-actions"><button id="clearLog">Clear</button></span></div><div id="log" class="log"></div>
     </section>
   </main>
+  <footer id="workbenchStatus" class="workbench-status" aria-live="polite"></footer>
 
   <input id="fileInput" type="file" hidden accept=".json,.sysml.json">
   <input id="workbookInput" type="file" hidden accept=".xlsx,.xls,.csv"><input id="archiveInput" type="file" hidden accept=".json,.sysmlarchive.json">
