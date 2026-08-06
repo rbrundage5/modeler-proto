@@ -1,6 +1,6 @@
 import fs from "node:fs";
 const html=fs.readFileSync("public/index.html","utf8");
-const app=fs.readFileSync("public/src/app.js","utf8")+"\n"+fs.readFileSync("public/src/environment.js","utf8")+"\n"+fs.readFileSync("public/src/projects.js","utf8")+"\n"+fs.readFileSync("public/src/advanced.js","utf8");
+const app=fs.readFileSync("public/src/app.js","utf8")+"\n"+fs.readFileSync("public/src/workbench.js","utf8")+"\n"+fs.readFileSync("public/src/environment.js","utf8")+"\n"+fs.readFileSync("public/src/projects.js","utf8")+"\n"+fs.readFileSync("public/src/advanced.js","utf8");
 const ids=[...html.matchAll(/<button[^>]+id="([^"]+)"/g)].map(m=>m[1]);
 const ignored=new Set(["projectEnvironment","projectDashboard"]);
 const missing=[];

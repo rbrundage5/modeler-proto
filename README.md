@@ -41,9 +41,17 @@ This is an independent systems-modeling application. It is not Dassault Système
 Local development:
 
 ```bash
+nvm use
 npm install
+cp .dev.vars.example .dev.vars
+npm test
+npm run check
 npm run dev
 ```
+
+Node.js 22 is the supported local runtime. Cloudflare credentials are not
+needed for local mode. See [`docs/DEVELOPMENT_ENVIRONMENT.md`](docs/DEVELOPMENT_ENVIRONMENT.md)
+for environment setup, command reference, secrets handling, and reset steps.
 
 ## Collaboration behavior
 
@@ -120,8 +128,8 @@ scripts/
 Do not upload a parent folder that contains these files one level lower. In Cloudflare Workers Builds, set **Root directory** to `/` (repository root) and use:
 
 ```text
-Build command: npm install && npm test && npm run check
-Deploy command: npx wrangler deploy --config wrangler.jsonc
+Build command: npm test && npm run check && npm run versions:dry-run
+Deploy command: npx wrangler versions upload --config wrangler.jsonc
 ```
 
 If Cloudflare says “No dependencies detected” or cannot find static files, the configured root directory is wrong.
@@ -144,3 +152,28 @@ See `docs/V8_ENGINEERING_WORKBENCH.md`.
 The importer profile in `public/src/import/profiles/catia-cameo.js` was expanded and regression-tested against the sheet layouts of nine supplied FSBS and Grindavik workbooks. It supports title/guidance rows above headers, CATIA stable IDs and qualified names, package paths, BDD/IBD structure, requirements, verification cases, behavior, parametrics, instances/configurations, diagram shapes/edges, connector ends, navigation links, reimport/merge, provenance, dry-run reporting, and transactional rollback.
 
 Run `npm run import-audit` after changing workbook mappings in GitHub.
+
+## Semantic modeling core
+
+Typed classifiers, live type-name resolution, inherited and overridden
+features, composition-backed properties, and complete association ends are
+documented in [`docs/SEMANTIC_MODELING_CORE.md`](docs/SEMANTIC_MODELING_CORE.md).
+
+## Internal Block Diagram engine
+
+Phase 1 adds Block-context IBDs, reusable owned and inherited part
+presentations, perimeter-attached ports, assembly and delegation connector
+paths, and connector-owned ItemFlows. See
+[`docs/IBD_ENGINE_PHASE_1.md`](docs/IBD_ENGINE_PHASE_1.md).
+
+Phase 2 adds nested presentations, stable structured property paths, inherited
+interface compatibility, granular collaboration operations, import migration,
+and lightweight obstacle routing. See
+[`docs/IBD_ENGINE_PHASE_2.md`](docs/IBD_ENGINE_PHASE_2.md).
+
+## Professional modeling workbench
+
+Resizable panels, project-local workspace presets, multi-diagram tabs,
+navigation breadcrumbs, Explorer search and favorites, the Validation Center,
+status bar, and command palette are documented in
+[`docs/PROFESSIONAL_WORKBENCH_PHASE_1.md`](docs/PROFESSIONAL_WORKBENCH_PHASE_1.md).

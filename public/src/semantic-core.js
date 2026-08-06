@@ -1,0 +1,24 @@
+const FEATURE_KINDS=new Set(['PartProperty','ReferenceProperty','ValueProperty','FlowProperty','ConstraintProperty','ProxyPort','FullPort','Operation','Reception']);
+const elementById=(project,id)=>project.root?.id===id?project.root:(project.elements||[]).find(element=>element.id===id)||null;
+
+export function directGeneralizations(project,classifierId){return(project.relationships||[]).filter(r=>r.kind==='Generalization'&&r.sourceId===classifierId).map(r=>elementById(project,r.targetId)).filter(Boolean)}
+export function ancestorClassifiers(project,classifierId){const result=[],visited=new Set([classifierId]),visit=id=>{for(const parent of directGeneralizations(project,id)){if(visited.has(parent.id))continue;visited.add(parent.id);result.push(parent);visit(parent.id)}};visit(classifierId);return result}
+export function ownedFeatures(project,classifierId){return(project.elements||[]).filter(e=>e.ownerId===classifierId&&FEATURE_KINDS.has(e.kind))}
+export function inheritedFeatures(project,classifierId){const owned=ownedFeatures(project,classifierId),redefined=new Set(owned.flatMap(e=>e.redefinedPropertyIds||[])),ownedKeys=new Set(owned.map(e=>`${e.kind}:${e.name}`)),result=[];for(const ancestor of ancestorClassifiers(project,classifierId))for(const feature of ownedFeatures(project,ancestor.id)){if(redefined.has(feature.id)||ownedKeys.has(`${feature.kind}:${feature.name}`)||result.some(e=>e.id===feature.id))continue;result.push({...feature,inheritedFromId:ancestor.id,isInherited:true})}return result}
+export function effectiveFeatures(project,classifierId){return[...ownedFeatures(project,classifierId),...inheritedFeatures(project,classifierId)]}
+
+export function associationEnds(relationship){return[
+  {id:relationship.sourceEndId,elementId:relationship.sourceId,role:relationship.sourceRole||'',multiplicity:relationship.sourceMultiplicity||'1',aggregation:relationship.sourceAggregation||'none',navigable:relationship.sourceNavigable!==false,owned:Boolean(relationship.sourceEndOwned)},
+  {id:relationship.targetEndId,elementId:relationship.targetId,role:relationship.targetRole||'',multiplicity:relationship.targetMultiplicity||'1',aggregation:relationship.targetAggregation||(relationship.kind==='Composition'?'composite':relationship.kind==='Aggregation'?'shared':'none'),navigable:relationship.targetNavigable!==false,owned:relationship.targetEndOwned!==false}
+]}
+
+export function synchronizeComposition(project,relationship){
+  if(!['Composition','Aggregation'].includes(relationship.kind))return null;
+  const owner=elementById(project,relationship.sourceId),type=elementById(project,relationship.targetId);if(!owner||!type)return null;
+  let property=(project.elements||[]).find(e=>e.compositionRelationshipId===relationship.id);
+  if(!property){property={id:`part-${relationship.id}`,externalId:`EXT-${relationship.id}`.toUpperCase(),name:relationship.targetRole||type.name,kind:relationship.kind==='Composition'?'PartProperty':'ReferenceProperty',metaclass:'Property',stereotype:relationship.kind==='Composition'?'part':'reference',ownerId:owner.id,documentation:'',typeRef:type.id,compartments:{},compartmentVisibility:{},tags:{},compositionRelationshipId:relationship.id};project.elements.push(property)}
+  property.ownerId=owner.id;property.typeRef=type.id;property.name=relationship.targetRole||property.name||type.name;property.multiplicity=relationship.targetMultiplicity||'1';const bounds=property.multiplicity.includes('..')?property.multiplicity.split('..',2):[property.multiplicity,property.multiplicity];[property.multiplicityLower,property.multiplicityUpper]=bounds;
+  relationship.targetRole=relationship.targetRole||property.name;relationship.targetAggregation=relationship.kind==='Composition'?'composite':'shared';relationship.targetEndOwned=true;return property;
+}
+
+export function synchronizeSemanticModel(project){const structuralIds=new Set((project.relationships||[]).filter(r=>['Composition','Aggregation'].includes(r.kind)).map(r=>r.id));project.elements=(project.elements||[]).filter(e=>!e.compositionRelationshipId||structuralIds.has(e.compositionRelationshipId));for(const relationship of project.relationships||[]){relationship.sourceAggregation=relationship.sourceAggregation||'none';relationship.targetAggregation=relationship.targetAggregation||(relationship.kind==='Composition'?'composite':relationship.kind==='Aggregation'?'shared':'none');if(relationship.sourceNavigable==null)relationship.sourceNavigable=true;if(relationship.targetNavigable==null)relationship.targetNavigable=true;if(relationship.sourceEndOwned==null)relationship.sourceEndOwned=false;if(relationship.targetEndOwned==null)relationship.targetEndOwned=['Association','Composition','Aggregation'].includes(relationship.kind);synchronizeComposition(project,relationship)}return project}
