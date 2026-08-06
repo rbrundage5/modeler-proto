@@ -165,3 +165,8 @@ Phase 1 adds Block-context IBDs, reusable owned and inherited part
 presentations, perimeter-attached ports, assembly and delegation connector
 paths, and connector-owned ItemFlows. See
 [`docs/IBD_ENGINE_PHASE_1.md`](docs/IBD_ENGINE_PHASE_1.md).
+
+Phase 2 adds nested presentations, stable structured property paths, inherited
+interface compatibility, granular collaboration operations, import migration,
+and lightweight obstacle routing. See
+[`docs/IBD_ENGINE_PHASE_2.md`](docs/IBD_ENGINE_PHASE_2.md).

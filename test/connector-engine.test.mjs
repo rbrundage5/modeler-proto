@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {boundaryPoint,orthogonalRoute,pathData,nearestSegmentIndex,midpointAlong} from '../public/src/connector-engine.js';
+import {boundaryPoint,orthogonalRoute,obstacleAwareRoute,pathData,nearestSegmentIndex,midpointAlong} from '../public/src/connector-engine.js';
 
 test('connector geometry clips to nodes and creates orthogonal routes',()=>{
   const source={id:'a',x:0,y:0,width:100,height:60},target={id:'b',x:300,y:100,width:100,height:60};
@@ -22,3 +22,5 @@ test('self relationships receive a visible loop route',()=>{
   const route=orthogonalRoute(node,node);
   assert.equal(route.length,3);assert(route.some(point=>point.x>node.x+node.width));assert(route.some(point=>point.y<node.y));
 });
+
+test('obstacle-aware routing avoids unrelated presentation bounds',()=>{const a={id:'a',x:0,y:40,width:40,height:40},b={id:'b',x:300,y:40,width:40,height:40},obstacle={id:'middle',x:120,y:20,width:80,height:80},route=obstacleAwareRoute(a,b,[a,b,obstacle]);assert(route.some(point=>point.y<=8||point.y>=112));});

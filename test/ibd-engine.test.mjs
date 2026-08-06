@@ -18,7 +18,7 @@ function fixture(){
   return{project,context,partType,otherType,iface,signal,part,other,contextPort,partPort,diagram};
 }
 
-test('IBD requires a Block context',()=>{const project=createProject('Invalid'),pkg=add(project,'Package','Structure'),diagram={id:'bad',name:'Bad IBD',diagramType:'Internal Block Diagram',ownerId:pkg.id,contextId:pkg.id,nodes:[],edges:[]};project.diagrams.push(diagram);assert(validate(project).some(issue=>issue.code==='IBD_CONTEXT'));project.diagrams=[];assert.throws(()=>applyOperation(project,{type:'create-diagram',diagram}),/requires a Block context/)});
+test('IBD requires a Block context',()=>{const project=createProject('Invalid'),pkg=add(project,'Package','Structure'),diagram={id:'bad',name:'Bad IBD',diagramType:'Internal Block Diagram',ownerId:pkg.id,contextId:pkg.id,nodes:[],edges:[]};project.diagrams.push(diagram);assert(validate(project).some(issue=>issue.code==='IBD_CONTEXT_NOT_BLOCK'));project.diagrams=[];assert.throws(()=>applyOperation(project,{type:'create-diagram',diagram}),/requires a Block context/)});
 
 test('owned and inherited properties are presented without semantic duplication',()=>{
   const {project,context,part,diagram}=fixture(),parent=add(project,'Block','Vehicle'),inherited=add(project,'PartProperty','receiver',parent.id);inherited.typeRef=context.id;project.relationships.push(defaultRelationship('Generalization',context.id,parent.id,project.root.id));
