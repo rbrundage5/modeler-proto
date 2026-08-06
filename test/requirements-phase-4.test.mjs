@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
 import {createProject,defaultElement,defaultRelationship,normalizeProject} from '../public/src/model.js';
 import {applyOperation,deepClone} from '../public/src/operations.js';
 import {compareBaselineToCurrent,compareRequirementBaselines,createRequirementBaseline,exportBaseline,saveRequirementBaseline} from '../public/src/requirement-baselines.js';
@@ -7,6 +8,14 @@ import {clearSuspectLink,markAffectedLinksSuspect,suspectLinkView} from '../publ
 import {analyzeImpact,buildModelIndexes,impactCsv} from '../public/src/impact-analysis.js';
 import {applyImportReconciliation,previewImportReconciliation} from '../public/src/import-reconciliation.js';
 import {generateRequirementsReport,serializeRequirementsReport} from '../public/src/requirements-reports.js';
+
+test('Change Control and Reports remains registered after merging the workbench tabs',async()=>{
+  const source=await readFile(new URL('../public/src/advanced.js',import.meta.url),'utf8');
+  assert.match(source,/import \{compareBaselineToCurrent,createRequirementBaseline\} from '\.\/requirement-baselines\.js';/);
+  assert.match(source,/\['changeControl','Change Control & Reports'\]/);
+  assert.match(source,/\{structure,behavior,requirements,tables,verification,changeControl,parametrics/);
+  assert.doesNotMatch(source,/^(?:<<<<<<<|=======|>>>>>>>)/m);
+});
 
 function fixture(){const project=createProject('Change Control'),requirement=defaultElement('Requirement',project.root.id),block=defaultElement('Block',project.root.id),testCase=defaultElement('TestCase',project.root.id);Object.assign(requirement,{id:'req-1',externalId:'EXT-REQ-1',requirementId:'REQ-1',name:'Safe flight',requirementText:'Remain stable',sourceRevision:'A'});Object.assign(block,{id:'block-1',externalId:'EXT-BLOCK-1',name:'Aircraft'});Object.assign(testCase,{id:'test-1',externalId:'EXT-TEST-1',name:'Flight test'});project.elements.push(requirement,block,testCase);project.relationships.push(Object.assign(defaultRelationship('Satisfy',block.id,requirement.id,project.root.id),{id:'rel-satisfy'}),Object.assign(defaultRelationship('Verify',testCase.id,requirement.id,project.root.id),{id:'rel-verify'}));return{project,requirement,block,testCase}}
 
