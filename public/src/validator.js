@@ -1,4 +1,5 @@
 import {allElements,findElement,findRelationship,qualifiedName} from "./model.js";
+import {isTypedFeature,validTypeKinds,normalizeBound,supportsDirection} from './semantic-editor.js';
 import {ELEMENTS,RELATIONSHIPS,DIAGRAMS,endpointAllowed} from "./sysml-profile.js";
 export function validate(project){
   const issues=[],seen=new Set();
@@ -12,8 +13,11 @@ export function validate(project){
     if(!def)add("warning","UNKNOWN_KIND",`${qualifiedName(project,e.id)} uses unsupported kind ${e.kind}.`,e.id);
     for(const f of def?.required||[])if(!String(e[f]||"").trim())add("error","REQUIRED_FIELD",`${qualifiedName(project,e.id)} requires ${f}.`,e.id);
     if(def?.ownerKinds&&owner&&!def.ownerKinds.includes(owner.kind))add("error","OWNER_KIND",`${e.kind} ${e.name} must be owned by ${def.ownerKinds.join(" or ")}, not ${owner.kind}.`,e.id);
-    if(["PartProperty","ReferenceProperty","ValueProperty","FlowProperty","ConstraintProperty","ProxyPort","FullPort"].includes(e.kind)&&!e.typeRef)add("warning","TYPE_REQUIRED",`${qualifiedName(project,e.id)} should be typed.`,e.id);
-    if(e.kind==="FlowProperty"&&!["in","out","inout"].includes(e.direction))add("error","FLOW_DIRECTION",`${e.name} has invalid flow direction ${e.direction}.`,e.id);
+    if(isTypedFeature(e)&&!e.typeRef)add("warning","TYPE_REQUIRED",`${qualifiedName(project,e.id)} should be typed.`,e.id);
+    if(e.typeRef){const t=findElement(project,e.typeRef);if(!t)add("error","TYPE_UNRESOLVED",`${qualifiedName(project,e.id)} has unresolved type ${e.typeRef}.`,e.id);else if(!validTypeKinds(e.kind).includes(t.kind))add("error","TYPE_KIND",`${e.kind} ${e.name} cannot be typed by ${t.kind} ${t.name}.`,e.id)}
+    const lo=normalizeBound(e.multiplicityLower??String(e.multiplicity||"1").split("..")[0]),hi=normalizeBound(e.multiplicityUpper??(String(e.multiplicity||"1").split("..")[1]||String(e.multiplicity||"1").split("..")[0]),true);
+    if(isTypedFeature(e)&&(lo==null||hi==null||(hi!=="*"&&Number(lo)>Number(hi))))add("error","MULTIPLICITY",`${e.name} has invalid multiplicity ${e.multiplicity}.`,e.id);
+    if(supportsDirection(e)&&!["in","out","inout"].includes(e.direction))add("error","FEATURE_DIRECTION",`${e.name} has invalid direction ${e.direction}.`,e.id);
   }
   for(const r of project.relationships||[]){
     if(seen.has(r.id))add("error","DUPLICATE_ID",`Duplicate ID ${r.id}.`,r.id);seen.add(r.id);

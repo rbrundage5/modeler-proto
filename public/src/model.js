@@ -48,7 +48,7 @@ export function defaultElement(kind,ownerId){
   const d=ELEMENTS[kind]||{metaclass:kind};
   return {id:uid(kind.toLowerCase()),externalId:uid("EXT").toUpperCase(),name:kind,kind,
     metaclass:d.metaclass||kind,stereotype:d.stereotype||"",ownerId,documentation:"",
-    multiplicity:"1",typeRef:"",direction:"inout",requirementId:"",requirementText:"",
+    multiplicity:"1",multiplicityLower:"1",multiplicityUpper:"1",typeRef:"",direction:"inout",requirementId:"",requirementText:"",
     associationEnds:[],navigable:true,redefinedPropertyIds:[],subsettedPropertyIds:[],isConjugated:false,providedInterfaceIds:[],requiredInterfaceIds:[],nestedPropertyPath:[],partWithPortPath:[],connectorTypeRef:"",connectorKind:"assembly",conveyedIds:[],
     lifecycleStatus:"Draft",priority:"Medium",risk:"Medium",rationale:"",source:"",requirementOwner:"",verificationMethod:"Analysis",approvalStatus:"Unapproved",approvedBy:"",approvedAt:"",baselineIds:[],suspect:false,
     constraintExpression:"",dimension:"",
@@ -68,9 +68,10 @@ export function relationshipStyle(kind){
   const n=RELATIONSHIPS[kind]?.notation||"solid";
   return {dashed:n.startsWith("dashed"),marker:n.includes("triangle")?"triangle":n.includes("filled-diamond")?"diamondFilled":n.includes("diamond")?"diamond":n.includes("open")?"open":"none"};
 }
+export function multiplicityFromBounds(lower="1",upper="1"){const lo=String(lower??"1").trim()||"0",hi=String(upper??lo).trim()||lo;return lo===hi?lo:`${lo}..${hi}`}
 export function normalizeProject(p){
   p.relationships=p.relationships||[];p.commits=p.commits||[];p.branch=p.branch||"main";p.requirementBaselines=p.requirementBaselines||[];p.analysisRuns=p.analysisRuns||[];p.savedViews=p.savedViews||[];p.savedQueries=p.savedQueries||[];p.libraries=p.libraries||[];p.profiles=p.profiles||[];p.importHistory=p.importHistory||[];p.attachments=p.attachments||[];p.configurations=p.configurations||[];
-  for(const e of allElements(p)){e.compartments=e.compartments||{};e.compartmentVisibility=e.compartmentVisibility||{}}
+  for(const e of allElements(p)){e.compartments=e.compartments||{};e.compartmentVisibility=e.compartmentVisibility||{};if(e.multiplicityLower==null||e.multiplicityUpper==null){const m=String(e.multiplicity||"1").trim();if(m.includes("..")){const [lo,hi]=m.split("..",2);e.multiplicityLower=lo||"0";e.multiplicityUpper=hi||"*"}else{e.multiplicityLower=m||"1";e.multiplicityUpper=m||"1"}}e.multiplicity=multiplicityFromBounds(e.multiplicityLower,e.multiplicityUpper)}
   for(const d of p.diagrams||[]){d.nodes=d.nodes||[];d.edges=d.edges||[]}
   refreshQualifiedNames(p);return p;
 }
