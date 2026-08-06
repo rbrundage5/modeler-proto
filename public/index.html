@@ -26,15 +26,12 @@
       <details class="app-menu"><summary>Diagram</summary><div class="menu-popover">
         <button data-target="newDiagram">New Diagram</button><button data-target="routeEdges">Route Relationships</button><button data-target="zoomReset">Reset Zoom</button>
       </div></details>
-      <details class="app-menu"><summary>View</summary><div id="viewMenu" class="menu-popover">
-        <button data-panel="explorer">Model Explorer</button><button data-panel="properties">Properties</button><button data-panel="bottom">Validation / Output</button><button data-panel="documentation">Documentation</button><button data-target="advancedWorkbench">Engineering Workbench</button><button data-command="workbench.resetLayout">Reset Layout</button>
-      </div></details>
       <details class="app-menu"><summary>Collaboration</summary><div class="menu-popover">
         <button data-target="connectRoom">Connect to Room</button><button data-target="commitModel">Commit</button><button data-target="newBranch">Create Branch</button><button data-target="mergeBranch">Merge Branch</button><button data-target="lockSelected">Lock Selected</button><button data-target="unlockSelected">Unlock Selected</button>
       </div></details>
       <button id="projectManager" class="menu-help">Projects</button><button id="projectEnvironment" class="menu-help">Project Environment</button><button id="advancedWorkbench" class="menu-help">Engineering Workbench</button><button id="help" class="menu-help">Help</button>
     </nav>
-    <div class="header-state"><label class="workspace-picker">Workspace<select id="workspacePreset"><option>Modeling</option><option>Structure</option><option>Requirements</option><option>Behavior</option><option>Validation</option><option>Custom</option></select></label><span id="connectionStatus" class="status-badge local">Local</span><span id="revisionStatus" class="status-badge">r0</span></div>
+    <div class="header-state"><span id="connectionStatus" class="status-badge local">Local</span><span id="revisionStatus" class="status-badge">r0</span></div>
   </header>
 
   <div class="command-bar" role="toolbar" aria-label="Model commands">
@@ -46,43 +43,31 @@
     <div class="command-group collaboration-controls"><span class="group-label">Collaboration</span><label>Name<input id="displayName" value="Modeler"></label><label>Room<input id="roomId" value="default"></label><label>Branch<select id="branchSelect"><option value="main">main</option></select></label><button id="connectRoom" class="primary-action">Connect</button><button id="commitModel">Commit</button><button id="newBranch">New Branch</button><button id="mergeBranch">Merge</button><button id="lockSelected">Lock</button><button id="unlockSelected">Unlock</button><span id="presenceStatus" class="presence-chip">0 users</span></div>
   </div>
 
-  <main id="workspace" class="workspace">
+  <main class="workspace">
     <section class="pane browser-pane" aria-label="Model browser">
-      <div class="pane-title"><span>Model Explorer</span><select id="explorerView" aria-label="Explorer view"><option value="containment">Containment</option><option value="diagrams">Diagrams</option><option value="types">Types</option><option value="requirements">Requirements</option><option value="recent">Recent</option><option value="favorites">Favorites</option></select></div>
-      <label class="explorer-search"><span class="sr-only">Search repository</span><input id="explorerSearch" placeholder="Filter model…"><button id="clearExplorerSearch" aria-label="Clear repository search">×</button></label>
+      <div class="pane-title"><span>Repository</span><span class="pane-subtitle">Containment and references</span></div>
       <div class="tabs"><button id="modelTab" class="active">Model</button><button id="diagramTab">Diagrams</button><button id="xrefTab">References</button></div>
       <div id="tree" class="tree"></div>
     </section>
 
-    <div id="leftSplitter" class="workbench-splitter vertical" role="separator" aria-label="Resize Model Explorer" aria-orientation="vertical" tabindex="0"></div>
-
     <section class="pane center-pane" aria-label="Diagram editor">
-      <div id="documentTabs" class="document-tabs" role="tablist" aria-label="Open documents"></div>
-      <div class="workbench-navigation"><button id="workbenchBack" aria-label="Back">←</button><button id="workbenchForward" aria-label="Forward">→</button><nav id="workbenchBreadcrumb" aria-label="Breadcrumb"></nav><button id="reopenClosedTab" title="Reopen closed tab">Reopen</button><button id="splitView" title="Toggle split view">Split</button></div>
       <div class="pane-title diagram-header"><div><span id="diagramTitle">Diagram</span><span id="diagramTypeLabel" class="pane-subtitle"></span></div><span class="diagram-actions"><button id="newDiagram">New Diagram</button><select id="diagramSelect" aria-label="Active diagram"></select><button id="routeEdges" title="Recalculate orthogonal relationship routes">Route</button><button id="zoomOut" title="Zoom out">−</button><button id="zoomReset" title="Reset zoom">100%</button><button id="zoomIn" title="Zoom in">+</button></span></div>
       <div class="editor-body"><aside id="palette" class="palette" aria-label="Diagram palette"></aside><div id="canvasWrap" class="canvas-wrap"><svg id="canvas" width="3200" height="2200" viewBox="0 0 3200 2200" aria-label="SysML diagram canvas"></svg></div></div>
     </section>
 
-    <div id="rightSplitter" class="workbench-splitter vertical" role="separator" aria-label="Resize Properties" aria-orientation="vertical" tabindex="0"></div>
-
     <section class="pane property-pane" aria-label="Properties">
-      <div class="pane-title"><span>Properties</span><span class="pane-subtitle">Semantic element and presentation</span></div><div id="propertyTabs" class="inspector-tabs" role="tablist"><button data-inspector="Identity">General</button><button data-inspector="Documentation">Documentation</button><button data-inspector="Semantic">Semantics</button><button data-inspector="Relationship">Relationships</button><button data-inspector="Presentation">Presentation</button><button data-inspector="Validation">Validation</button><button data-inspector="History">History</button></div><div id="properties" class="properties"></div>
+      <div class="pane-title"><span>Properties</span><span class="pane-subtitle">Semantic element and presentation</span></div><div id="properties" class="properties"></div>
     </section>
 
-    <div id="bottomSplitter" class="workbench-splitter horizontal" role="separator" aria-label="Resize Validation and Output" aria-orientation="horizontal" tabindex="0"></div>
-    <section class="pane bottom-pane" aria-label="Validation and output">
-      <div class="bottom-tabs" role="tablist"><button data-bottom-tab="validation">Validation <span id="validationCount">0</span></button><button data-bottom-tab="activity">Activity Log</button><button data-bottom-tab="import">Import Report</button><button data-bottom-tab="collaboration">Collaboration</button><button data-bottom-tab="diagnostics">Diagnostics</button><span class="bottom-actions"><button id="clearLog">Clear</button></span></div>
-      <div id="validationCenter" class="bottom-view validation-center"></div><div id="log" class="log bottom-view"></div><div id="importReport" class="bottom-view empty-view">Import reports appear here after workbook import.</div><div id="collaborationOutput" class="bottom-view empty-view">Collaboration events remain local to this view.</div><div id="diagnosticsOutput" class="bottom-view empty-view">No diagnostics.</div>
+    <section class="pane bottom-pane" aria-label="Activity log">
+      <div class="pane-title"><span>Problems and Activity</span><span class="pane-subtitle">Validation, import, collaboration, and errors</span><span class="bottom-actions"><button id="clearLog">Clear</button></span></div><div id="log" class="log"></div>
     </section>
   </main>
-  <footer id="workbenchStatus" class="workbench-status" role="status"></footer>
-
-  <dialog id="commandPalette" class="command-palette"><form method="dialog"><header><strong>Command Palette</strong><button value="cancel" aria-label="Close">×</button></header><input id="commandSearch" placeholder="Type a command…" autocomplete="off"><div id="commandResults" role="listbox"></div></form></dialog>
 
   <input id="fileInput" type="file" hidden accept=".json,.sysml.json">
   <input id="workbookInput" type="file" hidden accept=".xlsx,.xls,.csv"><input id="archiveInput" type="file" hidden accept=".json,.sysmlarchive.json">
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script type="module" src="/src/app.js"></script><script type="module" src="/src/workbench.js"></script><script type="module" src="/src/environment.js"></script><script type="module" src="/src/projects.js"></script><script type="module" src="/src/advanced.js"></script>
+  <script type="module" src="/src/app.js"></script><script type="module" src="/src/environment.js"></script><script type="module" src="/src/projects.js"></script><script type="module" src="/src/advanced.js"></script>
 <dialog id="environmentDialog" class="environment-dialog">
   <form method="dialog" class="environment-shell">
     <header class="environment-header"><div><strong>Project Environment</strong><small>Governance, tables, matrices, reports, interchange, and recovery</small></div><button value="cancel" aria-label="Close">Close</button></header>

@@ -119,7 +119,7 @@ function addOwnedFeature(owner,kind){checkpoint();const feature=defaultElement(k
 function section(title,children=[]){const s=document.createElement('div');s.className='section';s.innerHTML=`<h3>${title}</h3>`;for(const c of children)s.append(c);return s}function field(label,value,onchange,event='input',area=false){const r=document.createElement('label');r.className='field';r.innerHTML=`<span>${label}</span>`;const i=document.createElement(area?'textarea':'input');i.value=value??'';if(!onchange)i.readOnly=true;else i.addEventListener(event,e=>onchange(e.target.value));r.append(i);return r}function selectField(label,value,opts,onchange){const r=document.createElement('label');r.className='field';r.innerHTML=`<span>${label}</span>`;const s=document.createElement('select');const blank=document.createElement('option');blank.value='';blank.textContent='—';s.append(blank);for(const [v,n] of opts){const o=document.createElement('option');o.value=v;o.textContent=n;s.append(o)}s.value=value||'';s.onchange=e=>onchange(e.target.value);r.append(s);return r}function button(label,fn){const b=document.createElement('button');b.textContent=label;b.onclick=fn;return b}
 function createOrOpenChild(e){let type=e.kind==='Block'?'Internal Block Diagram':e.kind==='Activity'?'Activity Diagram':e.kind==='StateMachine'?'State Machine Diagram':e.kind==='Interaction'?'Sequence Diagram':null;if(!type){log('This element type does not own a child diagram.','warn');return}let d=project.diagrams.find(x=>x.contextId===e.id&&x.diagramType===type);if(!d){checkpoint();d={id:uid('diagram'),externalId:uid('DGM').toUpperCase(),name:`${e.name} ${DIAGRAMS[type].abbreviation}`,diagramType:type,ownerId:e.ownerId,contextId:e.id,nodes:[],edges:[],documentation:''};project.diagrams.push(d);normalizeIBDProject(project);commitLocal({type:'create-diagram',diagram:structuredClone(d)},`Created ${type}`)}project.activeDiagramId=d.id;render()}
 function openChildFor(id){const d=project.diagrams.find(x=>x.contextId===id);if(d){project.activeDiagramId=d.id;render()}else log('No child diagram exists.','warn')}
-function navigateDiagram(id){const current=project.activeDiagramId;if(current&&current!==id){navigationBack.push(current);navigationForward=[]}project.activeDiagramId=id;view='model';render();window.dispatchEvent(new CustomEvent('systems-modeler-diagram-open',{detail:{diagramId:id}}))}
+function navigateDiagram(id){const current=project.activeDiagramId;if(current&&current!==id){navigationBack.push(current);navigationForward=[]}project.activeDiagramId=id;view='model';render()}
 function navigationGoBack(){if(!navigationBack.length)return;const current=project.activeDiagramId,id=navigationBack.pop();if(current)navigationForward.push(current);project.activeDiagramId=id;render()}
 function navigationGoForward(){if(!navigationForward.length)return;const current=project.activeDiagramId,id=navigationForward.pop();if(current)navigationBack.push(current);project.activeDiagramId=id;render()}
 function openChildForSelected(){if(selected.type==='element')createOrOpenChild(findElement(project,selected.id))}
@@ -181,16 +181,11 @@ wireMenus();render();log('Systems Modeler Collaborative v5 loaded. All visible c
 window.SystemsModelerAPI={
  getProject:()=>project,
  createBlankProject:name=>createProject(name),
- setProject:p=>{project=normalizeProject(p);save();render();window.dispatchEvent(new CustomEvent('systems-modeler-project-change',{detail:{projectId:project.id}}));},
+ setProject:p=>{project=normalizeProject(p);save();render();},
  validate:()=>validate(project),
  getSelection:()=>structuredClone(selected),
  selectElement:id=>{selected={type:'element',id,nodeId:null,edgeId:null};render();},
  activeDiagram:()=>activeDiagram(),
- openDiagram:id=>navigateDiagram(id),
- renderTree,
- getZoom:()=>zoom,
- getSelectionCount:()=>selectedNodeIds.size||Number(Boolean(selected?.id||selected?.nodeId||selected?.edgeId)),
- getConnectionState:()=>connectionState,
  log,
  save,
  render,
