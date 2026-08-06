@@ -1,4 +1,4 @@
-export const SYSML_VERSION = "1.6";
+export const SYSML_VERSION = "1.7";
 const propertyOwner=["Block","InterfaceBlock","ConstraintBlock","AssociationBlock"];
 export const ELEMENTS = {
  Model:{metaclass:"Model"}, Package:{metaclass:"Package"}, Profile:{metaclass:"Profile"}, ModelLibrary:{metaclass:"Package",stereotype:"modelLibrary"},
