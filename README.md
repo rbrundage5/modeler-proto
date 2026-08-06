@@ -170,10 +170,3 @@ Phase 2 adds nested presentations, stable structured property paths, inherited
 interface compatibility, granular collaboration operations, import migration,
 and lightweight obstacle routing. See
 [`docs/IBD_ENGINE_PHASE_2.md`](docs/IBD_ENGINE_PHASE_2.md).
-
-## Professional modeling workbench
-
-Resizable panels, project-local workspace presets, multi-diagram tabs,
-navigation breadcrumbs, Explorer search and favorites, the Validation Center,
-status bar, and command palette are documented in
-[`docs/PROFESSIONAL_WORKBENCH_PHASE_1.md`](docs/PROFESSIONAL_WORKBENCH_PHASE_1.md).
