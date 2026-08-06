@@ -26,8 +26,8 @@ export class CollaborationClient{
   const socket=new this.WebSocketClass(`${protocol}://${this.location.host}/api/projects/${encodeURIComponent(roomId)}/socket`);this.socket=socket;this.onStatus('Connecting');
   socket.onopen=()=>{if(generation!==this.connectionGeneration)return;this.reconnectAttempt=0;this.onStatus('Connected');this.send({type:'hello',clientId:this.clientId,sessionId:this.sessionId,name:this.name,branchId:this.branchId,device:{userAgent:globalThis.navigator?.userAgent||'unknown'},initialProject:this.getProject()});this.startHeartbeat(generation)};
   socket.onmessage=event=>{if(generation!==this.connectionGeneration)return;let message;try{message=JSON.parse(event.data)}catch{this.onLog?.('Ignored an invalid collaboration message.','warn');return}this.handle(message)};
-  socket.onclose=()=>{if(generation!==this.connectionGeneration)return;this.stopHeartbeat();this.onStatus('Offline');if(!this.intentional)this.scheduleReconnect(generation)};
-  socket.onerror=()=>{if(generation===this.connectionGeneration)this.onStatus('Error')};
+  socket.onclose=event=>{if(generation!==this.connectionGeneration)return;this.stopHeartbeat();this.onStatus('Offline');if(event?.reason)this.onLog?.(`Collaboration disconnected: ${event.reason}`,'error');if(!this.intentional)this.scheduleReconnect(generation)};
+  socket.onerror=()=>{if(generation===this.connectionGeneration){this.onStatus('Error');this.onLog?.('The collaboration socket could not connect. Check the room URL, deployment, and network.','error')}};
  }
  scheduleReconnect(generation=this.connectionGeneration){if(this.reconnectTimer)return;const delay=Math.min(15000,500*2**this.reconnectAttempt++);this.onLog?.(`Collaboration reconnect in ${Math.max(1,Math.round(delay/1000))}s`,'warn');this.reconnectTimer=this.timer.setTimeout(()=>{this.reconnectTimer=null;if(!this.intentional&&generation===this.connectionGeneration)this.connect(this.roomId,this.branchId)},delay)}
  startHeartbeat(generation=this.connectionGeneration){this.stopHeartbeat();this.heartbeat=this.timer.setInterval(()=>{if(generation===this.connectionGeneration)this.send({type:'ping',at:Date.now()})},25000)}

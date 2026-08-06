@@ -30,7 +30,8 @@ export class ProjectRoom extends DurableObject{
     if(!lockColumns.includes('branch_id'))this.sql.exec("ALTER TABLE locks ADD COLUMN branch_id TEXT NOT NULL DEFAULT 'main'");
     const existing=[...this.sql.exec('SELECT id FROM branches LIMIT 1')];
     if(!existing.length)this.sql.exec('INSERT INTO branches(id,name,head_revision,snapshot,created_at,created_by) VALUES(?,?,?,?,?,?)','main','main',0,null,now(),'system');
-    for(const branch of this.sql.exec('SELECT id,snapshot FROM branches WHERE snapshot IS NOT NULL'))this.sql.exec('INSERT OR IGNORE INTO snapshots(branch_id,sequence,revision_id,project,created_at) VALUES(?,?,?,?,?)',branch.id,0,`${branch.id}:0`,branch.snapshot,now());
+    const legacySnapshots=[...this.sql.exec('SELECT id,snapshot FROM branches WHERE snapshot IS NOT NULL')];
+    for(const branch of legacySnapshots)this.sql.exec('INSERT OR IGNORE INTO snapshots(branch_id,sequence,revision_id,project,created_at) VALUES(?,?,?,?,?)',branch.id,0,`${branch.id}:0`,branch.snapshot,now());
   }
   identity(request){const authenticated=request.headers.get('Cf-Access-Authenticated-User-Email')||request.headers.get('X-Modeler-User');return{identity:authenticated||'',authenticated:Boolean(authenticated)}}
   async fetch(request){
