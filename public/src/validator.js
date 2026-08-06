@@ -13,7 +13,7 @@ export function validate(project){
     if(!def)add("warning","UNKNOWN_KIND",`${qualifiedName(project,e.id)} uses unsupported kind ${e.kind}.`,e.id);
     for(const f of def?.required||[])if(!String(e[f]||"").trim())add("error","REQUIRED_FIELD",`${qualifiedName(project,e.id)} requires ${f}.`,e.id);
     if(def?.ownerKinds&&owner&&!def.ownerKinds.includes(owner.kind))add("error","OWNER_KIND",`${e.kind} ${e.name} must be owned by ${def.ownerKinds.join(" or ")}, not ${owner.kind}.`,e.id);
-    if(isTypedFeature(e)&&!e.typeRef)add("warning","TYPE_REQUIRED",`${qualifiedName(project,e.id)} should be typed.`,e.id);
+    if(isTypedFeature(e)&&!e.typeRef)add("error","TYPE_REQUIRED",`${qualifiedName(project,e.id)} must reference a classifier.`,e.id);
     if(e.typeRef){const t=findElement(project,e.typeRef);if(!t)add("error","TYPE_UNRESOLVED",`${qualifiedName(project,e.id)} has unresolved type ${e.typeRef}.`,e.id);else if(!validTypeKinds(e.kind).includes(t.kind))add("error","TYPE_KIND",`${e.kind} ${e.name} cannot be typed by ${t.kind} ${t.name}.`,e.id)}
     const lo=normalizeBound(e.multiplicityLower??String(e.multiplicity||"1").split("..")[0]),hi=normalizeBound(e.multiplicityUpper??(String(e.multiplicity||"1").split("..")[1]||String(e.multiplicity||"1").split("..")[0]),true);
     if(isTypedFeature(e)&&(lo==null||hi==null||(hi!=="*"&&Number(lo)>Number(hi))))add("error","MULTIPLICITY",`${e.name} has invalid multiplicity ${e.multiplicity}.`,e.id);
@@ -26,6 +26,10 @@ export function validate(project){
     if(!def){add("warning","UNKNOWN_RELATIONSHIP",`${r.kind} is not supported.`,r.id);continue}
     if(!endpointAllowed(def.source,s.kind))add("error","INVALID_SOURCE",`${r.kind} cannot start at ${s.kind} ${s.name}.`,r.id);
     if(!endpointAllowed(def.target,t.kind))add("error","INVALID_TARGET",`${r.kind} cannot end at ${t.kind} ${t.name}.`,r.id);
+    if(['Association','Composition','Aggregation'].includes(r.kind)){
+      for(const [end,value] of [['source',r.sourceMultiplicity||'1'],['target',r.targetMultiplicity||'1']]){const [lower,upper]=String(value).includes('..')?String(value).split('..',2):[String(value),String(value)];const lo=normalizeBound(lower),hi=normalizeBound(upper,true);if(lo==null||hi==null||(hi!=='*'&&Number(lo)>Number(hi)))add('error','ASSOCIATION_MULTIPLICITY',`${r.kind} ${end} end has invalid multiplicity ${value}.`,r.id)}
+      for(const end of ['source','target'])if(!['none','shared','composite'].includes(r[`${end}Aggregation`]||'none'))add('error','ASSOCIATION_AGGREGATION',`${r.kind} ${end} end has invalid aggregation.`,r.id);
+    }
     if(r.kind==="ItemFlow"&&!r.conveyedIds?.length)add("warning","ITEMFLOW_CONVEYED",`ItemFlow ${r.id} has no conveyed classifier.`,r.id);
   }
   for(const d of project.diagrams||[]){
