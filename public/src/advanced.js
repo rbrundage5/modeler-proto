@@ -7,13 +7,18 @@ import {analyzeImpact,buildModelIndexes} from './impact-analysis.js';
 import {suspectLinkView} from './suspect-links.js';
 import {generateRequirementsReport,serializeRequirementsReport,REPORT_TYPES} from './requirements-reports.js';
 const $=id=>document.getElementById(id); let active='structure';
-const tabs=[['structure','Structure'],['behavior','Behavior'],['requirements','Requirements'],['tables','Tables & Matrices'],['verification','Verification'],['changeControl','Change Control & Reports'],['parametrics','Parametrics'],['instances','Configurations'],['libraries','Profiles & Libraries'],['interchange','Interchange']];
+const tabs=[['structure','Structure'],['behavior','Behavior'],['requirements','Requirements'],['tables','Tables & Matrices'],['verification','Verification'],['parametrics','Parametrics'],['instances','Configurations'],['libraries','Profiles & Libraries'],['interchange','Interchange']];
+tabs.splice(5,0,['changeControl','Change Control & Reports']);
 const api=()=>window.SystemsModelerAPI; const project=()=>api().getProject();
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function commit(mut,msg){const p=structuredClone(project());mut(p);api().commitOperation({type:'replace-project',project:p},msg)}
 function open(){renderTabs();render();$('advancedDialog').showModal()}
 function renderTabs(){const n=$('advancedTabs');n.replaceChildren();for(const [id,label]of tabs){const b=document.createElement('button');b.type='button';b.textContent=label;b.className=id===active?'active':'';b.onclick=()=>{active=id;renderTabs();render()};n.append(b)}}
-function render(){const c=$('advancedContent');c.replaceChildren();({structure,behavior,requirements,tables,verification,changeControl,parametrics,instances,libraries,interchange}[active]||structure)(c)}
+function render(){
+ const c=$('advancedContent');c.replaceChildren();
+ if(active==='changeControl'){changeControl(c);return}
+ ({structure,behavior,requirements,tables,verification,parametrics,instances,libraries,interchange}[active]||structure)(c)
+}
 function table(headers,rows){return `<div class="advanced-table-wrap"><table class="advanced-table"><thead><tr>${headers.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table></div>`}
 function kinds(...xs){return api().allElements().filter(e=>xs.includes(e.kind))}
 function opt(elements,val=''){return elements.map(e=>`<option value="${e.id}" ${e.id===val?'selected':''}>${esc(e.qualifiedNameString||e.name)}</option>`).join('')}

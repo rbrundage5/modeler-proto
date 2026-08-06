@@ -12,8 +12,8 @@ import {generateRequirementsReport,serializeRequirementsReport} from '../public/
 test('Change Control and Reports remains registered after merging the workbench tabs',async()=>{
   const source=await readFile(new URL('../public/src/advanced.js',import.meta.url),'utf8');
   assert.match(source,/import \{compareBaselineToCurrent,createRequirementBaseline\} from '\.\/requirement-baselines\.js';/);
-  assert.match(source,/\['changeControl','Change Control & Reports'\]/);
-  assert.match(source,/\{structure,behavior,requirements,tables,verification,changeControl,parametrics/);
+  assert.match(source,/tabs\.splice\(5,0,\['changeControl','Change Control & Reports'\]\)/);
+  assert.match(source,/if\(active==='changeControl'\)\{changeControl\(c\);return\}/);
   assert.doesNotMatch(source,/^(?:<<<<<<<|=======|>>>>>>>)/m);
 });
 
