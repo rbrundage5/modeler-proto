@@ -1,3 +1,0 @@
-export const stereotypeLabel=name=>name?`«${String(name).replace(/[«»<>]/g,'').trim()}»`:'';
-export function transitionLabel(relationship,triggerName=''){const trigger=triggerName||relationship.trigger||'',guard=relationship.guard?`[${relationship.guard}]`:'',effect=relationship.effect?`/ ${relationship.effect}`:'';return [trigger,guard,effect].filter(Boolean).join(' ')}
-export function propertyLabel(element,typeName=''){const derived=element.isDerived?'/':'';const type=typeName?`: ${typeName}`:'';const multiplicity=element.multiplicity&&element.multiplicity!=='1'?` [${element.multiplicity}]`:'';const value=element.defaultValue!==''&&element.defaultValue!=null?` = ${element.defaultValue}`:'';return `${derived}${element.name}${type}${multiplicity}${value}`}

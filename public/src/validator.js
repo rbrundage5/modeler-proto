@@ -2,11 +2,9 @@ import {allElements,findElement,findRelationship,qualifiedName} from "./model.js
 import {isTypedFeature,validTypeKinds,normalizeBound,supportsDirection} from './semantic-editor.js';
 import {ELEMENTS,RELATIONSHIPS,DIAGRAMS,endpointAllowed} from "./sysml-profile.js";
 import {validateIBD} from './ibd-engine.js';
-import {notationFor,relationshipFor} from './notation/registry.js';
-import {DIAGRAM_FRAME_NOTATION} from './notation/diagram-frame-notation.js';
 export function validate(project){
   const issues=[],seen=new Set();
-  const add=(severity,code,message,id=null,details={})=>issues.push({severity,code,message,id,...details});
+  const add=(severity,code,message,id=null)=>issues.push({severity,code,message,id});
   for(const e of allElements(project)){
     if(seen.has(e.id))add("error","DUPLICATE_ID",`Duplicate ID ${e.id}.`,e.id);seen.add(e.id);
     if(!e.name)add("error","NAME_REQUIRED",`${e.kind} ${e.id} has no name.`,e.id);
@@ -41,18 +39,15 @@ export function validate(project){
     if(!owner)add("error","DIAGRAM_OWNER",`${d.name} has unresolved owner.`,d.id);
     if(!context)add("error","DIAGRAM_CONTEXT",`${d.name} has unresolved context.`,d.id);
     if(def.contextKinds&&context&&!def.contextKinds.includes(context.kind))add("error","CONTEXT_KIND",`${d.diagramType} requires ${def.contextKinds.join(" or ")} context, not ${context.kind}.`,d.id);
-    if(d.frame?.kind&&d.frame.kind!==DIAGRAM_FRAME_NOTATION[d.diagramType])add('warning','DIAGRAM_FRAME_KIND',`${d.name} frame kind does not match ${d.diagramType}.`,d.id,{diagramId:d.id,rule:'SYSML_DIAGRAM_FRAME',suggestion:'Reset the diagram frame.'});
     for(const n of d.nodes||[]){
       const e=findElement(project,n.elementId);
       if(!e)add("error","MISSING_ELEMENT",`${d.name} presents missing element ${n.elementId}.`,d.id);
       else if(!def.elements.includes(e.kind))add("warning","INVALID_PRESENTATION",`${e.kind} ${e.name} is not valid on ${d.diagramType}.`,e.id);
-      else{const notation=notationFor(e.kind,d.diagramType);if(!notation)add('error','NOTATION_RENDERER',`${e.kind} ${e.name} has no notation renderer for ${d.diagramType}.`,e.id,{diagramId:d.id,presentationId:n.id,rule:'SYSML_NOTATION_RENDERER',suggestion:'Remove the invalid presentation or select a supported diagram.'});else if(n.notationShape&&n.notationShape!==notation.shape)add('warning','NOTATION_SHAPE',`${e.name} stores ${n.notationShape} but requires ${notation.shape}.`,e.id,{diagramId:d.id,presentationId:n.id,rule:'SYSML_NOTATION_SHAPE',suggestion:'Reset to standard notation.'})}
     }
     for(const edge of d.edges||[]){
       const r=findRelationship(project,edge.relationshipId);
       if(!r)add("error","MISSING_RELATIONSHIP",`${d.name} references missing relationship ${edge.relationshipId}.`,d.id);
       else if(!def.relationships.includes(r.kind))add("warning","INVALID_REL_PRESENTATION",`${r.kind} is not valid on ${d.diagramType}.`,r.id);
-      else{const expected=relationshipFor(r);if(edge.lineStyle&&edge.lineStyle!==expected.lineStyle)add('warning','NOTATION_LINE_STYLE',`${r.kind} requires a ${expected.lineStyle} line.`,r.id,{diagramId:d.id,presentationId:edge.id,rule:'UML_RELATIONSHIP_LINE',suggestion:'Reset to standard notation.'});if(edge.targetMarker&&edge.targetMarker!==expected.targetMarker)add('warning','NOTATION_TARGET_MARKER',`${r.kind} has an incorrect target marker.`,r.id,{diagramId:d.id,presentationId:edge.id,rule:'UML_RELATIONSHIP_MARKER',suggestion:'Correct marker placement.'})}
     }
     issues.push(...validateIBD(project,d));
   }
