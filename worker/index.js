@@ -1,7 +1,8 @@
 import {DurableObject} from "cloudflare:workers";
-import {applyOperation,canRebaseOperation,deepClone} from '../public/src/operations.js';
+import {applyOperation,canRebaseOperation,currentValue,deepClone} from '../public/src/operations.js';
 import {acceptedOperation,migrateCollaborationOperation,validateCollaborationOperation} from '../public/src/collaboration-operation.js';
 import {createRevision} from '../public/src/revision-journal.js';
+import {conflictScope,conflictType,proposedValue} from '../public/src/collaboration-conflicts.js';
 
 const json=v=>JSON.stringify(v);
 const now=()=>new Date().toISOString();
@@ -73,6 +74,7 @@ export class ProjectRoom extends DurableObject{
     if(msg.type==='awareness'){const state=msg.state||{},number=value=>Number.isFinite(Number(value))?Math.max(-100000,Math.min(100000,Number(value))):null,awareness={selectedId:String(state.selectedId||'').slice(0,160)||null,presentationId:String(state.presentationId||'').slice(0,160)||null,diagramId:String(state.diagramId||'').slice(0,160)||null,packageId:String(state.packageId||'').slice(0,160)||null,propertyName:String(state.propertyName||'').slice(0,120)||null,typing:Boolean(state.typing),mode:String(state.mode||'modeling').slice(0,32),reviewMode:Boolean(state.reviewMode),presenter:Boolean(state.presenter),following:String(state.following||'').slice(0,160)||null,cursor:state.cursor?{x:number(state.cursor.x),y:number(state.cursor.y)}:null,viewport:state.viewport?{x:number(state.viewport.x),y:number(state.viewport.y),width:number(state.viewport.width),height:number(state.viewport.height),zoom:number(state.viewport.zoom)}:null};ws.serializeAttachment({...session,lastSeen:Date.now(),awareness});this.broadcast(session.branchId,{type:'presence',users:this.presence(session.branchId)});return}
     if(msg.type==='history'){ws.send(json({type:'history',...this.history(session.branchId,msg)}));return}
     if(msg.type==='time-travel'){try{const project=this.projectAtRevision(session.branchId,Number(msg.sequence));ws.send(json({type:'time-travel',project,branchId:session.branchId,sequence:Number(msg.sequence),readOnly:true}))}catch(error){ws.send(json({type:'operation-error',message:error.message}));}return}
+    if(msg.type==='resolve-conflict'){this.broadcast(session.branchId,{type:'conflict-updated',conflictId:msg.conflictId,operationId:msg.operationId,strategy:msg.strategy,reviewer:msg.reviewer||null,resolver:{userId:session.identity,displayName:session.name},resolvedAt:['defer','assign-reviewer'].includes(msg.strategy)?null:now()});this.audit('conflict-resolution',session,{targetId:msg.operationId,strategy:msg.strategy,reviewer:msg.reviewer||null});return}
     if(member.role==='viewer'&&!['switch-branch'].includes(msg.type)){ws.send(json({type:'permission-error',message:'Viewer role cannot modify the model.'}));return;}
     if(msg.type==='operation'){await this.handleOperation(ws,msg,session);return;}
     if(msg.type==='commit'){this.handleCommit(ws,msg,session);return;}
@@ -96,7 +98,8 @@ export class ProjectRoom extends DurableObject{
     const current=branch.project;
     const stale=msg.baseRevision!==branch.head_revision;
     if(stale&&!msg.force&&!canRebaseOperation(current,op)){
-      ws.send(json({type:'conflict',revision:branch.head_revision,project:current,operationId:msg.operationId,operation:op,message:'Another user changed the same model value.'}));return;
+      const scope=conflictScope(op),remoteValue=currentValue(current,op),target=[current.root,...(current.elements||[]),...(current.relationships||[])].find(item=>item?.id===scope.targetId),latest=[...this.sql.exec('SELECT actor FROM operations WHERE branch_id=? AND revision=?',session.branchId,branch.head_revision)][0];
+      ws.send(json({type:'conflict',conflictId:crypto.randomUUID(),conflictType:conflictType(op,remoteValue),revision:branch.head_revision,baseRevision:msg.baseRevision,project:current,operationId:msg.operationId,operation:op,targetId:scope.targetId,targetLabel:target?.name||target?.requirementId||target?.kind||scope.targetId,property:scope.property,baseValue:op.expectedValue??op.expectedOwnerId,localValue:proposedValue(op),remoteValue,localActor:{userId:session.identity,displayName:session.name},remoteActor:{displayName:latest?.actor||'Collaborator'},message:'Another user changed the same semantic field. No value was selected automatically.'}));this.audit('conflict-created',session,{targetId:scope.targetId,operationId:msg.operationId,conflictType:conflictType(op,remoteValue)});return;
     }
     let updated;
     try{updated=applyOperation(deepClone(current),op)}catch(error){ws.send(json({type:'operation-error',message:error.message,operationId:msg.operationId}));return;}

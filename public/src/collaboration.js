@@ -1,5 +1,6 @@
 import {applyOperation} from './operations.js';
 import {createCollaborationOperation} from './collaboration-operation.js';
+import {withManualValue} from './collaboration-conflicts.js';
 
 const PENDING_PREFIX='systems-modeler.collaboration.pending';
 const SESSION_KEY='systems-modeler.collaboration.session';
@@ -38,15 +39,21 @@ export class CollaborationClient{
   if(message.operationId&&this.seen.has(message.operationId)&&message.type!=='conflict')return;
   if(message.type==='snapshot'){this.baseRevision=message.revision||0;const nextBranch=message.branchId||this.branchId;if(nextBranch!==this.branchId){this.persistPending();this.branchId=nextBranch;this.restorePending()}if(message.branchFallback?.message)this.onLog?.(message.branchFallback.message,'warn');if(message.project)this.onProject(message.project,'room snapshot');this.synchronized=true;this.awaitingCanonical=new Set(this.pending.map(item=>item.operationId));this.onPresence(message.presence||[]);this.onMeta?.(message);this.flush(true);return}
   if(message.type==='operation'){const own=message.clientId===this.clientId||this.pending.some(item=>item.operationId===message.operationId),needsCanonical=this.awaitingCanonical.delete(message.operationId);this.remember(message.operationId);this.acknowledge(message.operationId);if(!own){try{const updated=applyOperation(this.getProject(),message.operation);updated.revision=message.revision;this.onProject(updated,`${message.author||'Collaborator'}: ${message.operation.type}`)}catch(error){this.onLog?.(`Remote operation failed: ${error.message}; requesting a fresh snapshot.`,'error');this.send({type:'resync',branchId:this.branchId})}}this.baseRevision=message.revision;this.onMeta?.(message);if(needsCanonical)this.send({type:'resync',branchId:this.branchId});else this.flush(true);return}
-  if(message.type==='conflict'){this.baseRevision=message.revision;const pending=this.pending.find(item=>item.operationId===message.operationId);if(pending){pending.sentAt=0;this.conflicts.set(message.operationId,{message,pending});this.persistPending()}this.onConflict?.({...message,resolve:strategy=>this.resolveConflict(message.operationId,strategy)});return}
+  if(message.type==='conflict'){this.baseRevision=message.revision;const pending=this.pending.find(item=>item.operationId===message.operationId);if(pending){pending.sentAt=0;this.conflicts.set(message.operationId,{message,pending});this.persistPending()}this.onConflict?.({...message,resolve:(strategy,options)=>this.resolveConflict(message.operationId,strategy,options)});return}
   if(message.type==='presence'){this.onPresence(message.users||[]);return}
   if(message.type==='pong')return;
-  if(['branches','commit','locks','merge-result','members','history','time-travel'].includes(message.type)){this.onMeta?.(message);return}
+  if(['branches','commit','locks','merge-result','members','history','time-travel','conflict-updated'].includes(message.type)){this.onMeta?.(message);return}
   if(['permission-error','operation-error','locked'].includes(message.type)){if(message.operationId)this.acknowledge(message.operationId);this.onLog?.(message.message||`Locked by ${message.owner}`,'error');this.onMeta?.(message)}
  }
- resolveConflict(operationId,strategy='accept-remote'){
+ resolveConflict(operationId,strategy='keep-theirs',options={}){
   const conflict=this.conflicts.get(operationId);if(!conflict)return false;
-  if(strategy==='retry-local'){conflict.pending.baseRevision=this.baseRevision;conflict.pending.force=true;conflict.pending.sentAt=0;this.conflicts.delete(operationId);this.persistPending();this.send(conflict.pending);return true}
+  const normalized=strategy==='retry-local'?'keep-mine':strategy==='accept-remote'?'keep-theirs':strategy;
+  this.send({type:'resolve-conflict',conflictId:conflict.message.conflictId,operationId,strategy:normalized,reviewer:options.reviewer||null});
+  if(['defer','assign-reviewer'].includes(normalized))return true;
+  if(normalized==='keep-mine'||normalized==='manual'){
+   if(normalized==='manual'){conflict.pending.operation=withManualValue(conflict.pending.operation,options.value);if(conflict.pending.record){conflict.pending.record.operation=clone(conflict.pending.operation);conflict.pending.record.nextValue=clone(options.value)}}
+   conflict.pending.baseRevision=this.baseRevision;conflict.pending.force=true;conflict.pending.conflictResolution=normalized;conflict.pending.sentAt=0;this.conflicts.delete(operationId);this.persistPending();this.send(conflict.pending);return true
+  }
   this.acknowledge(operationId);if(conflict.message.project)this.onProject(conflict.message.project,'conflict resolution');return true;
  }
  publish(operation,{source='user',causalDependencies=[],undoMetadata={}}={}){if(!this.activated)return null;const project=this.getProject(),operationId=crypto.randomUUID(),timestamp=new Date().toISOString(),effectiveSource=source==='user'&&operation.type==='bulk-import'?'import':source==='user'&&operation.type==='replace-project'?'recovery':source,record=createCollaborationOperation(operation,{operationId,projectId:project.id,branchId:this.branchId,actorUserId:this.sessionId,actorDisplayName:this.name,clientId:this.clientId,timestamp,parentRevisionId:this.baseRevision?`${this.branchId}:${this.baseRevision}`:null,causalDependencies,undoMetadata,source:effectiveSource});const envelope={type:'operation',operationId,clientId:this.clientId,author:this.name,baseRevision:this.baseRevision,operation:clone(operation),record,createdAt:timestamp};this.pending.push(envelope);this.persistPending();this.flush(true);return envelope.operationId}
