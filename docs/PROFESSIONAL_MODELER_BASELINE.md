@@ -95,3 +95,7 @@ At inspection the legacy gates passed on unsupported Node 24. Final results must
 ## P-03 measured capability addendum
 
 P-03 extends the existing semantic repository with explicit Definition, Usage, Instance, Site, Revision, Variant, Configuration Item, immutable Configuration Baseline, and typed Requirement-applicability semantics. Focused automated tests qualify identity isolation, migration, deterministic resolution, ambiguity, baseline immutability, structured import/reimport, and collaboration envelopes. These capabilities are a **foundation**, not a complete verification-scope engine, enterprise configuration-management system, or evidence system. See `docs/P03_SEMANTIC_CONFIGURATION_FOUNDATION.md`.
+
+## P-04 measured capability addendum
+
+P-04 adds controlled Requirement Revisions, typed relationship direction, direct/inherited Requirement allocation, safe structured applicability conditions and deterministic precedence, Generalization-aware compatibility, Baseline Revision binding, direct suspect propagation, transactional Requirement import, and typed query APIs. Focused tests verify these semantics and continue to report `verificationCredit: false`. The complete unit-level verification-scope engine, execution, evidence, and credit remain unimplemented. See `docs/P04_REQUIREMENT_ALLOCATION_APPLICABILITY.md`.

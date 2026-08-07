@@ -26,7 +26,7 @@ export const ELEMENTS = {
  Trigger:{metaclass:"Trigger",ownerKinds:["Transition"]}, Event:{metaclass:"Event"},
  Interaction:{metaclass:"Interaction"}, Lifeline:{metaclass:"Lifeline",ownerKinds:["Interaction"]}, ExecutionSpecification:{metaclass:"ExecutionSpecification",ownerKinds:["Interaction"]}, CombinedFragment:{metaclass:"CombinedFragment",ownerKinds:["Interaction"]}, InteractionOperand:{metaclass:"InteractionOperand",ownerKinds:["CombinedFragment"]}, Gate:{metaclass:"Gate",ownerKinds:["Interaction"]}, InteractionUse:{metaclass:"InteractionUse",ownerKinds:["Interaction"]}, TimeConstraint:{metaclass:"TimeConstraint",ownerKinds:["Interaction"]}, DurationConstraint:{metaclass:"DurationConstraint",ownerKinds:["Interaction"]},
  InstanceSpecification:{metaclass:"InstanceSpecification",compartments:["slots"]}, Slot:{metaclass:"Slot",ownerKinds:["InstanceSpecification"]}, Configuration:{metaclass:"InstanceSpecification",stereotype:"configuration"}, Variant:{metaclass:"Class",stereotype:"variant"}, VariationPoint:{metaclass:"Property",stereotype:"variationPoint"},
- SiteContext:{metaclass:"Package",stereotype:"siteContext"}, DefinitionRevision:{metaclass:"Artifact",stereotype:"definitionRevision",ownerKinds:["Block","InterfaceBlock","ConstraintBlock","AssociationBlock","ValueType","DataType","Enumeration","Signal"]},
+ SiteContext:{metaclass:"Package",stereotype:"siteContext"}, DefinitionRevision:{metaclass:"Artifact",stereotype:"definitionRevision",ownerKinds:["Block","InterfaceBlock","ConstraintBlock","AssociationBlock","ValueType","DataType","Enumeration","Signal"]}, RequirementRevision:{metaclass:"Artifact",stereotype:"requirementRevision",ownerKinds:["Requirement"]},
  Comment:{metaclass:"Comment"}
 };
 export const RELATIONSHIPS = {

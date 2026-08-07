@@ -9,6 +9,7 @@ export const GRANULAR_OPERATION_TYPES=new Set([
  'add-item-flow','update-item-flow','remove-item-flow','batch-requirement-edit','create-verification-execution','delete-verification-execution',
  'create-requirement-baseline','delete-requirement-baseline','mark-suspect-link','clear-suspect-link','save-report','delete-report','record-import-decision',
  'assign-usage-definition','assign-instance-definition','assign-instance-usage','add-configuration-item','remove-configuration-item','capture-configuration-baseline','assign-requirement-applicability',
+ 'create-requirement','create-requirement-revision','add-requirement-decomposition','remove-requirement-decomposition','create-requirement-relationship','upsert-requirement-applicability','delete-requirement-applicability',
  'batch-operation','bulk-import','replace-project'
 ]);
 const clone=value=>globalThis.structuredClone?structuredClone(value):JSON.parse(JSON.stringify(value));

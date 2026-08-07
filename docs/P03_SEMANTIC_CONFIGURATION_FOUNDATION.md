@@ -90,8 +90,8 @@ The existing **Configurations** workbench now separates semantic role and SysML 
 
 ## Known limits and follow-up
 
-- Generalization-aware compatible fulfillment is not yet resolved; P-03 requires exact Definition identity.
-- Applicability conditions are stored but only explicit typed target/effect resolution is evaluated.
+- P-04 now adds explicit Generalization-aware fulfillment and reports circular or ambiguous paths; P-03's exact-identity behavior remains the fallback without a valid path.
+- P-04 now evaluates a bounded structured applicability-condition format with deterministic precedence; arbitrary rule languages remain unsupported.
 - Baseline integrity is deterministic change detection, not signing or enterprise approval.
 - Structured records are tested; dedicated physical XLS/XLSX sheet templates are not supplied.
 - Local collaboration envelopes/replay are tested, not a live two-client Durable Object session.
