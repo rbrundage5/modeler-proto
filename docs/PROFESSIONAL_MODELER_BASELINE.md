@@ -91,3 +91,7 @@ At inspection the legacy gates passed on unsupported Node 24. Final results must
 3. Add a local two-client Durable Object convergence suite (PMB-P2-004).
 4. Profile and index normalization/validation under Node 22 before setting performance budgets (PMB-P2-005).
 5. Make an explicit product decision for Instance Diagram and align historical README labels.
+
+## P-03 measured capability addendum
+
+P-03 extends the existing semantic repository with explicit Definition, Usage, Instance, Site, Revision, Variant, Configuration Item, immutable Configuration Baseline, and typed Requirement-applicability semantics. Focused automated tests qualify identity isolation, migration, deterministic resolution, ambiguity, baseline immutability, structured import/reimport, and collaboration envelopes. These capabilities are a **foundation**, not a complete verification-scope engine, enterprise configuration-management system, or evidence system. See `docs/P03_SEMANTIC_CONFIGURATION_FOUNDATION.md`.

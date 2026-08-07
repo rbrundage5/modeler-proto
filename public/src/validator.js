@@ -3,6 +3,7 @@ import {isTypedFeature,validTypeKinds,normalizeBound,supportsDirection} from './
 import {ELEMENTS,RELATIONSHIPS,DIAGRAMS,endpointAllowed} from "./sysml-profile.js";
 import {validateIBD} from './ibd-engine.js';
 import {requirementIssues} from './requirements.js';
+import {validateSemanticFoundation} from './semantic-foundation.js';
 export function validate(project){
   const issues=[],seen=new Set();
   const add=(severity,code,message,id=null)=>issues.push({severity,code,message,id});
@@ -76,6 +77,7 @@ export function validate(project){
     if(r.kind==='Message'&&!['synchronous','asynchronous','reply','create','delete'].includes(r.messageSort||'synchronous'))add("error","MESSAGE_SORT",`${r.id} has invalid message sort.`,r.id);
   }
   issues.push(...requirementIssues(project));
+  issues.push(...validateSemanticFoundation(project));
   return issues;
 }
 
