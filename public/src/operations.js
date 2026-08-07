@@ -1,8 +1,11 @@
 import {synchronizeSemanticModel} from './semantic-core.js';
 import {assertIBDContext,attachPortPresentation,createItemFlow,normalizeIBDProject,removeItemFlow,updateItemFlow} from './ibd-engine.js';
 import {moveRequirement} from './requirements.js';
+import {normalizeVerificationProject,VERDICTS} from './verification-model.js';
+import {clearSuspectLink,markRelationshipSuspect,normalizeSuspectLinks} from './suspect-links.js';
 
 export function deepClone(value){return globalThis.structuredClone?structuredClone(value):JSON.parse(JSON.stringify(value))}
+function stableOperationSuffix(value){let hash=2166136261;for(const character of JSON.stringify(value??null)){hash^=character.charCodeAt(0);hash=Math.imul(hash,16777619)}return(hash>>>0).toString(36)}
 
 export function findTarget(project,type,id){
   if(type==='relationship')return project.relationships?.find(item=>item.id===id)||null;
@@ -23,6 +26,8 @@ export function currentValue(project,operation){
   if(operation.type==='move-node'){const node=findNode(project,operation.diagramId,operation.nodeId);return node&&{x:node.x,y:node.y}}
   if(operation.type==='resize-node'){const node=findNode(project,operation.diagramId,operation.nodeId);return node&&{width:node.width,height:node.height}}
   if(operation.type==='set-edge-points')return findDiagram(project,operation.diagramId)?.edges?.find(edge=>edge.id===operation.edgeId)?.points;
+  if(operation.type==='move-edge-label'){const edge=findDiagram(project,operation.diagramId)?.edges?.find(item=>item.id===operation.edgeId);return edge&&{labelX:edge.labelX??null,labelY:edge.labelY??null}}
+  if(operation.type==='set-relationship-endpoint')return findTarget(project,'relationship',operation.relationshipId)?.[`${operation.end}Id`];
   if(operation.type==='set-compartment')return findTarget(project,'element',operation.elementId)?.compartments?.[operation.name];
   if(operation.type==='set-compartment-visibility')return findTarget(project,'element',operation.elementId)?.compartmentVisibility?.[operation.name];
   if(operation.type==='set-property-path')return findTarget(project,'relationship',operation.relationshipId)?.[`${operation.end}PropertyPath`];
@@ -31,6 +36,7 @@ export function currentValue(project,operation){
   if(operation.type==='set-connector-kind'){const relationship=findTarget(project,'relationship',operation.relationshipId);return relationship&&{kind:relationship.kind,connectorKind:relationship.connectorKind}}
   if(operation.type==='set-diagram-context')return findDiagram(project,operation.diagramId)?.contextId;
   if(operation.type==='move-element')return findTarget(project,'element',operation.elementId)?.ownerId;
+  if(operation.type==='batch-requirement-edit')return operation.changes.map(change=>findTarget(project,'element',change.id)?.[change.field]);
   return undefined;
 }
 
@@ -40,19 +46,42 @@ export function canRebaseOperation(project,operation){
     return operation.type==='bulk-import'||Boolean(id&&!containsId(project,id));
   }
   if(['set-property','move-node','resize-node','set-edge-points','set-compartment','set-compartment-visibility','set-property-path','set-port-placement','nest-presentation','set-connector-kind','set-diagram-context','move-element'].includes(operation.type))return JSON.stringify(currentValue(project,operation))===JSON.stringify(operation.expectedValue??operation.expectedOwnerId);
+  if(['move-edge-label','set-relationship-endpoint'].includes(operation.type))return JSON.stringify(currentValue(project,operation))===JSON.stringify(operation.expectedValue);
+  if(operation.type==='batch-requirement-edit')return operation.changes.every(change=>JSON.stringify(findTarget(project,'element',change.id)?.[change.field])===JSON.stringify(change.before));
+  if(operation.type==='create-verification-execution')return !project.verificationExecutions?.some(item=>item.id===operation.execution?.id);
+  if(operation.type==='create-requirement-baseline')return !project.requirementBaselines?.some(item=>item.id===operation.baseline?.id);
+  if(operation.type==='mark-suspect-link')return !project.suspectLinks?.some(item=>item.id===operation.record?.id);
+  if(operation.type==='save-report')return !project.savedReports?.some(item=>item.id===operation.report?.id);
+  if(operation.type==='batch-operation')return(operation.operations||[]).every(item=>canRebaseOperation(project,item));
+  if(['clear-suspect-link','record-import-decision','delete-requirement-baseline','delete-report'].includes(operation.type))return true;
   if(['add-item-flow','update-item-flow','remove-item-flow'].includes(operation.type))return true;
   return ['delete-element','delete-relationship','delete-diagram','remove-presentation'].includes(operation.type);
 }
 
-function synchronizeProject(project){synchronizeSemanticModel(project);normalizeIBDProject(project);return project}
+function synchronizeProject(project){normalizeVerificationProject(project);normalizeSuspectLinks(project);synchronizeSemanticModel(project);normalizeIBDProject(project);return project}
 function replaceProject(operation){return synchronizeProject(deepClone(operation.project))}
 
 export function applyOperation(project,operation){
   switch(operation.type){
     case'set-property':{
       const target=required(findTarget(project,operation.targetType||'element',operation.targetId),'Target not found');
-      target[operation.property]=deepClone(operation.value);break;
+      target[operation.property]=deepClone(operation.value);if((operation.targetType||'element')==='element'){const affected=target.kind==='Requirement'&&!['requirementText','requirementId','sourceRevision','verificationMethod'].includes(operation.property)?[]:(project.relationships||[]).filter(relationship=>relationship.sourceId===target.id||relationship.targetId===target.id);for(const relationship of affected)markRelationshipSuspect(project,relationship.id,{id:`suspect-${relationship.id}-${operation.property}-${stableOperationSuffix(operation.value)}`,sourceElementId:target.id,reason:`${operation.property} changed`,date:operation.changedAt||project.metadata?.updatedAt||''})}break;
     }
+    case'batch-requirement-edit':{
+      for(const change of operation.changes||[]){const requirement=required(findTarget(project,'element',change.id),'Requirement not found');if(requirement.kind!=='Requirement')throw Error('Batch edits only support Requirements');if(['id','externalId','kind','ownerId'].includes(change.field))throw Error(`Field is not editable: ${change.field}`);requirement[change.field]=deepClone(change.after)}break;
+    }
+    case'create-verification-execution':{
+      const execution=required(operation.execution,'Verification execution is required');required(findTarget(project,'element',execution.testCaseId),'Test Case not found');if(!VERDICTS.includes(execution.verdict))throw Error('Invalid verification verdict');project.verificationExecutions=project.verificationExecutions||[];if(project.verificationExecutions.some(item=>item.id===execution.id))throw Error(`Duplicate ID: ${execution.id}`);project.verificationExecutions.push(deepClone(execution));break;
+    }
+    case'delete-verification-execution':project.verificationExecutions=(project.verificationExecutions||[]).filter(item=>item.id!==operation.executionId);break;
+    case'batch-operation':{let next=project;for(const item of operation.operations||[])next=applyOperation(next,item);return next}
+    case'create-requirement-baseline':project.requirementBaselines=project.requirementBaselines||[];required(operation.baseline?.id,'Baseline ID is required');if(project.requirementBaselines.some(item=>item.id===operation.baseline.id))throw Error(`Duplicate baseline ID: ${operation.baseline.id}`);project.requirementBaselines.push(deepClone(operation.baseline));break;
+    case'delete-requirement-baseline':if(operation.confirmed!==true)throw Error('Baseline history deletion requires confirmation');project.requirementBaselines=(project.requirementBaselines||[]).filter(item=>item.id!==operation.baselineId);break;
+    case'mark-suspect-link':markRelationshipSuspect(project,operation.relationshipId,deepClone(operation.record||{}));break;
+    case'clear-suspect-link':clearSuspectLink(project,operation.suspectId,deepClone(operation.clearance||{}));break;
+    case'save-report':project.savedReports=project.savedReports||[];if(project.savedReports.some(item=>item.id===operation.report.id))throw Error(`Duplicate report ID: ${operation.report.id}`);project.savedReports.push(deepClone(operation.report));break;
+    case'delete-report':project.savedReports=(project.savedReports||[]).filter(item=>item.id!==operation.reportId);break;
+    case'record-import-decision':project.importHistory=project.importHistory||[];project.importHistory.push(deepClone(operation.decision));break;
     case'move-element':{
       const element=required(findTarget(project,'element',operation.elementId),'Element not found');
       if(element.kind==='Requirement')moveRequirement(project,element.id,operation.targetOwnerId,operation.index);
@@ -107,6 +136,8 @@ export function applyOperation(project,operation){
     case'set-edge-points':{
       const edge=required(findDiagram(project,operation.diagramId)?.edges.find(item=>item.id===operation.edgeId),'Edge not found');edge.points=deepClone(operation.points);break;
     }
+    case'move-edge-label':{const edge=required(findDiagram(project,operation.diagramId)?.edges.find(item=>item.id===operation.edgeId),'Edge not found');edge.labelX=operation.labelX;edge.labelY=operation.labelY;break}
+    case'set-relationship-endpoint':{const relationship=required(findTarget(project,'relationship',operation.relationshipId),'Relationship not found');if(!['source','target'].includes(operation.end))throw Error('Relationship end must be source or target');required(findTarget(project,'element',operation.elementId),'Relationship endpoint not found');relationship[`${operation.end}Id`]=operation.elementId;break}
     case'set-compartment':{
       const element=required(findTarget(project,'element',operation.elementId),'Element not found');element.compartments=element.compartments||{};element.compartments[operation.name]=deepClone(operation.value);break;
     }
