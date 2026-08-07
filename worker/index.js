@@ -59,11 +59,11 @@ export class ProjectRoom extends DurableObject{
     let msg;try{msg=JSON.parse(raw)}catch{ws.send(json({type:'operation-error',message:'Invalid collaboration message.'}));return}
     const attachment=ws.deserializeAttachment()||{};
     if(msg.type==='hello'){
-      const branchId=msg.branchId||'main',identity=attachment.authenticated?attachment.identity:`guest:${String(msg.sessionId||msg.clientId||crypto.randomUUID()).slice(0,128)}`,member=this.member(identity,msg.name);
+      const requestedBranchId=msg.branchId||'main',identity=attachment.authenticated?attachment.identity:`guest:${String(msg.sessionId||msg.clientId||crypto.randomUUID()).slice(0,128)}`,member=this.member(identity,msg.name);let branchId=requestedBranchId,branchFallback=null;
+      let branch;try{branch=this.branch(branchId)}catch{branchId='main';branch=this.branch('main');branchFallback={requestedBranchId,message:`Branch ${requestedBranchId} was not found. Connected to main instead.`}}
       ws.serializeAttachment({...attachment,identity,clientId:msg.clientId,name:msg.name||member.display_name,branchId,role:member.role,device:msg.device||{},lastSeen:Date.now()});
-      let branch;try{branch=this.branch(branchId)}catch(error){ws.send(json({type:'operation-error',message:error.message}));return}
       if(!branch.project&&msg.initialProject){this.sql.exec('UPDATE branches SET snapshot=? WHERE id=?',json(msg.initialProject),branchId);this.sql.exec('INSERT OR IGNORE INTO snapshots(branch_id,sequence,revision_id,project,created_at) VALUES(?,?,?,?,?)',branchId,0,`${branchId}:0`,json(msg.initialProject),now());branch=this.branch(branchId);}
-      ws.send(json({type:'snapshot',project:branch.project,revision:branch.head_revision,branchId,branches:this.listBranches(),commits:this.listCommits(branchId),presence:this.presence(branchId),locks:this.listLocks(branchId),role:member.role}));
+      ws.send(json({type:'snapshot',project:branch.project,revision:branch.head_revision,branchId,branchFallback,branches:this.listBranches(),commits:this.listCommits(branchId),presence:this.presence(branchId),locks:this.listLocks(branchId),role:member.role}));
       this.broadcast(branchId,{type:'presence',users:this.presence(branchId)});return;
     }
     const session=ws.deserializeAttachment()||attachment,member=this.member(session.identity,session.name);
