@@ -14,8 +14,10 @@ import {applyOperation} from './operations.js';
 import {ConflictResolutionDialog} from './collaboration-conflict-ui.js';
 import {withManualValue} from './collaboration-conflicts.js';
 import {CollaborationPresenceView,presenceColor,throttleAwareness} from './collaboration-presence.js';
+import {WorkspacePanels} from './workspace-panels.js';
 const $=id=>document.getElementById(id);let project=normalizeProject(load()||createProject()),selected={type:null,id:null,nodeId:null,edgeId:null},tool=null,sourceId=null,sourceNodeId=null,zoom=1,drag=null,resize=null,undoHistory=[],future=[],view='model',locks=[],connectionState='Local',panState=null,spacePan=false,navigationBack=[],navigationForward=[],treeClipboard=null,treeContextMenu=null,draggedTreeElementId=null,selectedNodeIds=new Set(),marquee=null,edgeEdit=null;
 const initialCollaboration=collaborationSettings({search:location.search,stored:loadCollaborationSettings(localStorage)});
+const workspacePanels=new WorkspacePanels({workspace:document.querySelector('.workspace'),menu:$('panelMenu')});$('resetPanelLayout').onclick=()=>workspacePanels.reset();
 let collaborators=[],pendingCollaborationChanges=0;
 function renderCollaborationPresence(){const status=$('presenceStatus');status.textContent=`${collaborators.length} users${pendingCollaborationChanges?` · ${pendingCollaborationChanges} syncing`:''}`;status.title=collaborators.map(user=>{const focus=user.awareness?.selectedId?` — editing ${findElement(project,user.awareness.selectedId)?.name||user.awareness.selectedId}`:'';return`${user.name} (${user.role||'editor'})${focus}`}).join('\n')||'No collaborators connected'}
 const presenceView=new CollaborationPresenceView({panel:$('presencePanel'),canvasWrap:$('canvasWrap'),getProject:()=>project,getActiveDiagram:()=>activeDiagram(),getSelectedId:()=>selected.id,navigateDiagram:id=>navigateDiagram(id),selectElement:id=>{selected={type:'element',id,nodeId:activeDiagram()?.nodes.find(node=>node.elementId===id)?.id||null,edgeId:null};render()}});
