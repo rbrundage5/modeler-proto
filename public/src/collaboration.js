@@ -15,7 +15,7 @@ export class CollaborationClient{
   this.clientId=options.clientId||crypto.randomUUID();
   this.sessionId=this.storedSessionId();
   this.name=this.storage?.getItem('modeler.displayName')||`User-${this.clientId.slice(0,5)}`;
-  this.branchId='main';this.baseRevision=0;this.socket=null;this.roomId='default';this.pending=[];this.conflicts=new Map();this.awaitingCanonical=new Set();this.seen=new Set();this.reconnectAttempt=0;this.intentional=false;this.activated=false;this.synchronized=false;this.heartbeat=null;this.reconnectTimer=null;this.connectionGeneration=0;
+  this.branchId='main';this.baseRevision=0;this.socket=null;this.roomId='default';this.pending=[];this.conflicts=new Map();this.awaitingCanonical=new Set();this.awarenessState={mode:'modeling'};this.seen=new Set();this.reconnectAttempt=0;this.intentional=false;this.activated=false;this.synchronized=false;this.heartbeat=null;this.reconnectTimer=null;this.connectionGeneration=0;
  }
  storedSessionId(){let value=this.storage?.getItem(SESSION_KEY);if(!value){value=crypto.randomUUID();this.storage?.setItem(SESSION_KEY,value)}return value}
  pendingKey(){return`${PENDING_PREFIX}:${this.roomId}:${this.branchId}`}
@@ -56,7 +56,7 @@ export class CollaborationClient{
  switchBranch(branchId){this.persistPending();this.branchId=branchId;this.synchronized=false;this.restorePending();this.send({type:'switch-branch',branchId})}
  lock(resourceId,ttlMs=120000){this.send({type:'lock',resourceId,ttlMs})}
  unlock(resourceId){this.send({type:'unlock',resourceId})}
- awareness(state={}){this.send({type:'awareness',state:{selectedId:state.selectedId||null,diagramId:state.diagramId||null,mode:state.mode||'modeling'}})}
+ awareness(state={}){this.awarenessState={...this.awarenessState,...state};this.send({type:'awareness',state:this.awarenessState})}
  requestHistory({cursor=null,limit=100,targetId='',actorUserId=''}={}){this.send({type:'history',cursor,limit,targetId,actorUserId})}
  timeTravel(sequence){this.send({type:'time-travel',sequence})}
  setName(name){this.name=name;this.storage?.setItem('modeler.displayName',name)}

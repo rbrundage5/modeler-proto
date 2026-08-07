@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {CollaborationClient} from '../public/src/collaboration.js';
+import {presenceColor,presenceState,throttleAwareness} from '../public/src/collaboration-presence.js';
 import {createProject} from '../public/src/model.js';
 
 class MemoryStorage{
@@ -23,6 +24,12 @@ const noTimers={setInterval:()=>1,clearInterval:()=>{},setTimeout:()=>2,clearTim
 function clientOptions(storage,project=createProject('Shared')){return{storage,WebSocketClass:FakeSocket,location:{protocol:'https:',host:'modeler.test'},timer:noTimers,getProject:()=>project,onProject:next=>{project=next},onStatus:()=>{},onPresence:()=>{}}}
 
 test('Connect uses the browser History API instead of the local undo stack',async()=>{const source=await readFile(new URL('../public/src/app.js',import.meta.url),'utf8');assert.match(source,/window\.history\.replaceState\(/);assert.doesNotMatch(source,/\blet\b[^;]*\bhistory=\[\]/);assert.match(source,/undoHistory=\[\]/)});
+
+test('presence colors are stable and activity states distinguish active, idle, and offline users',()=>{assert.equal(presenceColor('user-a'),presenceColor('user-a'));assert.notEqual(presenceColor('user-a'),presenceColor('user-b'));const now=1_000_000;assert.equal(presenceState({lastSeen:now-1000},now),'active');assert.equal(presenceState({lastSeen:now-70000},now),'idle');assert.equal(presenceState({lastSeen:now-200000},now),'offline');assert.equal(presenceState({lastSeen:now,offline:true},now),'offline')});
+
+test('cursor awareness is throttled and coalesces the latest ephemeral state',async()=>{const sent=[],publish=throttleAwareness(value=>sent.push(value),20);publish({cursor:{x:1,y:1}});publish({cursor:{x:2,y:2},typing:true});await new Promise(resolve=>setTimeout(resolve,30));assert.equal(sent.length,2);assert.deepEqual(sent.at(-1),{cursor:{x:2,y:2},typing:true})});
+
+test('application wires visible presence panel, cursor, selection, property, and typing awareness',async()=>{const [app,index]=await Promise.all([readFile(new URL('../public/src/app.js',import.meta.url),'utf8'),readFile(new URL('../public/index.html',import.meta.url),'utf8')]);assert.match(index,/id="presencePanel"/);assert.match(app,/CollaborationPresenceView/);assert.match(app,/propertyName,typing:true/);assert.match(app,/presentationId:selected\.nodeId/);assert.match(app,/cursor:\{x:/)});
 
 test('collaboration identity survives reconnects and hello includes device session identity',()=>{FakeSocket.instances=[];const storage=new MemoryStorage(),first=new CollaborationClient(clientOptions(storage));first.connect('aircraft','main');FakeSocket.instances[0].open();const hello=FakeSocket.instances[0].sent[0];assert.equal(hello.type,'hello');assert.ok(hello.sessionId);first.disconnect();const second=new CollaborationClient(clientOptions(storage));assert.equal(second.sessionId,hello.sessionId)});
 
