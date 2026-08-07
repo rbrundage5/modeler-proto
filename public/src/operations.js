@@ -26,6 +26,10 @@ export function currentValue(project,operation){
   if(operation.type==='set-property')return findTarget(project,operation.targetType||'element',operation.targetId)?.[operation.property];
   if(operation.type==='move-node'){const node=findNode(project,operation.diagramId,operation.nodeId);return node&&{x:node.x,y:node.y}}
   if(operation.type==='resize-node'){const node=findNode(project,operation.diagramId,operation.nodeId);return node&&{width:node.width,height:node.height}}
+  if(operation.type==='resize-lifeline-timeline')return findNode(project,operation.diagramId,operation.nodeId)?.timelineEndY;
+  if(operation.type==='move-message-occurrence')return findDiagram(project,operation.diagramId)?.edges.find(item=>item.id===operation.edgeId)?.occurrenceY;
+  if(operation.type==='resize-execution-specification')return findNode(project,operation.diagramId,operation.nodeId)?.height;
+  if(operation.type==='reconnect-message'){const edge=findDiagram(project,operation.diagramId)?.edges.find(item=>item.id===operation.edgeId),relationship=findTarget(project,'relationship',operation.relationshipId);return edge&&relationship&&{nodeId:edge[`${operation.end}NodeId`],elementId:relationship[`${operation.end}Id`]}}
   if(operation.type==='set-edge-points')return findDiagram(project,operation.diagramId)?.edges?.find(edge=>edge.id===operation.edgeId)?.points;
   if(operation.type==='move-edge-label'){const edge=findDiagram(project,operation.diagramId)?.edges?.find(item=>item.id===operation.edgeId);return edge&&{labelX:edge.labelX??null,labelY:edge.labelY??null}}
   if(operation.type==='set-relationship-endpoint')return findTarget(project,'relationship',operation.relationshipId)?.[`${operation.end}Id`];
@@ -46,7 +50,7 @@ export function canRebaseOperation(project,operation){
     const id=operation.element?.id||operation.relationship?.id||operation.diagram?.id||operation.node?.id;
     return operation.type==='bulk-import'||Boolean(id&&!containsId(project,id));
   }
-  if(['set-property','move-node','resize-node','set-edge-points','set-compartment','set-compartment-visibility','set-property-path','set-port-placement','nest-presentation','set-connector-kind','set-diagram-context','move-element'].includes(operation.type))return JSON.stringify(currentValue(project,operation))===JSON.stringify(operation.expectedValue??operation.expectedOwnerId);
+  if(['set-property','move-node','resize-node','resize-lifeline-timeline','move-message-occurrence','resize-execution-specification','reconnect-message','set-edge-points','set-compartment','set-compartment-visibility','set-property-path','set-port-placement','nest-presentation','set-connector-kind','set-diagram-context','move-element'].includes(operation.type))return JSON.stringify(currentValue(project,operation))===JSON.stringify(operation.expectedValue??operation.expectedOwnerId);
   if(['move-edge-label','set-relationship-endpoint'].includes(operation.type))return JSON.stringify(currentValue(project,operation))===JSON.stringify(operation.expectedValue);
   if(operation.type==='batch-requirement-edit')return operation.changes.every(change=>JSON.stringify(findTarget(project,'element',change.id)?.[change.field])===JSON.stringify(change.before));
   if(operation.type==='create-verification-execution')return !project.verificationExecutions?.some(item=>item.id===operation.execution?.id);
@@ -142,6 +146,10 @@ export function applyOperation(project,operation){
     case'resize-node':{
       const node=required(findNode(project,operation.diagramId,operation.nodeId),'Node not found');node.width=operation.width;node.height=operation.height;break;
     }
+    case'resize-lifeline-timeline':{const node=required(findNode(project,operation.diagramId,operation.nodeId),'Lifeline presentation not found');node.timelineEndY=Math.max(node.y+(node.headHeight??45)+80,operation.timelineEndY);break}
+    case'move-message-occurrence':{const edge=required(findDiagram(project,operation.diagramId)?.edges.find(item=>item.id===operation.edgeId),'Message presentation not found');edge.occurrenceY=Math.max(60,operation.occurrenceY);break}
+    case'resize-execution-specification':{const node=required(findNode(project,operation.diagramId,operation.nodeId),'Execution specification not found');node.height=Math.max(35,operation.height);break}
+    case'reconnect-message':{if(!['source','target'].includes(operation.end))throw Error('Message end must be source or target');const diagram=required(findDiagram(project,operation.diagramId),'Diagram not found'),edge=required(diagram.edges.find(item=>item.id===operation.edgeId),'Message presentation not found'),relationship=required(findTarget(project,'relationship',operation.relationshipId),'Message not found'),lifeline=required(findNode(project,operation.diagramId,operation.nodeId),'Lifeline presentation not found'),semantic=required(findTarget(project,'element',operation.elementId),'Lifeline not found');if(semantic.kind!=='Lifeline'||lifeline.elementId!==semantic.id)throw Error('Messages may only reconnect to Lifelines');edge[`${operation.end}NodeId`]=lifeline.id;edge[`${operation.end}Id`]=semantic.id;relationship[`${operation.end}Id`]=semantic.id;break}
     case'set-edge-points':{
       const edge=required(findDiagram(project,operation.diagramId)?.edges.find(item=>item.id===operation.edgeId),'Edge not found');edge.points=deepClone(operation.points);break;
     }

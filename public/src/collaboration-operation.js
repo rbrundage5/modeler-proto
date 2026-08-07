@@ -4,6 +4,7 @@ export const OPERATION_STATUSES=['pending','accepted','rejected','conflicted','r
 export const GRANULAR_OPERATION_TYPES=new Set([
  'set-property','move-element','create-element','delete-element','create-relationship','delete-relationship','set-relationship-endpoint',
  'create-diagram','delete-diagram','add-presentation','remove-presentation','move-node','resize-node','set-edge-points','move-edge-label',
+ 'resize-lifeline-timeline','move-message-occurrence','reconnect-message','resize-execution-specification',
  'set-compartment','set-compartment-visibility','set-property-path','set-port-placement','nest-presentation','set-connector-kind','set-diagram-context',
  'add-item-flow','update-item-flow','remove-item-flow','batch-requirement-edit','create-verification-execution','delete-verification-execution',
  'create-requirement-baseline','delete-requirement-baseline','mark-suspect-link','clear-suspect-link','save-report','delete-report','record-import-decision',
