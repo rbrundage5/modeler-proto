@@ -1,8 +1,10 @@
-# Systems Modeler Collaborative v7
+# Systems Modeler Collaborative
+
+The package metadata is currently version **10.0.0**. Version-numbered sections below describe historical development increments and do not supersede `package.json` as the current package version.
 
 Deployable Cloudflare Worker collaborative SysML project environment. New repositories are blank by default.
 
-# Systems Modeler Collaborative
+## Historical project overview
 
 A deployable browser-based SysML 1.x modeling application with a CATIA/Cameo-inspired workspace, structured model repository, editable diagrams, Excel import, validation, local persistence, and shared project rooms through Cloudflare Durable Objects.
 

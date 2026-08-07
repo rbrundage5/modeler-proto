@@ -220,7 +220,7 @@ export function normalizeKind(value,fallback='') {
     constraintproperty:'ConstraintProperty',constraintparameter:'ConstraintParameter',package:'Package',actor:'Actor',usecase:'UseCase',
     activity:'Activity',action:'Action',activityparameternode:'ActivityParameterNode',statemachine:'StateMachine',state:'State',
     signal:'Signal',event:'Signal',interaction:'Interaction',lifeline:'Lifeline',valuetype:'ValueType',datatype:'DataType',
-    instancespecification:'InstanceSpecification',instance:'InstanceSpecification',slot:'Slot',configuration:'Configuration',
+    instancespecification:'InstanceSpecification',instance:'InstanceSpecification',slot:'Slot',configuration:'Configuration',sitecontext:'SiteContext',site:'SiteContext',definitionrevision:'DefinitionRevision',
     callbehavioraction:'CallBehaviorAction',calloperationaction:'CallOperationAction',sendsignalaction:'SendSignalAction',
     accepteventaction:'AcceptEventAction',inputpin:'InputPin',outputpin:'OutputPin'
   };
