@@ -1,6 +1,6 @@
 # SysML notation audit
 
-The automated notation audit enumerates every element and relationship exposed by each diagram palette and fails when a semantic profile entry or reusable SVG palette icon is missing. The current registry covers 75 element kinds and 30 relationship kinds across BDD, IBD, requirement, use-case, activity, state-machine, sequence, parametric, package, and instance diagrams.
+The automated notation audit enumerates every element and relationship exposed by each diagram palette and fails when a semantic profile entry or reusable SVG palette icon is missing. The current registry covers 70 directly placeable element kinds and 30 relationship kinds across the active palettes for BDD, IBD, requirement, use-case, activity, state-machine, sequence, parametric, package, and instance diagrams.
 
 The canvas now provides a standard diagram frame/title tab, vector-effect-safe strokes, notation-specific package and comment outlines, actor/use-case/port symbols, activity initial/final/flow-final/control nodes, state initial/final/choice/junction/history nodes, and relationship endpoint markers. Classifier compartments continue to derive from semantic ownership and remain collapsible, visible, and resize-aware.
 
