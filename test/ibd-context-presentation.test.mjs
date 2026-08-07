@@ -1,0 +1,6 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {ensureIBDContextPresentation,visibleIBDNodes} from '../public/src/ibd-engine.js';
+
+test('IBD owner is a nonvisual frame context rather than a giant Block node',()=>{const project={elements:[{id:'owner',kind:'Block'}]},diagram={id:'ibd',diagramType:'Internal Block Diagram',contextId:'owner',nodes:[]};const context=ensureIBDContextPresentation(project,diagram);assert.equal(context.elementId,'owner');assert.equal(context.presentationKind,'DiagramFrameContext');assert.equal(context.nonVisualContext,true);assert.deepEqual(visibleIBDNodes(diagram),[]);assert.equal(project.elements.length,1)});
+test('legacy generated context presentations migrate without deleting legitimate content',()=>{const project={elements:[{id:'owner',kind:'Block'},{id:'part',kind:'PartProperty'}]},diagram={id:'ibd',diagramType:'Internal Block Diagram',contextId:'owner',nodes:[{id:'legacy',elementId:'owner',x:40,y:40,width:1200,height:760,isContextBoundary:true},{id:'part-node',elementId:'part',x:100,y:100,width:180,height:100}]};ensureIBDContextPresentation(project,diagram);assert.equal(diagram.nodes[0].nonVisualContext,true);assert.deepEqual(visibleIBDNodes(diagram).map(node=>node.id),['part-node']);assert.equal(project.elements.some(element=>element.id==='owner'),true)});
