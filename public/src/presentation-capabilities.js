@@ -3,7 +3,7 @@ const CAPABILITIES={
  LifelinePresentation:{...BASE,moveMode:'horizontal',resizable:false,timelineResizable:true,attachable:true},
  MessagePresentation:{...BASE,movable:true,moveMode:'vertical',resizable:false,attachable:true,reconnectable:true},
  ExecutionSpecificationPresentation:{...BASE,moveMode:'vertical',resizable:false,timelineResizable:true,attachable:true,contextualParent:'LifelinePresentation'},
- CombinedFragmentPresentation:{...BASE},InteractionUsePresentation:{...BASE},PortPresentation:{...BASE,moveMode:'boundary',resizable:false,attachable:true,contextualParent:'BlockOrPropertyBoundary'},
+ CombinedFragmentPresentation:{...BASE},InteractionUsePresentation:{...BASE},PortPresentation:{...BASE,moveMode:'boundary',resizable:false,attachable:true,contextualParent:'BlockOrPropertyBoundary'},InputPinPresentation:{...BASE,moveMode:'boundary',resizable:false,attachable:true,contextualParent:'ActionBoundary'},OutputPinPresentation:{...BASE,moveMode:'boundary',resizable:false,attachable:true,contextualParent:'ActionBoundary'},
  ConnectorPresentation:{...BASE,movable:false,resizable:false,attachable:true,reconnectable:true},
  DiagramFrameContext:{renderable:false,selectable:false,movable:false,resizable:false,labelEditable:false,attachable:true,reconnectable:false,contextualParent:'DiagramFrame',deletePresentation:false,semanticDelete:false,undoRedo:false,persistent:true}
 };
