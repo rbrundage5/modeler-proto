@@ -6,6 +6,7 @@ The interaction audit distinguishes semantic elements from diagram presentations
 |---|---|---|---|---|---|
 | BDD | blocks, value/constraint types | yes | regular | relationships use edge endpoints | pass |
 | IBD | part/reference properties, ports | yes | regular/boundary | connectors retain endpoint paths | pass |
+| IBD | explicitly placed Block | yes | regular | manual definition/reference view only; never auto-generated | pass |
 | IBD | owning Block as interior node | **not generated** | n/a | nonvisual frame context accepts boundary ports | correct |
 | Use Case | actors, use cases | yes | regular | associations use edge endpoints | pass |
 | Requirement | requirements | yes | regular | traceability edges use edge endpoints | pass |
