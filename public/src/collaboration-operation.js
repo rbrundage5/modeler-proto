@@ -13,7 +13,7 @@ const clone=value=>globalThis.structuredClone?structuredClone(value):JSON.parse(
 const id=prefix=>`${prefix}-${globalThis.crypto?.randomUUID?.()||Math.random().toString(36).slice(2)}`;
 
 export function operationTargets(operation={}){
- const semanticTargetId=operation.targetId||operation.elementId||operation.relationshipId||operation.connectorId||operation.itemFlowId||operation.baselineId||operation.suspectId||null;
+ const semanticTargetId=operation.targetId||operation.elementId||operation.node?.elementId||operation.relationshipId||operation.connectorId||operation.itemFlowId||operation.baselineId||operation.suspectId||null;
  const presentationTargetId=operation.nodeId||operation.edgeId||operation.node?.id||operation.edge?.id||null;
  return{semanticTargetId,presentationTargetId,targetProperty:operation.property||operation.field||operation.end||null};
 }
