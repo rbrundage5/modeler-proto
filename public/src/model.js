@@ -2,6 +2,9 @@ import {ELEMENTS,RELATIONSHIPS,DIAGRAMS} from "./sysml-profile.js";
 import {synchronizeSemanticModel} from './semantic-core.js';
 import {normalizeIBDProject} from './ibd-engine.js';
 import {initializeRequirement,requirementPolicy} from './requirements.js';
+import {normalizeVerificationProject} from './verification-model.js';
+import {normalizeSuspectLinks} from './suspect-links.js';
+import {normalizeCollaborationArtifacts} from './model-reviews.js';
 export const DIAGRAM_TYPES=Object.keys(DIAGRAMS);
 export function uid(prefix="id"){return `${prefix}-${crypto.randomUUID()}`}
 export function createProject(name="New Systems Model"){
@@ -74,9 +77,9 @@ export function relationshipStyle(kind){
 }
 export function multiplicityFromBounds(lower="1",upper="1"){const lo=String(lower??"1").trim()||"0",hi=String(upper??lo).trim()||lo;return lo===hi?lo:`${lo}..${hi}`}
 export function normalizeProject(p){
-  p.relationships=p.relationships||[];p.commits=p.commits||[];p.branch=p.branch||"main";p.requirementBaselines=p.requirementBaselines||[];p.analysisRuns=p.analysisRuns||[];p.savedViews=p.savedViews||[];p.savedQueries=p.savedQueries||[];p.libraries=p.libraries||[];p.profiles=p.profiles||[];p.importHistory=p.importHistory||[];p.attachments=p.attachments||[];p.configurations=p.configurations||[];
+  p.relationships=p.relationships||[];p.commits=p.commits||[];p.branch=p.branch||"main";p.requirementBaselines=p.requirementBaselines||[];p.requirementTables=p.requirementTables||[];p.verificationExecutions=p.verificationExecutions||[];p.suspectLinks=p.suspectLinks||[];p.savedReports=p.savedReports||[];p.analysisRuns=p.analysisRuns||[];p.savedViews=p.savedViews||[];p.savedQueries=p.savedQueries||[];p.libraries=p.libraries||[];p.profiles=p.profiles||[];p.importHistory=p.importHistory||[];p.attachments=p.attachments||[];p.configurations=p.configurations||[];
   requirementPolicy(p);
   for(const e of allElements(p)){if(e.kind==='Requirement')initializeRequirement(e);e.compartments=e.compartments||{};e.compartmentVisibility=e.compartmentVisibility||{};if(e.multiplicityLower==null||e.multiplicityUpper==null){const m=String(e.multiplicity||"1").trim();if(m.includes("..")){const [lo,hi]=m.split("..",2);e.multiplicityLower=lo||"0";e.multiplicityUpper=hi||"*"}else{e.multiplicityLower=m||"1";e.multiplicityUpper=m||"1"}}e.multiplicity=multiplicityFromBounds(e.multiplicityLower,e.multiplicityUpper)}
   for(const d of p.diagrams||[]){d.nodes=d.nodes||[];d.edges=d.edges||[]}
-  synchronizeSemanticModel(p);normalizeIBDProject(p);refreshQualifiedNames(p);return p;
+  normalizeVerificationProject(p);normalizeSuspectLinks(p);normalizeCollaborationArtifacts(p);synchronizeSemanticModel(p);normalizeIBDProject(p);refreshQualifiedNames(p);return p;
 }

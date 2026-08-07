@@ -37,7 +37,7 @@ export const RELATIONSHIPS = {
 };
 const activityEls=["Action","CallBehaviorAction","CallOperationAction","SendSignalAction","AcceptEventAction","InputPin","OutputPin","ActivityParameterNode","ObjectNode","CentralBufferNode","DataStoreNode","InitialNode","ActivityFinalNode","FlowFinalNode","DecisionNode","MergeNode","ForkNode","JoinNode","ActivityPartition","StructuredActivityNode","ExpansionRegion","InterruptibleActivityRegion","PartProperty","Comment"];
 const stateEls=["Region","State","CompositeState","SubmachineState","InitialPseudostate","ChoicePseudostate","JunctionPseudostate","ShallowHistory","DeepHistory","EntryPoint","ExitPoint","StateFork","StateJoin","FinalState","Comment"];
-const seqEls=["Lifeline","Actor","ExecutionSpecification","CombinedFragment","InteractionOperand","Gate","InteractionUse","TimeConstraint","DurationConstraint","Comment"];
+const seqEls=["Lifeline","CombinedFragment","InteractionUse","Comment"];
 export const DIAGRAMS = {
  "Block Definition Diagram":{abbreviation:"bdd",elements:["Package","Block","AssociationBlock","InterfaceBlock","ConstraintBlock","ValueType","DataType","Enumeration","Signal","Unit","QuantityKind","InstanceSpecification","Comment"],relationships:["Association","AssociationBlock","Generalization","Dependency","Abstraction","Realization","Composition","Aggregation","Satisfy","Verify","Refine","Trace","Allocate","Redefines","Subsets","Provides","Requires"]},
  "Internal Block Diagram":{abbreviation:"ibd",contextKinds:["Block"],elements:["PartProperty","ReferenceProperty","ValueProperty","FlowProperty","ProxyPort","FullPort","ConstraintProperty","Comment"],relationships:["Connector","DelegationConnector","BindingConnector","ItemFlow","Dependency","Allocate"]},

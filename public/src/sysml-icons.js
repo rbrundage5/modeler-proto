@@ -43,4 +43,22 @@ const aliases={
  'Block Definition Diagram':'Diagram','Internal Block Diagram':'Diagram','Requirement Diagram':'Diagram','Use Case Diagram':'Diagram','Activity Diagram':'Diagram','State Machine Diagram':'Diagram','Sequence Diagram':'Diagram','Parametric Diagram':'Diagram','Package Diagram':'Diagram','Instance Diagram':'Diagram',
  CallOperationAction:'Action',SendSignalAction:'Signal',AcceptEventAction:'Action',InputPin:'Parameter',OutputPin:'Parameter',ActivityParameterNode:'Parameter',CentralBufferNode:'ObjectNode',DataStoreNode:'ObjectNode',StructuredActivityNode:'Activity',ExpansionRegion:'Activity',InterruptibleActivityRegion:'Activity',ActivityPartition:'Package',ChoicePseudostate:'DecisionNode',JunctionPseudostate:'DecisionNode',ShallowHistory:'State',DeepHistory:'State',EntryPoint:'InitialPseudostate',ExitPoint:'FinalState',StateFork:'ForkNode',StateJoin:'JoinNode',SubmachineState:'State',Region:'Package',ExecutionSpecification:'Lifeline',InteractionOperand:'CombinedFragment',Gate:'Parameter',InteractionUse:'Interaction',TimeConstraint:'ConstraintProperty',DurationConstraint:'ConstraintProperty',TagDefinition:'ValueProperty'
 };
-export function sysmlIcon(kind){const key=aliases[kind]||kind;const maker=ICONS[key]||(()=>classifier(`<text x="10" y="14" text-anchor="middle" font-size="7" font-family="sans-serif" fill="${A}">${String(kind||'?').slice(0,2)}</text>`));return maker()}
+export function sysmlIcon(kind){const key=aliases[kind]||kind;const maker=ICONS[key]||(()=>classifier(`<text x="10" y="14" text-anchor="middle" font-size="7" font-family="sans-serif" fill="${A}">${String(kind||'Element').slice(0,2)}</text>`));return maker()}
+
+const RELATIONSHIP_ICONS={
+ Association:()=>svg(`<path d="M2 10h16" stroke="${A}" stroke-width="1.4"/>`,'association'),
+ Connector:()=>svg(`<path d="M2 10h16" stroke="${A}" stroke-width="1.6"/><rect x="1.5" y="8" width="4" height="4" fill="white" stroke="${A}"/><rect x="14.5" y="8" width="4" height="4" fill="white" stroke="${A}"/>`,'connector'),
+ BindingConnector:()=>svg(`<path d="M2 10h16" stroke="${A}" stroke-width="1.6"/><circle cx="3" cy="10" r="2" fill="white" stroke="${A}"/><circle cx="17" cy="10" r="2" fill="white" stroke="${A}"/>`,'binding connector'),
+ Generalization:()=>svg(`<path d="M2 10h11" stroke="${A}"/><path d="m18 10-6-4v8z" fill="white" stroke="${A}"/>`,'generalization'),
+ Composition:()=>svg(`<path d="M7 10h11" stroke="${A}"/><path d="m2 10 4-3 4 3-4 3z" fill="${A}" stroke="${A}"/>`,'composition'),
+ Aggregation:()=>svg(`<path d="M7 10h11" stroke="${A}"/><path d="m2 10 4-3 4 3-4 3z" fill="white" stroke="${A}"/>`,'aggregation'),
+ Dependency:()=>svg(`<path d="M2 10h13" stroke="${A}" stroke-dasharray="3 2"/><path d="m14 6 4 4-4 4" fill="none" stroke="${A}"/>`,'dependency'),
+ ControlFlow:()=>svg(`<path d="M2 10h13" stroke="${A}"/><path d="m14 6 4 4-4 4" fill="none" stroke="${A}"/>`,'control flow'),
+ ObjectFlow:()=>svg(`<path d="M2 10h13" stroke="${A}"/><path d="m14 6 4 4-4 4" fill="none" stroke="${A}"/>`,'object flow')
+};
+for(const kind of ['AssociationBlock','DelegationConnector','ItemFlow'])RELATIONSHIP_ICONS[kind]=RELATIONSHIP_ICONS.Connector;
+for(const kind of ['Abstraction','Redefines','Subsets','Requires','Satisfy','Verify','Refine','DeriveReqt','Trace','Copy','Allocate','Include','Extend','VariantBinding'])RELATIONSHIP_ICONS[kind]=RELATIONSHIP_ICONS.Dependency;
+for(const kind of ['Realization','Provides'])RELATIONSHIP_ICONS[kind]=()=>svg(`<path d="M2 10h11" stroke="${A}" stroke-dasharray="3 2"/><path d="m18 10-6-4v8z" fill="white" stroke="${A}"/>`,'realization');
+for(const kind of ['InterruptingEdge','Transition','Message'])RELATIONSHIP_ICONS[kind]=RELATIONSHIP_ICONS.ControlFlow;
+export function hasSysmlIcon(kind){return Boolean(ICONS[aliases[kind]||kind]||RELATIONSHIP_ICONS[kind])}
+export function sysmlPaletteIcon(kind){return RELATIONSHIP_ICONS[kind]?.()||sysmlIcon(kind)}
