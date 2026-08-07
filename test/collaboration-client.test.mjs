@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
 import {CollaborationClient} from '../public/src/collaboration.js';
 import {createProject} from '../public/src/model.js';
 
@@ -20,6 +21,8 @@ class FakeSocket{
 }
 const noTimers={setInterval:()=>1,clearInterval:()=>{},setTimeout:()=>2,clearTimeout:()=>{}};
 function clientOptions(storage,project=createProject('Shared')){return{storage,WebSocketClass:FakeSocket,location:{protocol:'https:',host:'modeler.test'},timer:noTimers,getProject:()=>project,onProject:next=>{project=next},onStatus:()=>{},onPresence:()=>{}}}
+
+test('Connect uses the browser History API instead of the local undo stack',async()=>{const source=await readFile(new URL('../public/src/app.js',import.meta.url),'utf8');assert.match(source,/window\.history\.replaceState\(/);assert.doesNotMatch(source,/\blet\b[^;]*\bhistory=\[\]/);assert.match(source,/undoHistory=\[\]/)});
 
 test('collaboration identity survives reconnects and hello includes device session identity',()=>{FakeSocket.instances=[];const storage=new MemoryStorage(),first=new CollaborationClient(clientOptions(storage));first.connect('aircraft','main');FakeSocket.instances[0].open();const hello=FakeSocket.instances[0].sent[0];assert.equal(hello.type,'hello');assert.ok(hello.sessionId);first.disconnect();const second=new CollaborationClient(clientOptions(storage));assert.equal(second.sessionId,hello.sessionId)});
 
