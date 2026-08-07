@@ -42,6 +42,7 @@
     <label class="search-control"><span>Search model</span><input id="searchBox" placeholder="Name, ID, stereotype, kind"><button id="searchButton">Find</button></label>
     <div class="command-group collaboration-controls"><span class="group-label">Collaboration</span><label>Name<input id="displayName" value="Modeler" autocomplete="nickname"></label><label>Room<input id="roomId" value="default" autocomplete="off"></label><label>Branch<select id="branchSelect"><option value="main">main</option></select></label><button id="connectRoom" class="primary-action">Connect</button><button id="copyRoomLink" title="Copy a link that opens this collaboration room">Copy Link</button><button id="commitModel">Commit</button><button id="newBranch">New Branch</button><button id="mergeBranch">Merge</button><button id="lockSelected">Lock</button><button id="unlockSelected">Unlock</button><button id="presenceStatus" class="presence-chip" type="button" aria-expanded="false" aria-controls="presencePanel">0 users</button><section id="presencePanel" class="presence-panel" hidden aria-label="Project collaborators"></section></div>
   </div>
+  <div id="commandBarSplitter" class="command-bar-splitter" role="separator" aria-label="Resize command toolbar" aria-orientation="horizontal" tabindex="0"></div>
 
   <main class="workspace">
     <section class="pane browser-pane" aria-label="Model browser">
