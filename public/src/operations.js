@@ -4,6 +4,9 @@ import {moveRequirement} from './requirements.js';
 import {normalizeVerificationProject,VERDICTS} from './verification-model.js';
 import {clearSuspectLink,markRelationshipSuspect,normalizeSuspectLinks} from './suspect-links.js';
 import {createModelComment,createReviewRequest,resolveComment,transitionReview} from './model-reviews.js';
+import {addConfigurationItem,assignInstanceDefinition,assignInstanceUsage,assignRequirementApplicability,assignUsageDefinition,captureConfigurationBaseline,normalizeSemanticFoundation,removeConfigurationItem} from './semantic-foundation.js';
+import {addRequirementDecomposition,createRequirement,createRequirementRelationship,createRequirementRevision,markRequirementChangeSuspect,removeRequirementDecomposition} from './requirement-architecture.js';
+import {normalizeRequirementArchitecture} from './requirements.js';
 
 export function deepClone(value){return globalThis.structuredClone?structuredClone(value):JSON.parse(JSON.stringify(value))}
 function stableOperationSuffix(value){let hash=2166136261;for(const character of JSON.stringify(value??null)){hash^=character.charCodeAt(0);hash=Math.imul(hash,16777619)}return(hash>>>0).toString(36)}
@@ -67,17 +70,33 @@ export function canRebaseOperation(project,operation){
   return ['delete-element','delete-relationship','delete-diagram','remove-presentation'].includes(operation.type);
 }
 
-function synchronizeProject(project){normalizeVerificationProject(project);normalizeSuspectLinks(project);synchronizeSemanticModel(project);normalizeIBDProject(project);return project}
+function synchronizeProject(project){normalizeVerificationProject(project);normalizeSuspectLinks(project);normalizeSemanticFoundation(project);normalizeRequirementArchitecture(project);synchronizeSemanticModel(project);normalizeIBDProject(project);return project}
 function replaceProject(operation){return synchronizeProject(deepClone(operation.project))}
 
 export function applyOperation(project,operation){
   switch(operation.type){
+    case'assign-usage-definition':assignUsageDefinition(project,operation.usageId,operation.definitionId);break;
+    case'assign-instance-definition':assignInstanceDefinition(project,operation.instanceId,operation.definitionId);break;
+    case'assign-instance-usage':assignInstanceUsage(project,operation.instanceId,operation.usageId);break;
+    case'add-configuration-item':addConfigurationItem(project,operation.configurationId,deepClone(operation.item));break;
+    case'remove-configuration-item':removeConfigurationItem(project,operation.configurationId,operation.itemId);break;
+    case'capture-configuration-baseline':captureConfigurationBaseline(project,operation.configurationId,deepClone(operation.baseline||{}));break;
+    case'assign-requirement-applicability':assignRequirementApplicability(project,operation.requirementId,deepClone(operation.rule));break;
+    case'create-requirement':{if(findTarget(project,'element',operation.requirement?.id))break;createRequirement(project,deepClone(operation.requirement));break}
+    case'create-requirement-revision':{if(findTarget(project,'element',operation.revision?.id))break;createRequirementRevision(project,operation.requirementId,deepClone(operation.revision));markRequirementChangeSuspect(project,operation.requirementId,{field:'currentRevisionId',reason:'Requirement Revision created'});break}
+    case'add-requirement-decomposition':addRequirementDecomposition(project,operation.parentId,operation.childId,operation.index);markRequirementChangeSuspect(project,operation.childId,{field:'ownerId',reason:'Requirement decomposition changed'});break;
+    case'remove-requirement-decomposition':removeRequirementDecomposition(project,operation.childId,operation.newOwnerId);markRequirementChangeSuspect(project,operation.childId,{field:'ownerId',reason:'Requirement decomposition removed'});break;
+    case'create-requirement-relationship':{if(project.relationships.some(item=>item.id===operation.relationship?.id))break;const value=operation.relationship;createRequirementRelationship(project,value.kind,value.sourceId,value.targetId,value);break}
+    case'upsert-requirement-applicability':{const requirement=required(findTarget(project,'element',operation.requirementId),'Requirement not found'),rules=requirement.applicabilityRules||[],index=rules.findIndex(item=>item.id===operation.rule.id);if(index>=0)rules[index]=deepClone(operation.rule);else assignRequirementApplicability(project,operation.requirementId,deepClone(operation.rule));requirement.applicabilityRules=rules;markRequirementChangeSuspect(project,requirement.id,{field:'applicabilityRules',reason:'Requirement applicability changed'});break}
+    case'delete-requirement-applicability':{const requirement=required(findTarget(project,'element',operation.requirementId),'Requirement not found');requirement.applicabilityRules=(requirement.applicabilityRules||[]).filter(item=>item.id!==operation.ruleId);markRequirementChangeSuspect(project,requirement.id,{field:'applicabilityRules',reason:'Requirement applicability removed'});break}
     case'create-comment':createModelComment(project,operation.comment);break;
     case'resolve-comment':resolveComment(project,operation.commentId,{actor:operation.actor,status:operation.status});break;
     case'create-review-request':createReviewRequest(project,operation.review);break;
     case'transition-review':transitionReview(project,operation.reviewId,operation.status,operation.actor);break;
     case'set-property':{
       const target=required(findTarget(project,operation.targetType||'element',operation.targetId),'Target not found');
+      if(target.kind==='Configuration'&&(target.status==='Released'||target.baselineId))throw Error('Released or baselined configurations cannot be changed through ordinary editing. Create a successor configuration.');
+      if(target.kind==='RequirementRevision'&&target.immutable)throw Error('Released Requirement Revisions are immutable. Create a successor revision.');
       target[operation.property]=deepClone(operation.value);if((operation.targetType||'element')==='element'){const affected=target.kind==='Requirement'&&!['requirementText','requirementId','sourceRevision','verificationMethod'].includes(operation.property)?[]:(project.relationships||[]).filter(relationship=>relationship.sourceId===target.id||relationship.targetId===target.id);for(const relationship of affected)markRelationshipSuspect(project,relationship.id,{id:`suspect-${relationship.id}-${operation.property}-${stableOperationSuffix(operation.value)}`,sourceElementId:target.id,reason:`${operation.property} changed`,date:operation.changedAt||project.metadata?.updatedAt||''})}break;
     }
     case'batch-requirement-edit':{
@@ -109,6 +128,7 @@ export function applyOperation(project,operation){
       break;
     }
     case'delete-element':{
+      if((project.configurationBaselines||[]).some(baseline=>(baseline.snapshot?.includedSemanticIds||[]).includes(operation.elementId)||baseline.sourceConfigurationId===operation.elementId))throw Error('Semantic content referenced by a released Configuration Baseline cannot be deleted through ordinary editing.');
       const ids=new Set([operation.elementId]);let changed=true;
       while(changed){changed=false;for(const element of project.elements)if(ids.has(element.ownerId)&&!ids.has(element.id)){ids.add(element.id);changed=true}}
       project.elements=project.elements.filter(element=>!ids.has(element.id));

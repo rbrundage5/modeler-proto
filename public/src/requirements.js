@@ -1,4 +1,4 @@
-export const REQUIREMENT_TYPES=['Requirement','Abstract Requirement','Functional Requirement','Interface Requirement','Performance Requirement','Physical Requirement','Design Constraint','Business Requirement'];
+export const REQUIREMENT_TYPES=['Requirement','Abstract Requirement','Business Requirement','Functional Requirement','Interface Requirement','Performance Requirement','Physical Requirement','Design Constraint','Stakeholder','Business','Mission','Capability','System','Subsystem','Interface','Functional','Performance','Physical','Environmental','Safety','Security','Reliability','Maintainability','Regulatory','Design constraint','Verification','Derived'];
 export const DEFAULT_REQUIREMENT_POLICY={requireId:true,requireText:true,uniqueId:true,statuses:['Draft','In Review','Approved','Rejected','Retired'],priorities:['Low','Medium','High','Critical'],verificationMethods:['Analysis','Demonstration','Inspection','Test']};
 
 export function requirementPolicy(project){
@@ -7,11 +7,12 @@ export function requirementPolicy(project){
 }
 
 export function initializeRequirement(element,now=new Date().toISOString()){
-  const defaults={requirementType:'Requirement',requirementId:'',requirementText:'',sourceUri:'',sourceDocument:'',sourceSection:'',sourceRevision:'',rationale:'',risk:'Medium',priority:'Medium',lifecycleStatus:'Draft',maturity:'Proposed',verificationMethod:'Analysis',verificationStatus:'Not Planned',responsibleRole:'',approver:'',approvalDate:'',createdDate:now,modifiedDate:now,baselineIds:[],suspect:false,customStereotypeProperties:{},tags:{}};
+  const defaults={requirementType:'Requirement',requirementCategory:'System',requirementId:'',requirementText:'',shortTitle:'',sourceUri:'',sourceDocument:'',sourceSection:'',sourceLocator:'',sourceRevision:'',rationale:'',risk:'Medium',criticality:'Medium',priority:'Medium',status:'Draft',lifecycleStatus:'Draft',maturity:'Proposed',verificationMethod:'Analysis',verificationStatus:'Not Planned',version:'',currentRevisionId:'',requirementRevisionIds:[],responsibleRole:'',approver:'',approvalDate:'',createdDate:now,modifiedDate:now,baselineIds:[],applicabilityRules:[],impactMetadata:{},suspect:false,customStereotypeProperties:{},tags:{}};
   for(const [key,value] of Object.entries(defaults))if(element[key]==null)element[key]=structuredClone(value);
   element.metaclass='Class';element.stereotype='requirement';
   return element;
 }
+export function normalizeRequirementArchitecture(project){project.requirementArchitectureMigration=project.requirementArchitectureMigration||{version:'1.0',unresolved:[],appliedAt:project.metadata?.updatedAt||new Date().toISOString()};const unresolved=[];for(const requirement of(project.elements||[]).filter(item=>item.kind==='Requirement')){initializeRequirement(requirement,project.metadata?.createdAt);if(!requirement.externalId)unresolved.push({code:'LEGACY_REQUIREMENT_EXTERNAL_ID_MISSING',id:requirement.id});if(!requirement.requirementId)unresolved.push({code:'LEGACY_REQUIREMENT_ID_MISSING',id:requirement.id});if(!String(requirement.requirementText||'').trim())unresolved.push({code:'LEGACY_REQUIREMENT_TEXT_MISSING',id:requirement.id})}for(const relationship of project.relationships||[]){relationship.createdAt=relationship.createdAt||project.metadata?.createdAt||'';relationship.modifiedAt=relationship.modifiedAt||project.metadata?.updatedAt||relationship.createdAt;relationship.provenance=relationship.provenance??null;relationship.suspect=Boolean(relationship.suspect)}project.requirementArchitectureMigration.unresolved=unresolved;if(['3.0','3.1'].includes(String(project.schemaVersion)))project.schemaVersion='3.2';return project}
 
 export function requirementIssues(project){
   const policy=requirementPolicy(project),requirements=(project.elements||[]).filter(element=>element.kind==='Requirement'),counts=new Map();

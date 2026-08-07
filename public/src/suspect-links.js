@@ -1,4 +1,4 @@
-const WATCHED_REQUIREMENT_FIELDS=new Set(['requirementText','requirementId','sourceRevision','verificationMethod']);
+const WATCHED_REQUIREMENT_FIELDS=new Set(['requirementText','requirementId','sourceRevision','currentRevisionId','verificationMethod','ownerId','applicabilityRules','requirementCategory']);
 const uid=()=>`suspect-${globalThis.crypto?.randomUUID?.()||Math.random().toString(36).slice(2)}`;
 export function normalizeSuspectLinks(project){project.suspectLinks=Array.isArray(project.suspectLinks)?project.suspectLinks:[];return project}
 export function relatedRelationships(project,elementId){return(project.relationships||[]).filter(relationship=>relationship.sourceId===elementId||relationship.targetId===elementId)}

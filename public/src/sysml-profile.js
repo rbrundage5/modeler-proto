@@ -1,5 +1,5 @@
 export const SYSML_VERSION = "1.6";
-const propertyOwner=["Block","InterfaceBlock","ConstraintBlock","AssociationBlock"];
+const propertyOwner=["Block","InterfaceBlock","ConstraintBlock","AssociationBlock","SiteContext"];
 export const ELEMENTS = {
  Model:{metaclass:"Model"}, Package:{metaclass:"Package"}, Profile:{metaclass:"Profile"}, ModelLibrary:{metaclass:"Package",stereotype:"modelLibrary"},
  Stereotype:{metaclass:"Stereotype",ownerKinds:["Profile"]}, TagDefinition:{metaclass:"Property",ownerKinds:["Stereotype"]},
@@ -9,7 +9,7 @@ export const ELEMENTS = {
  ConstraintBlock:{metaclass:"Class",stereotype:"constraintBlock",compartments:["parameters","constraints"]},
  ValueType:{metaclass:"DataType",stereotype:"valueType",compartments:["values"]}, DataType:{metaclass:"DataType",compartments:["values","operations"]}, Enumeration:{metaclass:"Enumeration",compartments:["literals"]}, EnumerationLiteral:{metaclass:"EnumerationLiteral",ownerKinds:["Enumeration"]}, Signal:{metaclass:"Signal"},
  Unit:{metaclass:"InstanceSpecification",stereotype:"unit"}, QuantityKind:{metaclass:"InstanceSpecification",stereotype:"quantityKind"},
- PartProperty:{metaclass:"Property",stereotype:"part",ownerKinds:["Block","AssociationBlock"]}, ReferenceProperty:{metaclass:"Property",stereotype:"reference",ownerKinds:["Block","AssociationBlock"]},
+ PartProperty:{metaclass:"Property",stereotype:"part",ownerKinds:["Block","AssociationBlock","SiteContext"]}, ReferenceProperty:{metaclass:"Property",stereotype:"reference",ownerKinds:["Block","AssociationBlock","SiteContext"]},
  ValueProperty:{metaclass:"Property",stereotype:"value",ownerKinds:propertyOwner}, FlowProperty:{metaclass:"Property",stereotype:"flowProperty",ownerKinds:["InterfaceBlock","Block"]}, ConstraintProperty:{metaclass:"Property",stereotype:"constraint",ownerKinds:["Block","ConstraintBlock"]},
  ProxyPort:{metaclass:"Port",stereotype:"proxy",ownerKinds:["Block","PartProperty","ProxyPort","FullPort"]}, FullPort:{metaclass:"Port",stereotype:"full",ownerKinds:["Block","PartProperty","ProxyPort","FullPort"]},
  Operation:{metaclass:"Operation",ownerKinds:["Block","InterfaceBlock","AssociationBlock"]}, Parameter:{metaclass:"Parameter",ownerKinds:["Operation","Activity","ConstraintBlock"]}, Reception:{metaclass:"Reception",ownerKinds:["Block","InterfaceBlock"]},
@@ -26,6 +26,7 @@ export const ELEMENTS = {
  Trigger:{metaclass:"Trigger",ownerKinds:["Transition"]}, Event:{metaclass:"Event"},
  Interaction:{metaclass:"Interaction"}, Lifeline:{metaclass:"Lifeline",ownerKinds:["Interaction"]}, ExecutionSpecification:{metaclass:"ExecutionSpecification",ownerKinds:["Interaction"]}, CombinedFragment:{metaclass:"CombinedFragment",ownerKinds:["Interaction"]}, InteractionOperand:{metaclass:"InteractionOperand",ownerKinds:["CombinedFragment"]}, Gate:{metaclass:"Gate",ownerKinds:["Interaction"]}, InteractionUse:{metaclass:"InteractionUse",ownerKinds:["Interaction"]}, TimeConstraint:{metaclass:"TimeConstraint",ownerKinds:["Interaction"]}, DurationConstraint:{metaclass:"DurationConstraint",ownerKinds:["Interaction"]},
  InstanceSpecification:{metaclass:"InstanceSpecification",compartments:["slots"]}, Slot:{metaclass:"Slot",ownerKinds:["InstanceSpecification"]}, Configuration:{metaclass:"InstanceSpecification",stereotype:"configuration"}, Variant:{metaclass:"Class",stereotype:"variant"}, VariationPoint:{metaclass:"Property",stereotype:"variationPoint"},
+ SiteContext:{metaclass:"Package",stereotype:"siteContext"}, DefinitionRevision:{metaclass:"Artifact",stereotype:"definitionRevision",ownerKinds:["Block","InterfaceBlock","ConstraintBlock","AssociationBlock","ValueType","DataType","Enumeration","Signal"]}, RequirementRevision:{metaclass:"Artifact",stereotype:"requirementRevision",ownerKinds:["Requirement"]},
  Comment:{metaclass:"Comment"}
 };
 export const RELATIONSHIPS = {

@@ -8,13 +8,15 @@ export const GRANULAR_OPERATION_TYPES=new Set([
  'set-compartment','set-compartment-visibility','set-property-path','set-port-placement','nest-presentation','set-connector-kind','set-diagram-context',
  'add-item-flow','update-item-flow','remove-item-flow','batch-requirement-edit','create-verification-execution','delete-verification-execution',
  'create-requirement-baseline','delete-requirement-baseline','mark-suspect-link','clear-suspect-link','save-report','delete-report','record-import-decision',
+ 'assign-usage-definition','assign-instance-definition','assign-instance-usage','add-configuration-item','remove-configuration-item','capture-configuration-baseline','assign-requirement-applicability',
+ 'create-requirement','create-requirement-revision','add-requirement-decomposition','remove-requirement-decomposition','create-requirement-relationship','upsert-requirement-applicability','delete-requirement-applicability',
  'batch-operation','bulk-import','replace-project'
 ]);
 const clone=value=>globalThis.structuredClone?structuredClone(value):JSON.parse(JSON.stringify(value));
 const id=prefix=>`${prefix}-${globalThis.crypto?.randomUUID?.()||Math.random().toString(36).slice(2)}`;
 
 export function operationTargets(operation={}){
- const semanticTargetId=operation.targetId||operation.elementId||operation.node?.elementId||operation.relationshipId||operation.connectorId||operation.itemFlowId||operation.baselineId||operation.suspectId||null;
+ const semanticTargetId=operation.targetId||operation.elementId||operation.usageId||operation.instanceId||operation.configurationId||operation.requirementId||operation.node?.elementId||operation.relationshipId||operation.connectorId||operation.itemFlowId||operation.baselineId||operation.suspectId||null;
  const presentationTargetId=operation.nodeId||operation.edgeId||operation.node?.id||operation.edge?.id||null;
  return{semanticTargetId,presentationTargetId,targetProperty:operation.property||operation.field||operation.end||null};
 }
