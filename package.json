@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "wrangler dev --config wrangler.jsonc --local",
     "deploy": "wrangler deploy --config wrangler.jsonc",
-    "check": "node scripts/check.mjs && node scripts/ui-audit.mjs && node scripts/environment-audit.mjs && node scripts/wrangler-audit.mjs && node scripts/interaction-audit.mjs && node scripts/visual-audit.mjs",
+    "check": "node scripts/check.mjs && node scripts/ui-audit.mjs && node scripts/environment-audit.mjs && node scripts/wrangler-audit.mjs && node scripts/interaction-audit.mjs && node scripts/visual-audit.mjs && npm run conformance-audit",
     "test": "node --test",
     "ui-audit": "node scripts/ui-audit.mjs",
     "environment-audit": "node scripts/environment-audit.mjs",
@@ -21,7 +21,10 @@
     "tail": "wrangler tail",
     "types": "wrangler types",
     "interaction-audit": "node scripts/interaction-audit.mjs",
-    "import-audit": "node --test test/import-profile.test.mjs"
+    "import-audit": "node --test test/import-profile.test.mjs",
+    "conformance-matrix": "node scripts/generate-conformance-matrix.mjs",
+    "conformance-audit": "node scripts/conformance-audit.mjs",
+    "benchmark": "node scripts/benchmark.mjs"
   },
   "devDependencies": {
     "wrangler": "^4.118.0"
