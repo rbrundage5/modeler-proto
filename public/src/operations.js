@@ -3,6 +3,7 @@ import {assertIBDContext,attachPortPresentation,createItemFlow,normalizeIBDProje
 import {moveRequirement} from './requirements.js';
 import {normalizeVerificationProject,VERDICTS} from './verification-model.js';
 import {clearSuspectLink,markRelationshipSuspect,normalizeSuspectLinks} from './suspect-links.js';
+import {createModelComment,createReviewRequest,resolveComment,transitionReview} from './model-reviews.js';
 
 export function deepClone(value){return globalThis.structuredClone?structuredClone(value):JSON.parse(JSON.stringify(value))}
 function stableOperationSuffix(value){let hash=2166136261;for(const character of JSON.stringify(value??null)){hash^=character.charCodeAt(0);hash=Math.imul(hash,16777619)}return(hash>>>0).toString(36)}
@@ -52,6 +53,10 @@ export function canRebaseOperation(project,operation){
   if(operation.type==='create-requirement-baseline')return !project.requirementBaselines?.some(item=>item.id===operation.baseline?.id);
   if(operation.type==='mark-suspect-link')return !project.suspectLinks?.some(item=>item.id===operation.record?.id);
   if(operation.type==='save-report')return !project.savedReports?.some(item=>item.id===operation.report?.id);
+  if(operation.type==='create-comment')return !project.comments?.some(item=>item.commentId===operation.comment?.commentId);
+  if(operation.type==='create-review-request')return !project.reviewRequests?.some(item=>item.reviewId===operation.review?.reviewId);
+  if(operation.type==='resolve-comment')return project.comments?.find(item=>item.commentId===operation.commentId)?.status===(operation.expectedStatus||'Open');
+  if(operation.type==='transition-review')return project.reviewRequests?.find(item=>item.reviewId===operation.reviewId)?.status===(operation.expectedStatus||'Draft');
   if(operation.type==='batch-operation')return(operation.operations||[]).every(item=>canRebaseOperation(project,item));
   if(['clear-suspect-link','record-import-decision','delete-requirement-baseline','delete-report'].includes(operation.type))return true;
   if(['add-item-flow','update-item-flow','remove-item-flow'].includes(operation.type))return true;
@@ -63,6 +68,10 @@ function replaceProject(operation){return synchronizeProject(deepClone(operation
 
 export function applyOperation(project,operation){
   switch(operation.type){
+    case'create-comment':createModelComment(project,operation.comment);break;
+    case'resolve-comment':resolveComment(project,operation.commentId,{actor:operation.actor,status:operation.status});break;
+    case'create-review-request':createReviewRequest(project,operation.review);break;
+    case'transition-review':transitionReview(project,operation.reviewId,operation.status,operation.actor);break;
     case'set-property':{
       const target=required(findTarget(project,operation.targetType||'element',operation.targetId),'Target not found');
       target[operation.property]=deepClone(operation.value);if((operation.targetType||'element')==='element'){const affected=target.kind==='Requirement'&&!['requirementText','requirementId','sourceRevision','verificationMethod'].includes(operation.property)?[]:(project.relationships||[]).filter(relationship=>relationship.sourceId===target.id||relationship.targetId===target.id);for(const relationship of affected)markRelationshipSuspect(project,relationship.id,{id:`suspect-${relationship.id}-${operation.property}-${stableOperationSuffix(operation.value)}`,sourceElementId:target.id,reason:`${operation.property} changed`,date:operation.changedAt||project.metadata?.updatedAt||''})}break;

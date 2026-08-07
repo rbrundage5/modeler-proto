@@ -3,6 +3,7 @@ import {applyOperation,canRebaseOperation,currentValue,deepClone} from '../publi
 import {acceptedOperation,migrateCollaborationOperation,validateCollaborationOperation} from '../public/src/collaboration-operation.js';
 import {createRevision} from '../public/src/revision-journal.js';
 import {conflictScope,conflictType,proposedValue} from '../public/src/collaboration-conflicts.js';
+import {applyMergeResolutions,semanticThreeWayMerge} from '../public/src/semantic-merge.js';
 
 const json=v=>JSON.stringify(v);
 const now=()=>new Date().toISOString();
@@ -26,6 +27,7 @@ export class ProjectRoom extends DurableObject{
       CREATE INDEX IF NOT EXISTS idx_operations_branch ON operations(branch_id,revision);
       CREATE INDEX IF NOT EXISTS idx_commits_branch ON commits(branch_id,revision);`);
     const operationColumns=[...this.sql.exec('PRAGMA table_info(operation_records)')].map(column=>column.name);if(!operationColumns.includes('sequence'))this.sql.exec('ALTER TABLE operation_records ADD COLUMN sequence INTEGER NOT NULL DEFAULT 0');if(!operationColumns.includes('target_id'))this.sql.exec('ALTER TABLE operation_records ADD COLUMN target_id TEXT');if(!operationColumns.includes('actor_user_id'))this.sql.exec('ALTER TABLE operation_records ADD COLUMN actor_user_id TEXT');
+    const branchColumns=[...this.sql.exec('PRAGMA table_info(branches)')].map(column=>column.name);if(!branchColumns.includes('base_branch_id'))this.sql.exec('ALTER TABLE branches ADD COLUMN base_branch_id TEXT');if(!branchColumns.includes('base_revision'))this.sql.exec('ALTER TABLE branches ADD COLUMN base_revision INTEGER NOT NULL DEFAULT 0');
     this.sql.exec('CREATE INDEX IF NOT EXISTS idx_revisions_branch ON revisions(branch_id,sequence); CREATE INDEX IF NOT EXISTS idx_operation_records_target ON operation_records(branch_id,target_id,sequence); CREATE INDEX IF NOT EXISTS idx_operation_records_actor ON operation_records(branch_id,actor_user_id,sequence); CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_events(created_at);');
     const lockColumns=[...this.sql.exec('PRAGMA table_info(locks)')].map(column=>column.name);
     if(!lockColumns.includes('branch_id'))this.sql.exec("ALTER TABLE locks ADD COLUMN branch_id TEXT NOT NULL DEFAULT 'main'");
@@ -51,7 +53,7 @@ export class ProjectRoom extends DurableObject{
     return row;
   }
   branch(id='main'){
-    const row=[...this.sql.exec('SELECT id,name,head_revision,snapshot FROM branches WHERE id=?',id)][0];
+    const row=[...this.sql.exec('SELECT id,name,head_revision,snapshot,base_branch_id,base_revision FROM branches WHERE id=?',id)][0];
     if(!row)throw new Error(`Branch not found: ${id}`);
     return {...row,project:row.snapshot?JSON.parse(row.snapshot):null};
   }
@@ -121,7 +123,7 @@ export class ProjectRoom extends DurableObject{
   }
   createBranch(ws,msg,session){
     const source=this.branch(session.branchId),id=(msg.branchId||msg.name||'branch').toLowerCase().replace(/[^a-z0-9_-]+/g,'-');
-    try{this.sql.exec('INSERT INTO branches(id,name,head_revision,snapshot,created_at,created_by) VALUES(?,?,?,?,?,?)',id,msg.name||id,source.head_revision,source.snapshot,now(),session.name);ws.send(json({type:'branches',branches:this.listBranches()}));}
+    try{this.sql.exec('INSERT INTO branches(id,name,head_revision,snapshot,created_at,created_by,base_branch_id,base_revision) VALUES(?,?,?,?,?,?,?,?)',id,msg.name||id,source.head_revision,source.snapshot,now(),session.name,source.id,source.head_revision);this.sql.exec('INSERT OR REPLACE INTO snapshots(branch_id,sequence,revision_id,project,created_at) VALUES(?,?,?,?,?)',id,source.head_revision,`${id}:${source.head_revision}`,source.snapshot,now());ws.send(json({type:'branches',branches:this.listBranches()}));}
     catch{ws.send(json({type:'operation-error',message:'Branch already exists or has an invalid name.'}));}
   }
 
@@ -129,14 +131,11 @@ export class ProjectRoom extends DurableObject{
     const member=this.member(session.identity,session.name);if(!['owner','editor'].includes(member.role)){ws.send(json({type:'permission-error',message:'Insufficient permission to merge branches.'}));return;}
     let source,target;try{source=this.branch(msg.sourceBranchId);target=this.branch(msg.targetBranchId||session.branchId)}catch(e){ws.send(json({type:'operation-error',message:e.message}));return;}
     if(!source.project){ws.send(json({type:'operation-error',message:'Source branch has no model.'}));return;}
-    const merged=this.threeWayMerge(target.project,source.project),revision=target.head_revision+1;merged.revision=revision;merged.branch=target.id;
+    let base;try{base=this.projectAtRevision(source.base_branch_id||target.id,source.base_revision||0)}catch{base=deepClone(target.project)}const preview=semanticThreeWayMerge(base,source.project,target.project),resolved=applyMergeResolutions(preview,msg.resolutions||{});if(!resolved.canMerge){ws.send(json({type:'merge-result',status:'conflicts',sourceBranchId:source.id,targetBranchId:target.id,baseRevision:source.base_revision||0,conflicts:resolved.unresolved,changes:preview.changes,message:`Merge requires review of ${resolved.unresolved.length} semantic conflicts.`}));return}const merged=resolved.project,revision=target.head_revision+1;merged.revision=revision;merged.branch=target.id;
     this.sql.exec('UPDATE branches SET head_revision=?,snapshot=? WHERE id=?',revision,json(merged),target.id);
     const op={type:'merge-branch',sourceBranchId:source.id,targetBranchId:target.id};this.sql.exec('INSERT INTO operations(branch_id,revision,operation_id,actor,client_id,operation,created_at) VALUES(?,?,?,?,?,?,?)',target.id,revision,crypto.randomUUID(),session.name,session.clientId,json(op),now());
     this.broadcast(target.id,{type:'snapshot',project:merged,revision,branchId:target.id,branches:this.listBranches(),commits:this.listCommits(target.id),presence:this.presence(target.id),locks:this.listLocks(target.id),role:member.role});
-    ws.send(json({type:'merge-result',message:`Merged ${source.id} into ${target.id}`,revision}));
-  }
-  threeWayMerge(target,source){
-    if(!target)return deepClone(source);const out=deepClone(target),mergeById=(key)=>{const map=new Map((out[key]||[]).map(x=>[x.id,x]));for(const item of source[key]||[]){if(!map.has(item.id)){out[key].push(deepClone(item));continue}const existing=map.get(item.id);for(const [k,v] of Object.entries(item))if(k!=='id'&&JSON.stringify(existing[k])===JSON.stringify(target[key]?.find(x=>x.id===item.id)?.[k]))existing[k]=deepClone(v)}};mergeById('elements');mergeById('relationships');mergeById('diagrams');return out;
+    this.audit('branch-merged',session,{sourceBranchId:source.id,targetBranchId:target.id,baseRevision:source.base_revision||0});ws.send(json({type:'merge-result',status:'merged',message:`Merged ${source.id} into ${target.id}`,revision,parents:[`${target.id}:${target.head_revision}`,`${source.id}:${source.head_revision}`]}));
   }
   setMemberRole(ws,msg,session){const me=this.member(session.identity,session.name);if(me.role!=='owner'){ws.send(json({type:'permission-error',message:'Only the owner may change roles.'}));return;}if(!['owner','editor','viewer'].includes(msg.role)){ws.send(json({type:'operation-error',message:'Invalid role.'}));return;}this.sql.exec('INSERT OR REPLACE INTO members(identity,role,display_name,created_at) VALUES(?,?,COALESCE((SELECT display_name FROM members WHERE identity=?),?),?)',msg.identity,msg.role,msg.identity,msg.identity,now());ws.send(json({type:'members',members:[...this.sql.exec('SELECT identity,role,display_name,created_at FROM members')]}));
   }

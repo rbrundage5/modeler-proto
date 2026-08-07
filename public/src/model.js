@@ -4,6 +4,7 @@ import {normalizeIBDProject} from './ibd-engine.js';
 import {initializeRequirement,requirementPolicy} from './requirements.js';
 import {normalizeVerificationProject} from './verification-model.js';
 import {normalizeSuspectLinks} from './suspect-links.js';
+import {normalizeCollaborationArtifacts} from './model-reviews.js';
 export const DIAGRAM_TYPES=Object.keys(DIAGRAMS);
 export function uid(prefix="id"){return `${prefix}-${crypto.randomUUID()}`}
 export function createProject(name="New Systems Model"){
@@ -80,5 +81,5 @@ export function normalizeProject(p){
   requirementPolicy(p);
   for(const e of allElements(p)){if(e.kind==='Requirement')initializeRequirement(e);e.compartments=e.compartments||{};e.compartmentVisibility=e.compartmentVisibility||{};if(e.multiplicityLower==null||e.multiplicityUpper==null){const m=String(e.multiplicity||"1").trim();if(m.includes("..")){const [lo,hi]=m.split("..",2);e.multiplicityLower=lo||"0";e.multiplicityUpper=hi||"*"}else{e.multiplicityLower=m||"1";e.multiplicityUpper=m||"1"}}e.multiplicity=multiplicityFromBounds(e.multiplicityLower,e.multiplicityUpper)}
   for(const d of p.diagrams||[]){d.nodes=d.nodes||[];d.edges=d.edges||[]}
-  normalizeVerificationProject(p);normalizeSuspectLinks(p);synchronizeSemanticModel(p);normalizeIBDProject(p);refreshQualifiedNames(p);return p;
+  normalizeVerificationProject(p);normalizeSuspectLinks(p);normalizeCollaborationArtifacts(p);synchronizeSemanticModel(p);normalizeIBDProject(p);refreshQualifiedNames(p);return p;
 }
