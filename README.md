@@ -1,5 +1,7 @@
 # Systems Modeler Collaborative
 
+Browser development remains `npm run dev`. The secure Electron development shell uses the same application core via `npm run desktop:dev`; see [the D-01 desktop architecture](docs/D01_DESKTOP_TRANSITION_FOUNDATION.md) and [manual acceptance checklist](docs/D01_MANUAL_ACCEPTANCE.md).
+
 The package metadata is currently version **10.0.0**. Version-numbered sections below describe historical development increments and do not supersede `package.json` as the current package version.
 
 Deployable Cloudflare Worker collaborative SysML project environment. New repositories are blank by default.

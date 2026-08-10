@@ -13,3 +13,5 @@ coverage/
 
 
 benchmark-results/
+
+dist/

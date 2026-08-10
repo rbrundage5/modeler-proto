@@ -1,3 +1,4 @@
+import {readCsv,readXlsx} from './xlsx-reader.js';
 const normalize=value=>String(value??'').trim();
 export const headerKey=value=>normalize(value).toLowerCase().replace(/[^a-z0-9]/g,'');
 
@@ -30,11 +31,13 @@ export function rowsFromMatrix(matrix,headerRowIndex){
 }
 
 export async function readWorkbook(file,profile){
-  if(!globalThis.XLSX)throw new Error('SheetJS did not load.');
-  const workbook=XLSX.read(await file.arrayBuffer(),{type:'array',cellDates:true});const sheets=[];
-  for(const name of workbook.SheetNames){
-    const worksheet=workbook.Sheets[name];
-    const matrix=XLSX.utils.sheet_to_json(worksheet,{header:1,defval:'',raw:false});
+  const extension=String(file.name||'').toLowerCase().split('.').at(-1);let parsed;
+  if(extension==='xlsx'||extension==='xlsm')parsed=await readXlsx(await file.arrayBuffer());
+  else if(extension==='csv')parsed=[{name:String(file.name||'CSV').replace(/\.csv$/i,''),matrix:readCsv(await file.text())}];
+  else if(extension==='xls'&&globalThis.XLSX){const legacy=XLSX.read(await file.arrayBuffer(),{type:'array',cellDates:true});parsed=legacy.SheetNames.map(name=>({name,matrix:XLSX.utils.sheet_to_json(legacy.Sheets[name],{header:1,defval:'',raw:false})}))}
+  else throw new Error('Legacy binary .xls requires the optional online compatibility parser. For offline import, save the workbook as .xlsx or .csv.');
+  const workbook={SheetNames:parsed.map(sheet=>sheet.name)};const sheets=[];
+  for(const {name,matrix} of parsed){
     const definition=profile.matchSheet(name);
     const headerRow=detectHeaderRow(matrix,definition?.headerGroups||profile.defaultHeaderGroups,40);
     const rows=rowsFromMatrix(matrix,headerRow);
