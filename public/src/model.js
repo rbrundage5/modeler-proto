@@ -1,6 +1,7 @@
 import {ELEMENTS,RELATIONSHIPS,DIAGRAMS} from "./sysml-profile.js";
 import {synchronizeSemanticModel} from './semantic-core.js';
 import {normalizeIBDProject} from './ibd-engine.js';
+import {migrateRelationshipPresentations} from './relationship-persistence.js';
 import {initializeRequirement,normalizeRequirementArchitecture,requirementPolicy} from './requirements.js';
 import {normalizeVerificationProject} from './verification-model.js';
 import {normalizeSuspectLinks} from './suspect-links.js';
@@ -85,5 +86,5 @@ export function normalizeProject(p){
   requirementPolicy(p);
   for(const e of allElements(p)){if(e.kind==='Requirement')initializeRequirement(e);e.compartments=e.compartments||{};e.compartmentVisibility=e.compartmentVisibility||{};if(e.multiplicityLower==null||e.multiplicityUpper==null){const m=String(e.multiplicity||"1").trim();if(m.includes("..")){const [lo,hi]=m.split("..",2);e.multiplicityLower=lo||"0";e.multiplicityUpper=hi||"*"}else{e.multiplicityLower=m||"1";e.multiplicityUpper=m||"1"}}e.multiplicity=multiplicityFromBounds(e.multiplicityLower,e.multiplicityUpper)}
   for(const d of p.diagrams||[]){d.nodes=d.nodes||[];d.edges=d.edges||[]}
-  normalizeStructuralEndpoints(p);normalizeSupportMetadata(p);normalizeBehaviorModel(p);normalizeVerificationProject(p);normalizeSuspectLinks(p);normalizeCollaborationArtifacts(p);normalizeSemanticFoundation(p);normalizeRequirementArchitecture(p);synchronizeSemanticModel(p);normalizeIBDProject(p);refreshQualifiedNames(p);return p;
+  normalizeStructuralEndpoints(p);migrateRelationshipPresentations(p);normalizeSupportMetadata(p);normalizeBehaviorModel(p);normalizeVerificationProject(p);normalizeSuspectLinks(p);normalizeCollaborationArtifacts(p);normalizeSemanticFoundation(p);normalizeRequirementArchitecture(p);synchronizeSemanticModel(p);normalizeIBDProject(p);refreshQualifiedNames(p);return p;
 }
