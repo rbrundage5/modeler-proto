@@ -38,6 +38,7 @@ export function currentValue(project,operation){
   if(operation.type==='set-relationship-endpoint')return findTarget(project,'relationship',operation.relationshipId)?.[`${operation.end}Id`];
   if(operation.type==='set-compartment')return findTarget(project,'element',operation.elementId)?.compartments?.[operation.name];
   if(operation.type==='set-compartment-visibility')return findTarget(project,'element',operation.elementId)?.compartmentVisibility?.[operation.name];
+  if(operation.type==='set-presentation-compartment-visibility')return findNode(project,operation.diagramId,operation.nodeId)?.presentationOptions?.compartmentVisibility?.[operation.name];
   if(operation.type==='set-property-path')return findTarget(project,'relationship',operation.relationshipId)?.[`${operation.end}PropertyPath`];
   if(operation.type==='set-port-placement'){const node=findNode(project,operation.diagramId,operation.nodeId);return node&&{boundaryOwnerNodeId:node.boundaryOwnerNodeId,portSide:node.portSide,perimeterOffset:node.perimeterOffset}}
   if(operation.type==='nest-presentation'){const node=findNode(project,operation.diagramId,operation.nodeId);return node&&{parentPresentationId:node.parentPresentationId,relativeX:node.relativeX,relativeY:node.relativeY,propertyPath:node.propertyPath}}
@@ -53,7 +54,7 @@ export function canRebaseOperation(project,operation){
     const id=operation.element?.id||operation.relationship?.id||operation.diagram?.id||operation.node?.id;
     return operation.type==='bulk-import'||Boolean(id&&!containsId(project,id));
   }
-  if(['set-property','move-node','resize-node','resize-lifeline-timeline','move-message-occurrence','resize-execution-specification','reconnect-message','set-edge-points','set-compartment','set-compartment-visibility','set-property-path','set-port-placement','nest-presentation','set-connector-kind','set-diagram-context','move-element'].includes(operation.type))return JSON.stringify(currentValue(project,operation))===JSON.stringify(operation.expectedValue??operation.expectedOwnerId);
+  if(['set-property','move-node','resize-node','resize-lifeline-timeline','move-message-occurrence','resize-execution-specification','reconnect-message','set-edge-points','set-compartment','set-compartment-visibility','set-presentation-compartment-visibility','set-property-path','set-port-placement','nest-presentation','set-connector-kind','set-diagram-context','move-element'].includes(operation.type))return JSON.stringify(currentValue(project,operation))===JSON.stringify(operation.expectedValue??operation.expectedOwnerId);
   if(['move-edge-label','set-relationship-endpoint'].includes(operation.type))return JSON.stringify(currentValue(project,operation))===JSON.stringify(operation.expectedValue);
   if(operation.type==='batch-requirement-edit')return operation.changes.every(change=>JSON.stringify(findTarget(project,'element',change.id)?.[change.field])===JSON.stringify(change.before));
   if(operation.type==='create-verification-execution')return !project.verificationExecutions?.some(item=>item.id===operation.execution?.id);
@@ -67,7 +68,7 @@ export function canRebaseOperation(project,operation){
   if(operation.type==='batch-operation')return(operation.operations||[]).every(item=>canRebaseOperation(project,item));
   if(['clear-suspect-link','record-import-decision','delete-requirement-baseline','delete-report'].includes(operation.type))return true;
   if(['add-item-flow','update-item-flow','remove-item-flow'].includes(operation.type))return true;
-  return ['delete-element','delete-relationship','delete-diagram','remove-presentation'].includes(operation.type);
+  return ['delete-element','delete-relationship','delete-diagram','remove-presentation','remove-edge-presentation'].includes(operation.type);
 }
 
 function synchronizeProject(project){normalizeVerificationProject(project);normalizeSuspectLinks(project);normalizeSemanticFoundation(project);normalizeRequirementArchitecture(project);synchronizeSemanticModel(project);normalizeIBDProject(project);return project}
@@ -160,6 +161,9 @@ export function applyOperation(project,operation){
     case'remove-presentation':{
       const diagram=required(findDiagram(project,operation.diagramId),'Diagram not found'),removed=new Set([operation.nodeId]);let changed=true;while(changed){changed=false;for(const node of diagram.nodes)if(removed.has(node.parentPresentationId)&&!removed.has(node.id)){removed.add(node.id);changed=true}}diagram.nodes=diagram.nodes.filter(node=>!removed.has(node.id));diagram.edges=diagram.edges.filter(edge=>!removed.has(edge.sourceNodeId)&&!removed.has(edge.targetNodeId));break;
     }
+    case'remove-edge-presentation':{
+      const diagram=required(findDiagram(project,operation.diagramId),'Diagram not found');diagram.edges=diagram.edges.filter(edge=>edge.id!==operation.edgeId);break;
+    }
     case'move-node':{
       const node=required(findNode(project,operation.diagramId,operation.nodeId),'Node not found');node.x=operation.x;node.y=operation.y;break;
     }
@@ -180,6 +184,9 @@ export function applyOperation(project,operation){
     }
     case'set-compartment-visibility':{
       const element=required(findTarget(project,'element',operation.elementId),'Element not found');element.compartmentVisibility=element.compartmentVisibility||{};element.compartmentVisibility[operation.name]=Boolean(operation.value);break;
+    }
+    case'set-presentation-compartment-visibility':{
+      const node=required(findNode(project,operation.diagramId,operation.nodeId),'Presentation not found');node.presentationOptions=node.presentationOptions||{};node.presentationOptions.compartmentVisibility=node.presentationOptions.compartmentVisibility||{};node.presentationOptions.compartmentVisibility[operation.name]=Boolean(operation.value);break;
     }
     case'set-property-path':{const relationship=required(findTarget(project,'relationship',operation.relationshipId),'Relationship not found');if(!['source','target'].includes(operation.end))throw Error('Path end must be source or target');relationship[`${operation.end}PropertyPath`]=deepClone(operation.path);break}
     case'set-port-placement':{const diagram=required(findDiagram(project,operation.diagramId),'Diagram not found'),node=required(findNode(project,operation.diagramId,operation.nodeId),'Port presentation not found'),owner=required(diagram.nodes.find(item=>item.id===operation.boundaryOwnerNodeId),'Boundary owner presentation not found');attachPortPresentation(node,owner,{side:operation.side,offset:operation.offset,endpointPath:operation.endpointPath});break}
