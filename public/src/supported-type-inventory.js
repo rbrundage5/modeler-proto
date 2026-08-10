@@ -4,8 +4,8 @@ import {resolvePresentation} from './presentation-compatibility.js';
 import {hasSysmlIcon} from './sysml-icons.js';
 
 export const SUPPORT_STATES=Object.freeze(['complete','partial','import-only','read-only','blocked','unsupported']);
-const STATUS_OVERRIDES={ReferenceProperty:'complete',ProxyPort:'complete',FullPort:'complete',Actor:'blocked',Lifeline:'partial',TestCase:'complete'};
-const BROWSER_BY_TYPE={TestCase:['browser-tests/element-support.spec.mjs'],PartProperty:['browser-tests/element-support.spec.mjs'],Requirement:['browser-tests/structural-requirements.spec.mjs','browser-tests/visual-accessibility.spec.mjs'],ReferenceProperty:['browser-tests/reference-property.spec.mjs'],ProxyPort:['browser-tests/structural-endpoints.spec.mjs'],FullPort:['browser-tests/structural-endpoints.spec.mjs'],Lifeline:['browser-tests/behavior-workflows.spec.mjs']};
+const STATUS_OVERRIDES={Block:'complete',ReferenceProperty:'complete',ProxyPort:'complete',FullPort:'complete',Actor:'blocked',Lifeline:'partial',TestCase:'complete'};
+const BROWSER_BY_TYPE={Block:['browser-tests/block-completion.spec.mjs'],TestCase:['browser-tests/element-support.spec.mjs'],PartProperty:['browser-tests/element-support.spec.mjs'],Requirement:['browser-tests/structural-requirements.spec.mjs','browser-tests/visual-accessibility.spec.mjs'],ReferenceProperty:['browser-tests/reference-property.spec.mjs'],ProxyPort:['browser-tests/structural-endpoints.spec.mjs'],FullPort:['browser-tests/structural-endpoints.spec.mjs'],Lifeline:['browser-tests/behavior-workflows.spec.mjs']};
 const MANUAL_BY_TYPE={TestCase:'reviewed-browser-evidence',PartProperty:'reviewed-browser-evidence',ReferenceProperty:'reviewed-browser-evidence',ProxyPort:'reviewed-browser-evidence',FullPort:'reviewed-browser-evidence'};
 const TEST_BY_DOMAIN={
   structural:'test/ibd-engine.test.mjs',requirements:'test/requirement-architecture.test.mjs',behavior:'test/behavior-sequence-completion.test.mjs',notation:'test/sysml-notation-audit.test.mjs'
