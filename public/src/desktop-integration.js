@@ -1,0 +1,11 @@
+import {normalizeProject} from './model.js';import {importWorkbook} from './importer.js';import {platformServices} from './platform-services.js';
+if(platformServices.kind==='desktop'){
+  const api=window.SystemsModelerAPI,name=()=>`${String(api.getProject().name||'project').replace(/\W+/g,'_')}.sysml.json`,serialize=()=>JSON.stringify(api.getProject(),null,2);let clean=serialize(),busy=false;
+  const dirty=()=>serialize()!==clean;setInterval(()=>platformServices.setDirty(dirty()),750);window.addEventListener('beforeunload',event=>{if(dirty()){event.preventDefault();event.returnValue=''}});
+  async function open(){const result=await platformServices.openProject();if(!result)return;api.setProject(normalizeProject(JSON.parse(result.content)));clean=serialize();platformServices.setDirty(false)}
+  async function save(as=false){const result=await (as?platformServices.saveProjectAs(name(),serialize()):platformServices.saveProject(name(),serialize()));if(result){clean=serialize();platformServices.setDirty(false)}}
+  async function importFile(){const result=await platformServices.importFile();if(!result)return;if(['.json','.sysml.json'].some(ext=>result.name.toLowerCase().endsWith(ext))){api.setProject(normalizeProject(JSON.parse(new TextDecoder().decode(Uint8Array.from(result.bytes)))));return}const file=new File([Uint8Array.from(result.bytes)],result.name);const project=structuredClone(api.getProject());await importWorkbook(file,project,()=>{}, {strict:true});api.setProject(project)}
+  const actions={new:()=>document.getElementById('newProject')?.click(),open,save:()=>save(false),'save-as':()=>save(true),import:importFile,export:()=>platformServices.exportFile(name(),serialize(),'application/json'),undo:()=>document.getElementById('undo')?.click(),redo:()=>document.getElementById('redo')?.click()};
+  platformServices.onCommand(command=>{if(busy||!actions[command])return;busy=true;Promise.resolve(actions[command]()).catch(error=>alert(`Desktop command failed: ${error.message}`)).finally(()=>{busy=false})});
+  document.getElementById('openProject').onclick=open;document.getElementById('saveProject').onclick=()=>save(false);document.getElementById('exportProject').onclick=actions.export;document.getElementById('importWorkbook').onclick=importFile;
+}
