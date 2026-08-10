@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {F07_SCOPE} from '../public/src/f07-scope-manifest.js';
+test('F-07 scope is bounded to the shared structural endpoint architecture',()=>{assert.deepEqual(F07_SCOPE.records,['ProxyPort','FullPort','Connector','ConnectorEnd','ItemFlow']);for(const key of ['dependencies','rootCauses','completionCriteria','requiredTests','exclusions','deferredLimitations'])assert.ok(F07_SCOPE[key].length,key);assert.equal(F07_SCOPE.records.includes('ValueProperty'),false)});
