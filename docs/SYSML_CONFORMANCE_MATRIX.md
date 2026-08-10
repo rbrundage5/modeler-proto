@@ -2,7 +2,7 @@
 
 > Generated from `public/src/sysml/conformance-registry.js` by `npm run conformance-matrix`. Do not edit the table manually. Status vocabulary: `working`, `partial`, `broken`, `missing`, `not-applicable`, `not-tested`. A `working` workflow has an automated fixture; notation/import/collaboration remain conservatively classified where end-to-end evidence is absent.
 
-<!-- registry-schema:1; rows:86 -->
+<!-- registry-schema:1; rows:85 -->
 | Diagram / semantic element | Valid | Palette | Containment | Render | Notation | Select | Move | Resize | Properties | Relate | Delete | Undo/redo | Save/reload | Import | Collab | Tests | Maturity / issue |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Block Definition Diagram / Package | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
@@ -29,7 +29,7 @@
 | Internal Block Diagram / Comment | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
 | Requirement Diagram / Package | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
 | Requirement Diagram / Requirement | working | working | working | working | working | working | working | working | working | working | working | working | working | partial | partial | working | working |
-| Requirement Diagram / TestCase | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
+| Requirement Diagram / TestCase | working | working | working | working | working | working | working | working | working | working | working | working | working | partial | partial | working | working |
 | Requirement Diagram / Block | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
 | Requirement Diagram / UseCase | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
 | Requirement Diagram / Activity | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
@@ -61,7 +61,6 @@
 | Activity Diagram / StructuredActivityNode | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
 | Activity Diagram / ExpansionRegion | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
 | Activity Diagram / InterruptibleActivityRegion | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
-| Activity Diagram / PartProperty | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
 | Activity Diagram / Comment | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
 | State Machine Diagram / Region | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
 | State Machine Diagram / State | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
