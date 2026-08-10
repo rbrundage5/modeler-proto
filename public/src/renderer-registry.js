@@ -1,0 +1,11 @@
+import {ELEMENTS} from './sysml-profile.js';
+import {resolvePresentation} from './presentation-compatibility.js';
+const CLASSIFIERS=new Set(['Block','AssociationBlock','InterfaceBlock','ConstraintBlock','ValueType','DataType','Enumeration','Signal','Unit','QuantityKind','InstanceSpecification','Configuration','Variant']);
+const PROPERTIES=new Set(['PartProperty','ReferenceProperty','ValueProperty','FlowProperty','ConstraintProperty','Parameter','Slot','VariationPoint']);
+const BEHAVIOR_NODES=new Set(['Action','CallBehaviorAction','CallOperationAction','SendSignalAction','AcceptEventAction','ObjectNode','ActivityParameterNode','CentralBufferNode','DataStoreNode','ActivityPartition','StructuredActivityNode','ExpansionRegion','InterruptibleActivityRegion','State','CompositeState','SubmachineState','Region']);
+export function rendererDescriptor(semanticType,diagramType){
+  if(!ELEMENTS[semanticType])return{semanticType,diagramType,presentationType:'DiagnosticPresentation',rendererKey:'diagnostic-presentation',supported:false,diagnostic:`Unsupported semantic type “${semanticType}” is preserved without conversion.`};
+  const resolution=resolvePresentation({semanticType,diagramType}),contextualRenderable=new Set(['ProxyPort','FullPort','InputPin','OutputPin','ExecutionSpecification','InteractionOperand']).has(semanticType);if(resolution.placementMode==='NOT_DIRECT'||resolution.placementMode==='CONTEXTUAL'&&!contextualRenderable)return{semanticType,diagramType,presentationType:'DiagnosticPresentation',rendererKey:'diagnostic-presentation',supported:false,diagnostic:resolution.reason};
+  const family=CLASSIFIERS.has(semanticType)?'classifier':PROPERTIES.has(semanticType)?'property':BEHAVIOR_NODES.has(semanticType)?'behavior-node':'specialized';
+  return{semanticType,diagramType,presentationType:resolution.presentationType,rendererKey:resolution.rendererKey||`${family}-renderer`,family,supported:true,diagnostic:null};
+}
