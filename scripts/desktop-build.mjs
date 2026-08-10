@@ -1,2 +1,0 @@
-import {cp,mkdir,rm,access} from 'node:fs/promises';
-await access('public/index.html').catch(()=>{throw new Error('Renderer entry public/index.html is missing.')});await rm('dist/desktop-renderer',{recursive:true,force:true});await mkdir('dist/desktop-renderer',{recursive:true});await cp('public','dist/desktop-renderer',{recursive:true});console.log('Desktop renderer staged from the shared public application in dist/desktop-renderer.');

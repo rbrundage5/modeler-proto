@@ -9,11 +9,6 @@
   },
   "scripts": {
     "dev": "wrangler dev --config wrangler.jsonc --local",
-    "build": "wrangler deploy --dry-run --outdir dist/browser --config wrangler.jsonc",
-    "desktop:dev": "node scripts/desktop-dev.mjs",
-    "desktop:build": "node scripts/desktop-build.mjs",
-    "desktop:check": "node --test test/desktop-*.test.mjs && node scripts/desktop-security-audit.mjs",
-    "desktop:package": "npm run desktop:build && electron-builder --win zip --x64 --publish never",
     "deploy": "wrangler deploy --config wrangler.jsonc",
     "check": "node scripts/check.mjs && node scripts/ui-audit.mjs && node scripts/environment-audit.mjs && node scripts/wrangler-audit.mjs && node scripts/interaction-audit.mjs && node scripts/visual-audit.mjs && npm run conformance-audit",
     "test": "node --test",
@@ -32,18 +27,6 @@
     "benchmark": "node scripts/benchmark.mjs"
   },
   "devDependencies": {
-    "electron": "^37.2.6",
-    "electron-builder": "^26.0.12",
     "wrangler": "^4.118.0"
-  },
-  "main": "desktop/main.mjs",
-  "build": {
-    "appId": "com.systemsmodeler.desktop",
-    "productName": "Systems Modeler",
-    "asar": true,
-    "directories": { "output": "dist/windows" },
-    "artifactName": "Systems-Modeler-${version}-windows-${arch}.${ext}",
-    "files": ["desktop/**", "public/**", "package.json"],
-    "win": { "target": [{ "target": "zip", "arch": ["x64"] }] }
   }
 }

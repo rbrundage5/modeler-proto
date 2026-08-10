@@ -4,7 +4,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#12202b">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' ws: wss:; object-src 'none'; base-uri 'none'; form-action 'self'">
   <title>Systems Modeler Collaborative</title>
   <link rel="stylesheet" href="/src/styles.css">
 </head>
@@ -67,9 +66,9 @@
   </main>
 
   <input id="fileInput" type="file" hidden accept=".json,.sysml.json">
-  <input id="workbookInput" type="file" hidden accept=".xlsx,.xlsm,.xls,.csv"><input id="archiveInput" type="file" hidden accept=".json,.sysmlarchive.json">
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" crossorigin="anonymous"></script>
-  <script type="module" src="/src/app.js"></script><script type="module" src="/src/environment.js"></script><script type="module" src="/src/projects.js"></script><script type="module" src="/src/advanced.js"></script><script type="module" src="/src/desktop-integration.js"></script>
+  <input id="workbookInput" type="file" hidden accept=".xlsx,.xls,.csv"><input id="archiveInput" type="file" hidden accept=".json,.sysmlarchive.json">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script type="module" src="/src/app.js"></script><script type="module" src="/src/environment.js"></script><script type="module" src="/src/projects.js"></script><script type="module" src="/src/advanced.js"></script>
 <dialog id="environmentDialog" class="environment-dialog">
   <form method="dialog" class="environment-shell">
     <header class="environment-header"><div><strong>Project Environment</strong><small>Governance, tables, matrices, reports, interchange, and recovery</small></div><button value="cancel" aria-label="Close">Close</button></header>
