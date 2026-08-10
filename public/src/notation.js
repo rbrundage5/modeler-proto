@@ -70,15 +70,15 @@ export function getCompartmentRows(project,element,name){
   return [...semantic,...legacy];
 }
 
-export function visibleCompartments(project,element){
+export function visibleCompartments(project,element,visibility=element.compartmentVisibility){
   return ensureCompartmentState(element)
-    .filter(name=>element.compartmentVisibility[name])
+    .filter(name=>visibility?.[name]??element.compartmentVisibility[name])
     .map(name=>({name,label:COMPARTMENT_DEFINITIONS[name]?.label||name,rows:getCompartmentRows(project,element,name)}))
     .filter(c=>c.rows.length>0);
 }
 
-export function minimumNodeHeight(project,element,headerBottom=42){
-  const compartments=visibleCompartments(project,element);
+export function minimumNodeHeight(project,element,headerBottom=42,visibility=element.compartmentVisibility){
+  const compartments=visibleCompartments(project,element,visibility);
   if(!compartments.length)return Math.max(54,headerBottom+12);
   return Math.max(72,headerBottom+compartments.reduce((sum,c)=>sum+23+Math.max(1,c.rows.length)*16,0)+5);
 }

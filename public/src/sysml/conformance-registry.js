@@ -14,6 +14,7 @@ const VERIFIED_COMBINATIONS=new Map([
   ['Internal Block Diagram:ProxyPort','ibd-professional-workflow'],
   ['Internal Block Diagram:FullPort','ibd-professional-workflow'],
   ['Requirement Diagram:Requirement','requirements-persistence-workflow'],
+  ['Requirement Diagram:TestCase','testcase-complete-workflow'],
   ['Use Case Diagram:Actor','presentation-compatibility-workflow'],
   ['Use Case Diagram:UseCase','presentation-compatibility-workflow'],
   ['Sequence Diagram:Lifeline','sequence-professional-workflow']
@@ -23,7 +24,8 @@ const FIXTURES=Object.freeze({
   'ibd-professional-workflow':'test/ibd-engine.test.mjs',
   'requirements-persistence-workflow':'test/requirements-phase-1.test.mjs',
   'presentation-compatibility-workflow':'test/presentation-compatibility.test.mjs',
-  'sequence-professional-workflow':'test/sequence-interactions.test.mjs'
+  'sequence-professional-workflow':'test/sequence-interactions.test.mjs',
+  'testcase-complete-workflow':'test/selected-element-semantics.test.mjs'
 });
 const SPECIAL_PRESENTATIONS={Actor:'ActorPresentation',UseCase:'UseCasePresentation',Lifeline:'LifelinePresentation',CombinedFragment:'CombinedFragmentPresentation',InteractionUse:'InteractionUsePresentation',ProxyPort:'PortPresentation',FullPort:'PortPresentation',InputPin:'InputPinPresentation',OutputPin:'OutputPinPresentation'};
 const fixedSize=new Set(['ProxyPort','FullPort','InputPin','OutputPin','InitialNode','InitialPseudostate','ActivityFinalNode','FinalState','FlowFinalNode','DecisionNode','MergeNode','ChoicePseudostate','JunctionPseudostate','ShallowHistory','DeepHistory','EntryPoint','ExitPoint']);

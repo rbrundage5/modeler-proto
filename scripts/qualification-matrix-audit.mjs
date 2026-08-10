@@ -1,0 +1,6 @@
+import {QUALIFICATION_MATRIX,QUALIFICATION_STATES,qualificationSummary} from '../public/src/qualification-matrix.js';
+import {SUPPORTED_TYPE_INVENTORY} from '../public/src/supported-type-inventory.js';
+const errors=[],complete=SUPPORTED_TYPE_INVENTORY.filter(item=>item.supportStatus==='complete');
+for(const item of complete)for(const diagramType of item.diagramTypes){const row=QUALIFICATION_MATRIX.find(row=>row.semanticType===item.canonicalType&&row.diagramType===diagramType);if(!row)errors.push(`${item.canonicalType}/${diagramType}: missing qualification row`)}
+for(const row of QUALIFICATION_MATRIX){if(!QUALIFICATION_STATES.includes(row.qualificationStatus))errors.push(`${row.semanticType}: invalid state`);for(const key of ['creationMethod','renderer','propertyEditor','persistencePath','importReimportPath','undoRedoPath','manualVisualStatus','knownLimitation'])if(!row[key])errors.push(`${row.semanticType}/${row.diagramType}: missing ${key}`)}
+if(errors.length){console.error(`Qualification matrix audit failed:\n- ${errors.join('\n- ')}`);process.exit(1)}console.log(`Qualification matrix audit passed: ${QUALIFICATION_MATRIX.length} complete workflow rows; ${JSON.stringify(qualificationSummary())}.`)
