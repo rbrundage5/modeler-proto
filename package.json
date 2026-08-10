@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "wrangler dev --config wrangler.jsonc --local",
     "deploy": "wrangler deploy --config wrangler.jsonc",
-    "check": "node scripts/check.mjs && node scripts/ui-audit.mjs && node scripts/environment-audit.mjs && node scripts/wrangler-audit.mjs && node scripts/interaction-audit.mjs && node scripts/visual-audit.mjs && npm run conformance-audit",
+    "check": "node scripts/check.mjs && node scripts/ui-audit.mjs && node scripts/environment-audit.mjs && node scripts/wrangler-audit.mjs && node scripts/interaction-audit.mjs && node scripts/visual-audit.mjs && npm run conformance-audit && npm run notation-completeness-audit && node scripts/qualification-matrix-audit.mjs && npm run verification-planning-audit && npm run element-support-audit && npm run f06-support-audit && npm run f07-structural-endpoint-audit && npm run f08-relationship-audit",
     "test": "node --test",
     "ui-audit": "node scripts/ui-audit.mjs",
     "environment-audit": "node scripts/environment-audit.mjs",
@@ -24,9 +24,23 @@
     "import-audit": "node --test test/import-profile.test.mjs",
     "conformance-matrix": "node scripts/generate-conformance-matrix.mjs",
     "conformance-audit": "node scripts/conformance-audit.mjs",
-    "benchmark": "node scripts/benchmark.mjs"
+    "notation-completeness-audit": "node scripts/notation-completeness-audit.mjs",
+    "benchmark": "node scripts/benchmark.mjs",
+    "test:browser": "playwright test",
+    "test:browser:headed": "PWHEADED=1 playwright test",
+    "browser:version": "node scripts/browser-version.mjs",
+    "verification-planning-audit": "node scripts/verification-planning-audit.mjs",
+    "element-support-audit": "node scripts/element-support-audit.mjs",
+    "f06-support-audit": "node scripts/f06-support-audit.mjs",
+    "f07-structural-endpoint-audit": "node scripts/f07-structural-endpoint-audit.mjs",
+    "f08-relationship-audit": "node scripts/f08-relationship-audit.mjs"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "@sparticuz/chromium": "^141.0.0",
     "wrangler": "^4.118.0"
+  },
+  "dependencies": {
+    "xlsx": "^0.18.5"
   }
 }

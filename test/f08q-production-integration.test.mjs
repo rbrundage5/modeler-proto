@@ -1,0 +1,5 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {applyOperation} from '../public/src/operations.js';
+import {normalizeProject} from '../public/src/model.js';
+test('production dispatcher preserves stable waypoint identity idempotently',()=>{const p={id:'p',root:{id:'root'},elements:[],relationships:[{id:'r',kind:'Connector',sourceId:'a',targetId:'b'}],diagrams:[{id:'d',nodes:[],edges:[{id:'e',relationshipId:'r',sourcePresentationId:'pa',targetPresentationId:'pb'}]}]};normalizeProject(p);const op={type:'add-waypoint',diagramId:'d',edgeId:'e',waypoint:{id:'w',x:10,y:20}};applyOperation(p,op);applyOperation(p,op);assert.deepEqual(p.diagrams[0].edges[0].waypoints,[{id:'w',x:10,y:20,order:0}]);});
+test('normalization preserves unresolved relationship presentations diagnostically',()=>{const p={id:'p',root:{id:'root'},elements:[],relationships:[],diagrams:[{id:'d',nodes:[],edges:[{id:'e',relationshipId:'missing'}]}]};normalizeProject(p);assert.equal(p.diagrams[0].edges[0].resolutionStatus,'unresolved');});
