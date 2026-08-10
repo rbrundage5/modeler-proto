@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "wrangler dev --config wrangler.jsonc --local",
     "deploy": "wrangler deploy --config wrangler.jsonc",
-    "check": "node scripts/check.mjs && node scripts/ui-audit.mjs && node scripts/environment-audit.mjs && node scripts/wrangler-audit.mjs && node scripts/interaction-audit.mjs && node scripts/visual-audit.mjs && npm run conformance-audit && npm run notation-completeness-audit && node scripts/qualification-matrix-audit.mjs && npm run verification-planning-audit",
+    "check": "node scripts/check.mjs && node scripts/ui-audit.mjs && node scripts/environment-audit.mjs && node scripts/wrangler-audit.mjs && node scripts/interaction-audit.mjs && node scripts/visual-audit.mjs && npm run conformance-audit && npm run notation-completeness-audit && node scripts/qualification-matrix-audit.mjs && npm run verification-planning-audit && npm run element-support-audit",
     "test": "node --test",
     "ui-audit": "node scripts/ui-audit.mjs",
     "environment-audit": "node scripts/environment-audit.mjs",
@@ -29,7 +29,8 @@
     "test:browser": "playwright test",
     "test:browser:headed": "PWHEADED=1 playwright test",
     "browser:version": "node scripts/browser-version.mjs",
-    "verification-planning-audit": "node scripts/verification-planning-audit.mjs"
+    "verification-planning-audit": "node scripts/verification-planning-audit.mjs",
+    "element-support-audit": "node scripts/element-support-audit.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",

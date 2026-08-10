@@ -2,7 +2,7 @@
 
 ## Scope and inventory
 
-The repository declares SysML 1.6 and a conservative application profile, while P-03 retains explicit Definition/Usage/Instance roles without relabeling their serialized metaclasses. `supported-type-inventory.js` is the machine-readable vertical-workflow inventory. It records canonical type, metaclass/stereotype, diagrams, creation context, presentation/renderer, palette, properties, compartments, relationship roles, import, persistence, undo/redo, tests, and `complete`, `partial`, or `import-only` status. Existing conformance fixtures—not visual similarity—control `complete` classification. Partial tools remain visible only with an explicit “limited” label and inventory status.
+The repository declares SysML 1.6 and a conservative application profile, while P-03 retains explicit Definition/Usage/Instance roles without relabeling their serialized metaclasses. `supported-type-inventory.js` is the machine-readable vertical-workflow inventory. It records canonical type, metaclass/stereotype, diagrams, creation context, presentation/renderer, palette, properties, compartments, relationship roles, import, persistence, undo/redo, tests, and `complete`, `partial`, or `import-only` status. Existing conformance fixtures—not visual similarity—control `complete` classification. Partial tools expose an explicit support state and capability details derived from the authoritative inventory.
 
 ## Eight controlled steps
 
@@ -27,7 +27,7 @@ The repository declares SysML 1.6 and a conservative application profile, while 
 - [ ] Create Lost and Found Messages from the Sequence palette, place open ends, reconnect Lifelines, edit labels, move paths/anchors, delete, undo, and redo.
 - [ ] Toggle compartments and resize supported presentations independently.
 - [ ] Drag existing semantic elements onto compatible diagrams and confirm unique presentations without semantic duplication.
-- [ ] Confirm invalid tools are absent or explicitly limited and rejected placement is actionable.
+- [ ] Confirm invalid tools are absent or explicitly classified and rejected placement is actionable.
 - [ ] Import/reimport representative BDD, IBD, Requirement, Parametric, Activity, State, Use Case, and Sequence content, including an unknown type.
 - [ ] Confirm manual/imported renderer parity and that unknown types remain inspectable diagnostic presentations.
 - [ ] Save/close/reopen and verify semantic/presentation IDs, endpoints, labels, compartments, open anchors, and geometry.

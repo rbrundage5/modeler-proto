@@ -7,6 +7,7 @@ import {normalizeSuspectLinks} from './suspect-links.js';
 import {normalizeCollaborationArtifacts} from './model-reviews.js';
 import {normalizeSemanticFoundation} from './semantic-foundation.js';
 import {initializeBehaviorElement,initializeBehaviorRelationship,normalizeBehaviorModel} from './behavior-model.js';
+import {normalizeSupportMetadata} from './support-migration.js';
 export const DIAGRAM_TYPES=Object.keys(DIAGRAMS);
 export function uid(prefix="id"){return `${prefix}-${crypto.randomUUID()}`}
 export function createProject(name="New Systems Model"){
@@ -64,7 +65,7 @@ export function defaultElement(kind,ownerId){
     compartments:{parts:[],references:[],values:[],flowProperties:[],ports:[],operations:[],constraints:[],parameters:[],providedInterfaces:[],requiredInterfaces:[],literals:[],slots:[]},
     compartmentVisibility:{parts:true,references:true,values:true,flowProperties:true,ports:true,operations:false,constraints:true,parameters:true,providedInterfaces:true,requiredInterfaces:true,literals:true,slots:true},
     entitySchemaVersion:"1.0",createdAt:new Date().toISOString(),modifiedAt:new Date().toISOString(),provenance:null,tags:{}};
-  initializeBehaviorElement(element);return kind==='Requirement'?initializeRequirement(element):element;
+  initializeBehaviorElement(element);if(kind==='TestCase')Object.assign(element,{verificationCaseId:'',verificationObjective:'',verificationMethod:'Test',acceptanceCriteria:'',verificationLevel:'System',plannedEnvironment:'',responsibleRole:'',responsibleElementIds:[],applicableConfigurationIds:[],applicabilityRules:[],preconditions:'',postconditions:'',procedureReference:'',plannedStatus:'Draft',executionStatus:'Unavailable',procedure:'',expectedResult:'',testOwner:'',testStatus:'Draft',evidence:[]});return kind==='Requirement'?initializeRequirement(element):element;
 }
 export function defaultRelationship(kind,sourceId,targetId,ownerId){
   const d=RELATIONSHIPS[kind]||{};
@@ -83,5 +84,5 @@ export function normalizeProject(p){
   requirementPolicy(p);
   for(const e of allElements(p)){if(e.kind==='Requirement')initializeRequirement(e);e.compartments=e.compartments||{};e.compartmentVisibility=e.compartmentVisibility||{};if(e.multiplicityLower==null||e.multiplicityUpper==null){const m=String(e.multiplicity||"1").trim();if(m.includes("..")){const [lo,hi]=m.split("..",2);e.multiplicityLower=lo||"0";e.multiplicityUpper=hi||"*"}else{e.multiplicityLower=m||"1";e.multiplicityUpper=m||"1"}}e.multiplicity=multiplicityFromBounds(e.multiplicityLower,e.multiplicityUpper)}
   for(const d of p.diagrams||[]){d.nodes=d.nodes||[];d.edges=d.edges||[]}
-  normalizeBehaviorModel(p);normalizeVerificationProject(p);normalizeSuspectLinks(p);normalizeCollaborationArtifacts(p);normalizeSemanticFoundation(p);normalizeRequirementArchitecture(p);synchronizeSemanticModel(p);normalizeIBDProject(p);refreshQualifiedNames(p);return p;
+  normalizeSupportMetadata(p);normalizeBehaviorModel(p);normalizeVerificationProject(p);normalizeSuspectLinks(p);normalizeCollaborationArtifacts(p);normalizeSemanticFoundation(p);normalizeRequirementArchitecture(p);synchronizeSemanticModel(p);normalizeIBDProject(p);refreshQualifiedNames(p);return p;
 }
