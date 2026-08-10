@@ -1,0 +1,1 @@
+import {chromium as playwrightChromium} from '@playwright/test';import chromium from '@sparticuz/chromium';const executablePath=await chromium.executablePath();const browser=await playwrightChromium.launch({executablePath,args:chromium.args,headless:true});console.log(`Chromium ${browser.version()} (${executablePath})`);await browser.close();
