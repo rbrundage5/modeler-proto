@@ -165,6 +165,7 @@ export function applyOperation(project,operation){
     case'remove-presentation':{
       const diagram=required(findDiagram(project,operation.diagramId),'Diagram not found'),removed=new Set([operation.nodeId]);let changed=true;while(changed){changed=false;for(const node of diagram.nodes)if(removed.has(node.parentPresentationId)&&!removed.has(node.id)){removed.add(node.id);changed=true}}diagram.nodes=diagram.nodes.filter(node=>!removed.has(node.id));diagram.edges=diagram.edges.filter(edge=>!removed.has(edge.sourceNodeId)&&!removed.has(edge.targetNodeId));break;
     }
+    case'create-relationship-presentation':{const diagram=required(findDiagram(project,operation.diagramId),'Diagram not found');if(!diagram.edges.some(edge=>edge.id===operation.edge.id))diagram.edges.push(deepClone(operation.edge));break}
     case'remove-edge-presentation':{
       const diagram=required(findDiagram(project,operation.diagramId),'Diagram not found');diagram.edges=diagram.edges.filter(edge=>edge.id!==operation.edgeId);break;
     }
