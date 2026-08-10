@@ -96,7 +96,7 @@ function importElements(sheets,ctx){
       aggregation:text(valueFor(row,'aggregation'))||element.aggregation||'none',direction:text(valueFor(row,'direction'))||element.direction||'inout',
       defaultValue:text(valueFor(row,'defaultValue')),unitRef:text(valueFor(row,'unit')),quantityKindRef:text(valueFor(row,'quantityKind')),
       lifecycleStatus:text(valueFor(row,'status')),priority:text(valueFor(row,'priority')),risk:text(valueFor(row,'risk')),
-      verificationMethod:text(valueFor(row,'verificationMethod')),sourceDocument:text(valueFor(row,'sourceDocument')),sourceSection:text(valueFor(row,'sourceSection')),
+      verificationMethod:text(valueFor(row,'verificationMethod')),verificationCaseId:text(valueFor(row,'verificationCaseId')||valueFor(row,'requirementId')),verificationObjective:text(valueFor(row,'verificationObjective')),acceptanceCriteria:text(valueFor(row,'acceptanceCriteria')),verificationLevel:text(valueFor(row,'verificationLevel')),plannedEnvironment:text(valueFor(row,'plannedEnvironment')),responsibleRole:text(valueFor(row,'responsibleRole')),preconditions:text(valueFor(row,'preconditions')),postconditions:text(valueFor(row,'postconditions')),procedureReference:text(valueFor(row,'procedureReference')),plannedStatus:text(valueFor(row,'plannedStatus')),sourceDocument:text(valueFor(row,'sourceDocument')),sourceSection:text(valueFor(row,'sourceSection')),
       providedInterfaceIds:splitIds(valueFor(row,'providedInterfaces')),requiredInterfaceIds:splitIds(valueFor(row,'requiredInterfaces')),
       isExternalReference:Boolean(sheet.definition.referenceOnly),importSource:{file:ctx.fileName,sheet:sheet.name,row:row.__rowNumber,profile:'catia-cameo-workbook-v2-fsbs-grindavik'},
       provenance:text(valueFor(row,'provenance'))
