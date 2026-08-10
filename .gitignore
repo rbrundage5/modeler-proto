@@ -13,3 +13,7 @@ coverage/
 
 
 benchmark-results/
+
+# Browser qualification artifacts
+test-results/
+playwright-report/

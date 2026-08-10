@@ -1,0 +1,2 @@
+import {test,expect} from './fixtures.mjs';
+test('real browser starts isolated modeling application',async({page})=>{await page.goto('/');await expect(page).toHaveTitle('Systems Modeler Collaborative');await expect(page.locator('#canvas')).toBeVisible();await expect(page.locator('#palette')).toBeVisible();await expect.poll(()=>page.evaluate(()=>Boolean(window.SystemsModelerAPI?.getProject()))).toBe(true);await page.screenshot({path:'test-results/browser/startup.png',fullPage:true})});

@@ -1,0 +1,22 @@
+import {DIAGRAMS,ELEMENTS,RELATIONSHIPS,SYSML_VERSION} from './sysml-profile.js';
+import {CLAIMED_DIAGRAM_TYPES,elementCapabilityFor} from './sysml/conformance-registry.js';
+import {resolvePresentation} from './presentation-compatibility.js';
+import {hasSysmlIcon} from './sysml-icons.js';
+
+export const SUPPORT_STATES=Object.freeze(['complete','partial','import-only','read-only','unsupported']);
+const TEST_BY_DOMAIN={
+  structural:'test/ibd-engine.test.mjs',requirements:'test/requirement-architecture.test.mjs',behavior:'test/behavior-sequence-completion.test.mjs',notation:'test/sysml-notation-audit.test.mjs'
+};
+const domain=kind=>['Requirement','TestCase'].includes(kind)?'requirements':['Lifeline','CombinedFragment','InteractionUse','Actor','UseCase','Action','State'].includes(kind)?'behavior':['PartProperty','ReferenceProperty','ProxyPort','FullPort'].includes(kind)?'structural':'notation';
+const propertySchema=kind=>['ProxyPort','FullPort'].includes(kind)?'port-properties':['PartProperty','ReferenceProperty','ValueProperty','FlowProperty','ConstraintProperty','Parameter'].includes(kind)?'typed-feature-properties':kind==='Requirement'?'requirement-properties':['Lifeline','CombinedFragment','InteractionUse'].includes(kind)?'behavior-properties':'identity-documentation-properties';
+const diagramsFor=kind=>CLAIMED_DIAGRAM_TYPES.filter(type=>DIAGRAMS[type]?.elements.includes(kind));
+const rolesFor=kind=>Object.entries(RELATIONSHIPS).filter(([,rule])=>rule.source==='*'||rule.target==='*'||rule.source?.includes?.(kind)||rule.target?.includes?.(kind)).map(([type])=>type);
+export function elementInventoryEntry(kind){
+  const diagrams=diagramsFor(kind),capabilities=diagrams.map(type=>elementCapabilityFor(type,kind)).filter(Boolean),complete=capabilities.length>0&&capabilities.every(item=>item.maturity==='working');
+  const firstDiagram=diagrams[0],presentation=firstDiagram&&resolvePresentation({semanticType:kind,diagramType:firstDiagram});
+  return Object.freeze({canonicalType:kind,recordKind:'element',metaclass:ELEMENTS[kind].metaclass,stereotype:ELEMENTS[kind].stereotype||'',profile:`SysML ${SYSML_VERSION} application profile`,diagramTypes:diagrams,creationContexts:ELEMENTS[kind].ownerKinds||['Model','Package','ModelLibrary'],presentationType:presentation?.presentationType||`${kind}Presentation`,rendererKey:presentation?.rendererKey||'diagnostic-presentation',paletteAvailability:diagrams.filter(type=>elementCapabilityFor(type,kind)?.paletteCreation),creationWorkflow:capabilities.some(item=>item.placementMode==='contextual')?'containment-or-contextual-placement':'palette-or-containment',propertySchema:propertySchema(kind),compartments:ELEMENTS[kind].compartments||[],relationshipRoles:rolesFor(kind),importMapping:'profile-dependent-canonical-kind',serialization:'json-project',undoRedo:'operation-and-snapshot',testCoverage:[TEST_BY_DOMAIN[domain(kind)]],icon:hasSysmlIcon(kind),supportStatus:complete?'complete':diagrams.length?'partial':'import-only'});
+}
+export function relationshipInventoryEntry(kind){const diagrams=CLAIMED_DIAGRAM_TYPES.filter(type=>DIAGRAMS[type]?.relationships.includes(kind)),rule=RELATIONSHIPS[kind];return Object.freeze({canonicalType:kind,recordKind:'relationship',metaclass:kind,stereotype:rule.stereotype||'',profile:`SysML ${SYSML_VERSION} application profile`,diagramTypes:diagrams,creationContexts:['valid semantic endpoints'],presentationType:`${kind}Presentation`,rendererKey:'svg-edge-renderer',paletteAvailability:diagrams,creationWorkflow:'endpoint-relationship-tool',propertySchema:'relationship-endpoint-properties',compartments:[],relationshipRoles:{source:rule.source,target:rule.target},importMapping:'profile-dependent-canonical-kind',serialization:'json-project',undoRedo:'operation-and-snapshot',testCoverage:['test/model.test.mjs','test/connector-engine.test.mjs'],icon:hasSysmlIcon(kind),supportStatus:'partial'});}
+export const SUPPORTED_TYPE_INVENTORY=Object.freeze([...Object.keys(ELEMENTS).map(elementInventoryEntry),...Object.keys(RELATIONSHIPS).map(relationshipInventoryEntry)]);
+export function inventoryEntry(kind,recordKind='element'){return SUPPORTED_TYPE_INVENTORY.find(item=>item.canonicalType===kind&&item.recordKind===recordKind)||null}
+export function inventoryForDiagram(diagramType,recordKind){return SUPPORTED_TYPE_INVENTORY.filter(item=>item.recordKind===recordKind&&item.paletteAvailability.includes(diagramType))}
