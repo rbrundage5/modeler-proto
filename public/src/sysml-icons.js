@@ -57,8 +57,9 @@ const RELATIONSHIP_ICONS={
  ObjectFlow:()=>svg(`<path d="M2 10h13" stroke="${A}"/><path d="m14 6 4 4-4 4" fill="none" stroke="${A}"/>`,'object flow')
 };
 for(const kind of ['AssociationBlock','DelegationConnector','ItemFlow'])RELATIONSHIP_ICONS[kind]=RELATIONSHIP_ICONS.Connector;
-for(const kind of ['Abstraction','Redefines','Subsets','Requires','Satisfy','Verify','Refine','DeriveReqt','Trace','Copy','Allocate','Include','Extend','VariantBinding'])RELATIONSHIP_ICONS[kind]=RELATIONSHIP_ICONS.Dependency;
-for(const kind of ['Realization','Provides'])RELATIONSHIP_ICONS[kind]=()=>svg(`<path d="M2 10h11" stroke="${A}" stroke-dasharray="3 2"/><path d="m18 10-6-4v8z" fill="white" stroke="${A}"/>`,'realization');
+for(const kind of ['Usage','Abstraction','Redefines','Subsets','Requires','Satisfy','Verify','Refine','DeriveReqt','Trace','Copy','Allocate','Include','Extend','VariantBinding'])RELATIONSHIP_ICONS[kind]=RELATIONSHIP_ICONS.Dependency;
+for(const kind of ['Realization','InterfaceRealization','Provides'])RELATIONSHIP_ICONS[kind]=()=>svg(`<path d="M2 10h11" stroke="${A}" stroke-dasharray="3 2"/><path d="m18 10-6-4v8z" fill="white" stroke="${A}"/>`,'realization');
+RELATIONSHIP_ICONS.InformationFlow=RELATIONSHIP_ICONS.ControlFlow;
 for(const kind of ['InterruptingEdge','Transition','Message'])RELATIONSHIP_ICONS[kind]=RELATIONSHIP_ICONS.ControlFlow;
 export function hasSysmlIcon(kind){return Boolean(ICONS[aliases[kind]||kind]||RELATIONSHIP_ICONS[kind])}
 export function sysmlPaletteIcon(kind){return RELATIONSHIP_ICONS[kind]?.()||sysmlIcon(kind)}

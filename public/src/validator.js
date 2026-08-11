@@ -8,6 +8,7 @@ import {validateRequirementArchitecture} from './requirement-architecture.js';
 import {validateVerificationPlanning} from './verification-validation.js';
 import {foundationIssues} from './bdd-foundations.js';
 import {e01s4Issues} from './bdd-completion.js';
+import {bddRelationshipIssues} from './bdd-relationships.js';
 export function validate(project){
   const issues=[],seen=new Set();
   const add=(severity,code,message,id=null)=>issues.push({severity,code,message,id});
@@ -33,6 +34,7 @@ export function validate(project){
     if(!def){add("warning","UNKNOWN_RELATIONSHIP",`${r.kind} is not supported.`,r.id);continue}
     if(!endpointAllowed(def.source,s.kind))add("error","INVALID_SOURCE",`${r.kind} cannot start at ${s.kind} ${s.name}.`,r.id);
     if(!endpointAllowed(def.target,t.kind))add("error","INVALID_TARGET",`${r.kind} cannot end at ${t.kind} ${t.name}.`,r.id);
+    issues.push(...bddRelationshipIssues(project,r,{ignoreId:r.id}));
     if(['Association','Composition','Aggregation'].includes(r.kind)){
       for(const [end,value] of [['source',r.sourceMultiplicity||'1'],['target',r.targetMultiplicity||'1']]){const [lower,upper]=String(value).includes('..')?String(value).split('..',2):[String(value),String(value)];const lo=normalizeBound(lower),hi=normalizeBound(upper,true);if(lo==null||hi==null||(hi!=='*'&&Number(lo)>Number(hi)))add('error','ASSOCIATION_MULTIPLICITY',`${r.kind} ${end} end has invalid multiplicity ${value}.`,r.id)}
       for(const end of ['source','target'])if(!['none','shared','composite'].includes(r[`${end}Aggregation`]||'none'))add('error','ASSOCIATION_AGGREGATION',`${r.kind} ${end} end has invalid aggregation.`,r.id);
