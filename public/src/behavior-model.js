@@ -59,6 +59,7 @@ export function validateBehaviorConnection(project,kind,sourceId,targetId){
   const rule=kind==='ControlFlow'?CONTROL_NODES:kind==='ObjectFlow'?OBJECT_NODES:kind==='Transition'?STATE_VERTICES:kind==='Message'?new Set(['Lifeline']):['Include','Extend'].includes(kind)?new Set(['UseCase']):null;
   if(!rule)return{valid:true};
   if(!rule.has(source.kind)||!rule.has(target.kind))return{valid:false,message:`${kind} cannot connect ${source.kind} to ${target.kind}. Valid endpoint kinds: ${[...rule].join(', ')}.`};
+  if(['ControlFlow','ObjectFlow'].includes(kind)){const sourceActivity=activityContextOf(project,source.id),targetActivity=activityContextOf(project,target.id);if(!sourceActivity||!targetActivity||sourceActivity.id!==targetActivity.id)return{valid:false,message:`${kind} endpoints must be owned by the same Activity context.`}}
   if(kind==='ControlFlow'&&['ActivityFinalNode','FlowFinalNode'].includes(source.kind))return{valid:false,message:`${source.kind} cannot be the source of a ControlFlow.`};
   if(kind==='ControlFlow'&&target.kind==='InitialNode')return{valid:false,message:'InitialNode cannot be the target of a ControlFlow.'};
   if(kind==='ObjectFlow'){
@@ -89,6 +90,32 @@ export function resolveActivityEndpoint(project,diagram,selection,side='Endpoint
   const element=(project.elements||[]).find(item=>item.id===presentation.elementId);
   if(!element)throw new Error(`${side} presentation ${presentation.id} references missing semantic element ${presentation.elementId}.`);
   return{presentationId:presentation.id,semanticId:element.id,element};
+}
+
+export function activityContextOf(project,elementId){
+  let current=(project.elements||[]).find(item=>item.id===elementId),guard=0;
+  while(current&&guard++<100){if(current.kind==='Activity')return current;current=(project.elements||[]).find(item=>item.id===current.ownerId)}
+  return null;
+}
+
+export function validateActivityReference(project,element){
+  const find=id=>(project.elements||[]).find(item=>item.id===id),required=(field,kinds,label)=>{const id=element[field],target=find(id);if(!id)return`${element.kind} requires a ${label}. Select an existing ${kinds.join(' or ')}.`;if(!target)return`${element.kind} ${label} cannot be resolved by stable ID.`;if(!kinds.includes(target.kind))return`${element.kind} ${label} resolves to ${target.kind}; expected ${kinds.join(' or ')}.`;return''};
+  if(element.kind==='CallBehaviorAction')return required('referencedBehaviorId',['Activity','Behavior','Interaction','StateMachine'],'called Behavior');
+  if(element.kind==='CallOperationAction')return required('referencedOperationId',['Operation'],'called Operation');
+  if(element.kind==='SendSignalAction')return required('signalId',['Signal'],'Signal');
+  if(element.kind==='AcceptEventAction')return required('eventId',['Event','Trigger','Signal'],'Event or Trigger');
+  if(element.kind==='ActivityParameterNode'){
+    const issue=required('parameterId',['Parameter'],'Activity Parameter');if(issue)return issue;
+    const parameter=find(element.parameterId),activity=element.kind==='ActivityParameterNode'?activityContextOf(project,element.ownerId):activityContextOf(project,element.id);if(!activity||parameter.ownerId!==activity.id)return'Activity Parameter Node must reference a Parameter owned by its Activity context.';
+  }
+  return'';
+}
+
+export function reconnectActivityFlow(project,diagram,relationship,end,selection){
+  if(!['ControlFlow','ObjectFlow'].includes(relationship?.kind))throw Error('Only Activity flows use Activity reconnection.');
+  const resolved=resolveActivityEndpoint(project,diagram,selection,end==='source'?'Source endpoint':'Target endpoint'),sourceId=end==='source'?resolved.semanticId:relationship.sourceId,targetId=end==='target'?resolved.semanticId:relationship.targetId;
+  const verdict=validateBehaviorConnection(project,relationship.kind,sourceId,targetId);if(!verdict.valid)throw Error(verdict.message);
+  relationship[`${end}Id`]=resolved.semanticId;return resolved;
 }
 
 export function behaviorRelationshipLabel(project,relationship){
