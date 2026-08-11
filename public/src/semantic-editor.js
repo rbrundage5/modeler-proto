@@ -39,11 +39,12 @@ export function setMultiplicity(feature,lower,upper){
 }
 export function semanticIssues(project,e){
   const issues=[];
-  if(isTypedFeature(e)&&!e.typeRef)issues.push({severity:'error',message:'A semantic classifier is required.'});
-  if(e.typeRef){const t=findElement(project,e.typeRef),valid=validTypeKinds(e.kind);if(!t)issues.push({severity:'error',message:'The selected type cannot be resolved.'});else if(!valid.includes(t.kind))issues.push({severity:'error',message:`${e.kind} cannot be typed by ${t.kind}.`})}
+  if(isTypedFeature(e)&&!e.typeRef)issues.push({severity:'error',field:'typeRef',code:'TYPE_REQUIRED',message:'A semantic classifier is required.'});
+  if(e.typeRef){const t=findElement(project,e.typeRef),valid=validTypeKinds(e.kind);if(!t)issues.push({severity:'error',field:'typeRef',code:'TYPE_UNRESOLVED',message:'The selected type cannot be resolved.'});else if(!valid.includes(t.kind))issues.push({severity:'error',field:'typeRef',code:'TYPE_INCOMPATIBLE',message:`${e.kind} cannot be typed by ${t.kind}.`})}
   const lo=normalizeBound(e.multiplicityLower??String(e.multiplicity||'1').split('..')[0]),hi=normalizeBound(e.multiplicityUpper??(String(e.multiplicity||'1').split('..')[1]||String(e.multiplicity||'1').split('..')[0]),true);
-  if(lo==null||hi==null)issues.push({severity:'error',message:'Multiplicity is invalid.'});else if(hi!=='*'&&Number(lo)>Number(hi))issues.push({severity:'error',message:'Multiplicity lower bound exceeds upper bound.'});
+  if(lo==null||hi==null)issues.push({severity:'error',field:'multiplicity',code:'MULTIPLICITY_INVALID',message:'Multiplicity is invalid.'});else if(hi!=='*'&&Number(lo)>Number(hi))issues.push({severity:'error',field:'multiplicity',code:'MULTIPLICITY_RANGE_INVALID',message:'Multiplicity lower bound exceeds upper bound.'});
   if(supportsDirection(e)&&!['in','out','inout'].includes(e.direction))issues.push({severity:'error',message:'Direction must be in, out, or inout.'});
   if(e.kind==='ProxyPort'&&e.typeRef&&findElement(project,e.typeRef)?.kind!=='InterfaceBlock')issues.push({severity:'error',message:'A Proxy Port must be typed by an Interface Block.'});
+  for(const [field,kind,label] of [['unitRef','Unit','Unit'],['quantityKindRef','QuantityKind','Quantity kind']])if(['ValueProperty','FlowProperty','ValueType'].includes(e.kind)&&e[field]){const target=findElement(project,e[field]);if(!target)issues.push({severity:'error',field,code:`${field.toUpperCase()}_UNRESOLVED`,message:`${label} reference cannot be resolved.`});else if(target.kind!==kind)issues.push({severity:'error',field,code:`${field.toUpperCase()}_INCOMPATIBLE`,message:`${label} must reference a ${kind}.`})}
   return issues;
 }
