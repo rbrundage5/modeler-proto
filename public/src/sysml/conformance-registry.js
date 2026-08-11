@@ -9,6 +9,10 @@ export const CLAIMED_DIAGRAM_TYPES=Object.freeze([
 
 const VERIFIED_COMBINATIONS=new Map([
   ['Block Definition Diagram:Block','containment-presentation-identity'],
+  ['Block Definition Diagram:DataType','structural-typing-workflow'],
+  ['Block Definition Diagram:ValueType','structural-typing-workflow'],
+  ['Internal Block Diagram:ValueProperty','structural-typing-workflow'],
+  ['Parametric Diagram:ValueProperty','structural-typing-workflow'],
   ['Internal Block Diagram:PartProperty','ibd-professional-workflow'],
   ['Internal Block Diagram:ReferenceProperty','ibd-professional-workflow'],
   ['Internal Block Diagram:ProxyPort','ibd-professional-workflow'],
@@ -25,7 +29,8 @@ const FIXTURES=Object.freeze({
   'requirements-persistence-workflow':'test/requirements-phase-1.test.mjs',
   'presentation-compatibility-workflow':'test/presentation-compatibility.test.mjs',
   'sequence-professional-workflow':'test/sequence-interactions.test.mjs',
-  'testcase-complete-workflow':'test/selected-element-semantics.test.mjs'
+  'testcase-complete-workflow':'test/selected-element-semantics.test.mjs',
+  'structural-typing-workflow':'test/e01s2-structural-typing.test.mjs'
 });
 const SPECIAL_PRESENTATIONS={Actor:'ActorPresentation',UseCase:'UseCasePresentation',Lifeline:'LifelinePresentation',CombinedFragment:'CombinedFragmentPresentation',InteractionUse:'InteractionUsePresentation',ProxyPort:'PortPresentation',FullPort:'PortPresentation',InputPin:'InputPinPresentation',OutputPin:'OutputPinPresentation'};
 const fixedSize=new Set(['ProxyPort','FullPort','InputPin','OutputPin','InitialNode','InitialPseudostate','ActivityFinalNode','FinalState','FlowFinalNode','DecisionNode','MergeNode','ChoicePseudostate','JunctionPseudostate','ShallowHistory','DeepHistory','EntryPoint','ExitPoint']);
