@@ -11,6 +11,7 @@ import {initializeBehaviorElement,initializeBehaviorRelationship,normalizeBehavi
 import {normalizeSupportMetadata} from './support-migration.js';
 import {normalizeStructuralEndpoints} from './structural-endpoint-migration.js';
 import {normalizeStructuralTyping} from './structural-typing.js';
+import {normalizeBddFoundations} from './bdd-foundations.js';
 export const DIAGRAM_TYPES=Object.keys(DIAGRAMS);
 export function uid(prefix="id"){return `${prefix}-${crypto.randomUUID()}`}
 export function createProject(name="New Systems Model"){
@@ -87,5 +88,5 @@ export function normalizeProject(p){
   requirementPolicy(p);
   for(const e of allElements(p)){if(e.kind==='Requirement')initializeRequirement(e);e.compartments=e.compartments||{};e.compartmentVisibility=e.compartmentVisibility||{};if(e.multiplicityLower==null||e.multiplicityUpper==null){const m=String(e.multiplicity||"1").trim();if(m.includes("..")){const [lo,hi]=m.split("..",2);e.multiplicityLower=lo||"0";e.multiplicityUpper=hi||"*"}else{e.multiplicityLower=m||"1";e.multiplicityUpper=m||"1"}}e.multiplicity=multiplicityFromBounds(e.multiplicityLower,e.multiplicityUpper)}
   for(const d of p.diagrams||[]){d.nodes=d.nodes||[];d.edges=d.edges||[]}
-  normalizeStructuralTyping(p);normalizeStructuralEndpoints(p);migrateRelationshipPresentations(p);normalizeSupportMetadata(p);normalizeBehaviorModel(p);normalizeVerificationProject(p);normalizeSuspectLinks(p);normalizeCollaborationArtifacts(p);normalizeSemanticFoundation(p);normalizeRequirementArchitecture(p);synchronizeSemanticModel(p);normalizeIBDProject(p);refreshQualifiedNames(p);return p;
+  normalizeBddFoundations(p);normalizeStructuralTyping(p);normalizeStructuralEndpoints(p);migrateRelationshipPresentations(p);normalizeSupportMetadata(p);normalizeBehaviorModel(p);normalizeVerificationProject(p);normalizeSuspectLinks(p);normalizeCollaborationArtifacts(p);normalizeSemanticFoundation(p);normalizeRequirementArchitecture(p);synchronizeSemanticModel(p);normalizeIBDProject(p);refreshQualifiedNames(p);return p;
 }

@@ -62,7 +62,7 @@ export function getCompartmentRows(project,element,name){
   if(name==='providedInterfaces')return (element.providedInterfaceIds||[]).map(id=>typeName(project,id)).filter(Boolean);
   if(name==='requiredInterfaces')return (element.requiredInterfaceIds||[]).map(id=>typeName(project,id)).filter(Boolean);
   const kinds=COMPARTMENT_DEFINITIONS[name]?.kinds||[];
-  const semantic=kinds.length?[...project.elements.filter(e=>e.ownerId===element.id&&kinds.includes(e.kind)),...inheritedFeatures(project,element.id).filter(e=>kinds.includes(e.kind))]:[];
+  const order=e=>e.kind==='EnumerationLiteral'?(e.literalOrder??0):e.kind==='FlowProperty'?(e.featureOrder??0):0,semantic=kinds.length?[...project.elements.filter(e=>e.ownerId===element.id&&kinds.includes(e.kind)).sort((a,b)=>order(a)-order(b)||a.id.localeCompare(b.id)),...inheritedFeatures(project,element.id).filter(e=>kinds.includes(e.kind))]:[];
   const legacy=(element.compartments?.[name]||[]).filter(item=>{
     const value=formatFeature(project,item);
     return value&&!semantic.some(e=>formatFeature(project,e)===value);
