@@ -38,8 +38,11 @@ const VERIFIED_COMBINATIONS=new Map([
   ['Internal Block Diagram:Comment','e01i-complete-ibd'],
   ['Requirement Diagram:Requirement','requirements-persistence-workflow'],
   ['Requirement Diagram:TestCase','testcase-complete-workflow'],
-  ['Use Case Diagram:Actor','presentation-compatibility-workflow'],
-  ['Use Case Diagram:UseCase','presentation-compatibility-workflow'],
+  ['Use Case Diagram:Actor','use-case-complete-workflow'],
+  ['Use Case Diagram:UseCase','use-case-complete-workflow'],
+  ['Use Case Diagram:Block','use-case-complete-workflow'],
+  ['Use Case Diagram:Package','use-case-complete-workflow'],
+  ['Use Case Diagram:Comment','use-case-complete-workflow'],
   ['Sequence Diagram:Lifeline','sequence-professional-workflow']
 ]);
 const FIXTURES=Object.freeze({
@@ -47,6 +50,7 @@ const FIXTURES=Object.freeze({
   'ibd-professional-workflow':'test/ibd-engine.test.mjs',
   'requirements-persistence-workflow':'test/requirements-phase-1.test.mjs',
   'presentation-compatibility-workflow':'test/presentation-compatibility.test.mjs',
+  'use-case-complete-workflow':'test/use-case-completion.test.mjs',
   'sequence-professional-workflow':'test/sequence-interactions.test.mjs',
   'testcase-complete-workflow':'test/selected-element-semantics.test.mjs',
   'structural-typing-workflow':'test/e01s2-structural-typing.test.mjs',
@@ -75,7 +79,7 @@ function elementCapability(diagramType,kind){
     knownLimitations:fixtureId?[]:['The complete user-visible workflow has not been qualified by a dedicated fixture.']
   });
 }
-const COMPLETE_BDD_RELATIONSHIPS=new Set(['Association','AssociationBlock','Aggregation','Composition','Generalization','Dependency','Usage','Abstraction','Realization','InterfaceRealization','InformationFlow','ItemFlow','Trace','Refine','DeriveReqt','Satisfy','Verify','Copy','Allocate','Redefines','Subsets','Provides','Requires']);
+const COMPLETE_BDD_RELATIONSHIPS=new Set(['Include','Extend','Association','AssociationBlock','Aggregation','Composition','Generalization','Dependency','Usage','Abstraction','Realization','InterfaceRealization','InformationFlow','ItemFlow','Trace','Refine','DeriveReqt','Satisfy','Verify','Copy','Allocate','Redefines','Subsets','Provides','Requires']);
 const COMPLETE_IBD_RELATIONSHIPS=new Set(['Connector','DelegationConnector']);
 function relationshipCapability(kind){const rule=RELATIONSHIPS[kind],complete=COMPLETE_BDD_RELATIONSHIPS.has(kind)||COMPLETE_IBD_RELATIONSHIPS.has(kind),fixture=COMPLETE_IBD_RELATIONSHIPS.has(kind)?'e01i-complete-ibd':complete?'e01s5-bdd-relationships':null;return Object.freeze({semanticType:kind,presentationType:`${kind}Presentation`,renderer:'svg-edge-renderer',interactionController:'edge-interaction-controller',sourceKinds:rule.source,targetKinds:rule.target,requiredEditingOperations:['select','connect','reconnect','edit-label','delete-presentation','undo','redo','save-reload'],persistence:'json-project',importSupport:'profile-dependent',collaborationOperations:['add-relationship','add-edge','update-relationship','delete-relationship'],testFixtureId:fixture,maturity:complete?'working':'partial',knownLimitations:complete?[]:['Relationship-specific end-to-end coverage is incomplete.']})}
 function makeDiagram(displayName){
@@ -89,7 +93,7 @@ function makeDiagram(displayName){
     renderer:'svg-diagram-renderer',interactionController:displayName==='Sequence Diagram'?'sequence-interaction-controller':'diagram-interaction-controller',
     requiredEditingOperations:Object.freeze(['create','select','move','resize','rename','edit-properties','connect','delete-presentation','undo','redo','save-reload']),
     persistence:'json-project',importSupport:'profile-dependent',collaborationOperations:Object.freeze(['semantic','presentation','geometry','property','relationship']),
-    testFixtureId:displayName==='Internal Block Diagram'?'e01i-complete-ibd':null,maturity:displayName==='Internal Block Diagram'?'working':'partial',knownLimitations:Object.freeze(displayName==='Internal Block Diagram'?[]:['No complete diagram-wide workflow qualification fixture exists.'])
+    testFixtureId:displayName==='Internal Block Diagram'?'e01i-complete-ibd':displayName==='Use Case Diagram'?'use-case-complete-workflow':null,maturity:['Internal Block Diagram','Use Case Diagram'].includes(displayName)?'working':'partial',knownLimitations:Object.freeze(['Internal Block Diagram','Use Case Diagram'].includes(displayName)?[]:['No complete diagram-wide workflow qualification fixture exists.'])
   });
 }
 
