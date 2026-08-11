@@ -2,7 +2,7 @@
 
 > Generated from `public/src/sysml/conformance-registry.js` by `npm run conformance-matrix`. Do not edit the table manually. Status vocabulary: `working`, `partial`, `broken`, `missing`, `not-applicable`, `not-tested`. A `working` workflow has an automated fixture; notation/import/collaboration remain conservatively classified where end-to-end evidence is absent.
 
-<!-- registry-schema:1; rows:89 -->
+<!-- registry-schema:1; rows:86 -->
 | Diagram / semantic element | Valid | Palette | Containment | Render | Notation | Select | Move | Resize | Properties | Relate | Delete | Undo/redo | Save/reload | Import | Collab | Tests | Maturity / issue |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Block Definition Diagram / Package | working | working | working | working | working | working | working | working | working | working | working | working | working | partial | partial | working | working |
@@ -22,15 +22,15 @@
 | Block Definition Diagram / Requirement | working | working | working | working | working | working | working | working | working | working | working | working | working | partial | partial | working | working |
 | Block Definition Diagram / TestCase | working | working | working | working | working | working | working | working | working | working | working | working | working | partial | partial | working | working |
 | Block Definition Diagram / Comment | working | working | working | working | working | working | working | working | working | working | working | working | working | partial | partial | working | working |
-| Internal Block Diagram / Block | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
+| Internal Block Diagram / Block | working | working | working | working | working | working | working | working | working | working | working | working | working | partial | partial | working | working |
 | Internal Block Diagram / PartProperty | working | working | working | working | working | working | working | working | working | working | working | working | working | partial | partial | working | working |
 | Internal Block Diagram / ReferenceProperty | working | working | working | working | working | working | working | working | working | working | working | working | working | partial | partial | working | working |
 | Internal Block Diagram / ValueProperty | working | working | working | working | working | working | working | working | working | working | working | working | working | partial | partial | working | working |
-| Internal Block Diagram / FlowProperty | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
+| Internal Block Diagram / FlowProperty | working | working | working | working | working | working | working | working | working | working | working | working | working | partial | partial | working | working |
 | Internal Block Diagram / ProxyPort | working | not-applicable | working | working | working | working | working | not-applicable | working | working | working | working | working | partial | partial | working | working |
 | Internal Block Diagram / FullPort | working | not-applicable | working | working | working | working | working | not-applicable | working | working | working | working | working | partial | partial | working | working |
-| Internal Block Diagram / ConstraintProperty | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
-| Internal Block Diagram / Comment | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
+| Internal Block Diagram / ConstraintProperty | working | working | working | working | working | working | working | working | working | working | working | working | working | partial | partial | working | working |
+| Internal Block Diagram / Comment | working | working | working | working | working | working | working | working | working | working | working | working | working | partial | partial | working | working |
 | Requirement Diagram / Package | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
 | Requirement Diagram / Requirement | working | working | working | working | working | working | working | working | working | working | working | working | working | partial | partial | working | working |
 | Requirement Diagram / TestCase | working | working | working | working | working | working | working | working | working | working | working | working | working | partial | partial | working | working |
@@ -38,11 +38,11 @@
 | Requirement Diagram / UseCase | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
 | Requirement Diagram / Activity | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
 | Requirement Diagram / Comment | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
-| Use Case Diagram / Package | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
+| Use Case Diagram / Package | working | working | working | working | working | working | working | working | working | working | working | working | working | partial | partial | working | working |
 | Use Case Diagram / Actor | working | working | working | working | working | working | working | working | working | working | working | working | working | partial | partial | working | working |
 | Use Case Diagram / UseCase | working | working | working | working | working | working | working | working | working | working | working | working | working | partial | partial | working | working |
-| Use Case Diagram / Block | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
-| Use Case Diagram / Comment | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
+| Use Case Diagram / Block | working | working | working | working | working | working | working | working | working | working | working | working | working | partial | partial | working | working |
+| Use Case Diagram / Comment | working | working | working | working | working | working | working | working | working | working | working | working | working | partial | partial | working | working |
 | Activity Diagram / Action | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
 | Activity Diagram / CallBehaviorAction | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
 | Activity Diagram / CallOperationAction | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
@@ -62,9 +62,6 @@
 | Activity Diagram / ForkNode | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
 | Activity Diagram / JoinNode | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
 | Activity Diagram / ActivityPartition | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
-| Activity Diagram / StructuredActivityNode | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
-| Activity Diagram / ExpansionRegion | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
-| Activity Diagram / InterruptibleActivityRegion | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
 | Activity Diagram / Comment | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
 | State Machine Diagram / Region | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
 | State Machine Diagram / State | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
