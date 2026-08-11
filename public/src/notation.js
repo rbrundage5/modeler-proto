@@ -2,6 +2,7 @@ import {ELEMENTS} from './sysml-profile.js';
 import {inheritedFeatures} from './semantic-core.js';
 
 export const COMPARTMENT_DEFINITIONS = Object.freeze({
+  associationEnds:{label:'member ends',kinds:['AssociationEnd']},
   parts:{label:'parts',kinds:['PartProperty']},
   references:{label:'references',kinds:['ReferenceProperty']},
   values:{label:'values',kinds:['ValueProperty']},
@@ -17,7 +18,7 @@ export const COMPARTMENT_DEFINITIONS = Object.freeze({
 });
 
 const DEFAULT_VISIBILITY={
-  parts:true,references:true,values:true,flowProperties:true,ports:true,
+  associationEnds:true,parts:true,references:true,values:true,flowProperties:true,ports:true,
   operations:false,constraints:true,parameters:true,providedInterfaces:true,
   requiredInterfaces:true,literals:true,slots:true
 };
@@ -47,10 +48,11 @@ function defaultText(e){return e.defaultValue!==''&&e.defaultValue!==undefined?`
 export function formatFeature(project,e){
   if(typeof e==='string')return e;
   if(!e)return '';
-  if(e.kind==='Operation')return `${e.name}()`;
-  if(e.kind==='Reception')return `«signal» ${e.name}`;
+  if(e.kind==='Operation'){const parameters=project.elements.filter(item=>item.ownerId===e.id&&item.kind==='Parameter').sort((a,b)=>(a.featureOrder??0)-(b.featureOrder??0));return `${e.name}(${parameters.filter(p=>p.direction!=='return').map(p=>`${p.direction} ${p.name}: ${typeName(project,p.typeRef)}`).join(', ')})${parameters.find(p=>p.direction==='return')?`: ${typeName(project,parameters.find(p=>p.direction==='return').typeRef)}`:''}`}
+  if(e.kind==='Reception')return `«signal» ${e.name}${e.signalRef?`: ${typeName(project,e.signalRef)}`:''}`;
   if(e.kind==='EnumerationLiteral')return e.name;
-  if(e.kind==='Slot')return `${e.name}${defaultText(e)}`;
+  if(e.kind==='Slot')return `${typeName(project,e.definingFeatureId)||e.name} = ${e.valueSpecification?.value??e.defaultValue??''}`;
+  if(e.kind==='AssociationEnd')return `${e.navigable===false?'':'+'}${e.name}: ${typeName(project,e.typeRef)}${multiplicityText(e)}${e.aggregation&&e.aggregation!=='none'?` {${e.aggregation}}`:''}`;
   const type=e.typeRef?`: ${typeName(project,e.typeRef)}`:'';
   const conjugated=e.isConjugated?' ~':'';
   const inheritance=e.isInherited?'^ ':'';
@@ -62,7 +64,7 @@ export function getCompartmentRows(project,element,name){
   if(name==='providedInterfaces')return (element.providedInterfaceIds||[]).map(id=>typeName(project,id)).filter(Boolean);
   if(name==='requiredInterfaces')return (element.requiredInterfaceIds||[]).map(id=>typeName(project,id)).filter(Boolean);
   const kinds=COMPARTMENT_DEFINITIONS[name]?.kinds||[];
-  const semantic=kinds.length?[...project.elements.filter(e=>e.ownerId===element.id&&kinds.includes(e.kind)),...inheritedFeatures(project,element.id).filter(e=>kinds.includes(e.kind))]:[];
+  const order=e=>e.kind==='EnumerationLiteral'?(e.literalOrder??0):(e.featureOrder??0),semantic=kinds.length?[...project.elements.filter(e=>e.ownerId===element.id&&kinds.includes(e.kind)).sort((a,b)=>order(a)-order(b)||a.id.localeCompare(b.id)),...inheritedFeatures(project,element.id).filter(e=>kinds.includes(e.kind))]:[];
   const legacy=(element.compartments?.[name]||[]).filter(item=>{
     const value=formatFeature(project,item);
     return value&&!semantic.some(e=>formatFeature(project,e)===value);
