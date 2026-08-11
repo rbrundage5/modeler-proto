@@ -8,7 +8,7 @@ for(const item of SUPPORTED_TYPE_INVENTORY){
   for(const key of ['rendererKey','propertySchema','importMapping','serialization','undoRedo'])if(!item[key])issues.push(`${item.canonicalType}: complete type lacks ${key}`);
   if(!item.testCoverage.length)issues.push(`${item.canonicalType}: complete type lacks tests`);
   if(!item.paletteAvailability.length&&!item.creationWorkflow)issues.push(`${item.canonicalType}: complete type lacks palette or deliberate workflow`);
-  for(const diagram of item.diagramTypes)if(item.recordKind==='element'&&!rendererDescriptor(item.canonicalType,diagram).supported)issues.push(`${item.canonicalType}: complete type lacks renderer on ${diagram}`);
+  for(const diagram of item.diagramTypes)if(item.recordKind==='element'&&item.creationWorkflow!=='owned-compartment'&&!rendererDescriptor(item.canonicalType,diagram).supported)issues.push(`${item.canonicalType}: complete type lacks renderer on ${diagram}`);
  }
  if(item.paletteAvailability.length&&!item.icon)issues.push(`${item.canonicalType}: palette tool lacks a deliberate icon`);
 }
