@@ -13,7 +13,6 @@ import {normalizeStructuralEndpoints} from './structural-endpoint-migration.js';
 import {normalizeStructuralTyping} from './structural-typing.js';
 import {normalizeBddFoundations} from './bdd-foundations.js';
 import {normalizeBddCompletion} from './bdd-completion.js';
-import {normalizeBddRelationships} from './bdd-relationships.js';
 export const DIAGRAM_TYPES=Object.keys(DIAGRAMS);
 export function uid(prefix="id"){return `${prefix}-${crypto.randomUUID()}`}
 export function createProject(name="New Systems Model"){
@@ -76,7 +75,7 @@ export function defaultElement(kind,ownerId){
 export function defaultRelationship(kind,sourceId,targetId,ownerId){
   const d=RELATIONSHIPS[kind]||{};
   const relationship={id:uid("rel"),externalId:uid("EXT").toUpperCase(),name:"",kind,
-    metaclass:d.metaclass||kind,stereotype:d.stereotype||"",sourceId,targetId,ownerId,
+    metaclass:kind,stereotype:d.stereotype||"",sourceId,targetId,ownerId,
     sourceRole:"",targetRole:"",sourceMultiplicity:"1",targetMultiplicity:"1",sourceNavigable:true,targetNavigable:true,sourceAggregation:"none",targetAggregation:kind==="Composition"?"composite":kind==="Aggregation"?"shared":"none",sourceEndOwned:false,targetEndOwned:["Association","Composition","Aggregation"].includes(kind),
     sourceEndId:uid("end"),targetEndId:uid("end"),sourcePartWithPortPath:[],targetPartWithPortPath:[],sourceEndpointPath:[],targetEndpointPath:[],sourcePortId:"",targetPortId:"",connectorTypeRef:"",connectorKind:"assembly",itemFlowIds:[],conveyedIds:[],direction:"sourceToTarget",guard:"",weight:"1",triggerId:"",eventId:"",effect:"",messageSort:"synchronous",sequenceOrder:0,documentation:"",createdAt:new Date().toISOString(),modifiedAt:new Date().toISOString(),provenance:null,suspect:false,tags:{}};return initializeBehaviorRelationship(relationship);
 }
@@ -90,5 +89,5 @@ export function normalizeProject(p){
   requirementPolicy(p);
   for(const e of allElements(p)){if(e.kind==='Requirement')initializeRequirement(e);e.compartments=e.compartments||{};e.compartmentVisibility=e.compartmentVisibility||{};if(e.multiplicityLower==null||e.multiplicityUpper==null){const m=String(e.multiplicity||"1").trim();if(m.includes("..")){const [lo,hi]=m.split("..",2);e.multiplicityLower=lo||"0";e.multiplicityUpper=hi||"*"}else{e.multiplicityLower=m||"1";e.multiplicityUpper=m||"1"}}e.multiplicity=multiplicityFromBounds(e.multiplicityLower,e.multiplicityUpper)}
   for(const d of p.diagrams||[]){d.nodes=d.nodes||[];d.edges=d.edges||[]}
-  normalizeBddFoundations(p);normalizeBddCompletion(p);normalizeBddRelationships(p);normalizeStructuralTyping(p);normalizeStructuralEndpoints(p);migrateRelationshipPresentations(p);normalizeSupportMetadata(p);normalizeBehaviorModel(p);normalizeVerificationProject(p);normalizeSuspectLinks(p);normalizeCollaborationArtifacts(p);normalizeSemanticFoundation(p);normalizeRequirementArchitecture(p);synchronizeSemanticModel(p);normalizeIBDProject(p);refreshQualifiedNames(p);return p;
+  normalizeBddFoundations(p);normalizeBddCompletion(p);normalizeStructuralTyping(p);normalizeStructuralEndpoints(p);migrateRelationshipPresentations(p);normalizeSupportMetadata(p);normalizeBehaviorModel(p);normalizeVerificationProject(p);normalizeSuspectLinks(p);normalizeCollaborationArtifacts(p);normalizeSemanticFoundation(p);normalizeRequirementArchitecture(p);synchronizeSemanticModel(p);normalizeIBDProject(p);refreshQualifiedNames(p);return p;
 }

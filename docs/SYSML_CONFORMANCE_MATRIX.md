@@ -2,7 +2,7 @@
 
 > Generated from `public/src/sysml/conformance-registry.js` by `npm run conformance-matrix`. Do not edit the table manually. Status vocabulary: `working`, `partial`, `broken`, `missing`, `not-applicable`, `not-tested`. A `working` workflow has an automated fixture; notation/import/collaboration remain conservatively classified where end-to-end evidence is absent.
 
-<!-- registry-schema:1; rows:89 -->
+<!-- registry-schema:1; rows:87 -->
 | Diagram / semantic element | Valid | Palette | Containment | Render | Notation | Select | Move | Resize | Properties | Relate | Delete | Undo/redo | Save/reload | Import | Collab | Tests | Maturity / issue |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | Block Definition Diagram / Package | working | working | working | working | working | working | working | working | working | working | working | working | working | partial | partial | working | working |
@@ -19,8 +19,6 @@
 | Block Definition Diagram / Unit | working | working | working | working | working | working | working | working | working | working | working | working | working | partial | partial | working | working |
 | Block Definition Diagram / QuantityKind | working | working | working | working | working | working | working | working | working | working | working | working | working | partial | partial | working | working |
 | Block Definition Diagram / InstanceSpecification | working | working | working | working | working | working | working | working | working | working | working | working | working | partial | partial | working | working |
-| Block Definition Diagram / Requirement | working | working | working | working | working | working | working | working | working | working | working | working | working | partial | partial | working | working |
-| Block Definition Diagram / TestCase | working | working | working | working | working | working | working | working | working | working | working | working | working | partial | partial | working | working |
 | Block Definition Diagram / Comment | working | working | working | working | working | working | working | working | working | working | working | working | working | partial | partial | working | working |
 | Internal Block Diagram / Block | working | working | working | working | partial | working | working | working | working | partial | working | partial | working | partial | partial | not-tested | partial / PMB-P2-001 |
 | Internal Block Diagram / PartProperty | working | working | working | working | working | working | working | working | working | working | working | working | working | partial | partial | working | working |
