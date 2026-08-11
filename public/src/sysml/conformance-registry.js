@@ -32,6 +32,10 @@ const VERIFIED_COMBINATIONS=new Map([
   ['Internal Block Diagram:ReferenceProperty','ibd-professional-workflow'],
   ['Internal Block Diagram:ProxyPort','ibd-professional-workflow'],
   ['Internal Block Diagram:FullPort','ibd-professional-workflow'],
+  ['Internal Block Diagram:Block','e01i-complete-ibd'],
+  ['Internal Block Diagram:FlowProperty','e01i-complete-ibd'],
+  ['Internal Block Diagram:ConstraintProperty','e01i-complete-ibd'],
+  ['Internal Block Diagram:Comment','e01i-complete-ibd'],
   ['Requirement Diagram:Requirement','requirements-persistence-workflow'],
   ['Requirement Diagram:TestCase','testcase-complete-workflow'],
   ['Use Case Diagram:Actor','presentation-compatibility-workflow'],
@@ -48,7 +52,8 @@ const FIXTURES=Object.freeze({
   'structural-typing-workflow':'test/e01s2-structural-typing.test.mjs',
   'e01s3-bdd-foundations':'test/e01s3-bdd-foundations.test.mjs',
   'e01s4-bdd-elements':'test/e01s4-bdd-production.test.mjs',
-  'e01s5-bdd-relationships':'test/e01s5-bdd-production.test.mjs'
+  'e01s5-bdd-relationships':'test/e01s5-bdd-production.test.mjs',
+  'e01i-complete-ibd':'test/e01i-ibd-production.test.mjs'
 });
 const SPECIAL_PRESENTATIONS={Actor:'ActorPresentation',UseCase:'UseCasePresentation',Lifeline:'LifelinePresentation',CombinedFragment:'CombinedFragmentPresentation',InteractionUse:'InteractionUsePresentation',ProxyPort:'PortPresentation',FullPort:'PortPresentation',InputPin:'InputPinPresentation',OutputPin:'OutputPinPresentation'};
 const fixedSize=new Set(['ProxyPort','FullPort','InputPin','OutputPin','InitialNode','InitialPseudostate','ActivityFinalNode','FinalState','FlowFinalNode','DecisionNode','MergeNode','ChoicePseudostate','JunctionPseudostate','ShallowHistory','DeepHistory','EntryPoint','ExitPoint']);
@@ -71,7 +76,8 @@ function elementCapability(diagramType,kind){
   });
 }
 const COMPLETE_BDD_RELATIONSHIPS=new Set(['Association','AssociationBlock','Aggregation','Composition','Generalization','Dependency','Usage','Abstraction','Realization','InterfaceRealization','InformationFlow','ItemFlow','Trace','Refine','DeriveReqt','Satisfy','Verify','Copy','Allocate','Redefines','Subsets','Provides','Requires']);
-function relationshipCapability(kind){const rule=RELATIONSHIPS[kind],complete=COMPLETE_BDD_RELATIONSHIPS.has(kind);return Object.freeze({semanticType:kind,presentationType:`${kind}Presentation`,renderer:'svg-edge-renderer',interactionController:'edge-interaction-controller',sourceKinds:rule.source,targetKinds:rule.target,requiredEditingOperations:['select','connect','reconnect','edit-label','delete-presentation','undo','redo','save-reload'],persistence:'json-project',importSupport:'profile-dependent',collaborationOperations:['add-relationship','add-edge','update-relationship','delete-relationship'],testFixtureId:complete?'e01s5-bdd-relationships':null,maturity:complete?'working':'partial',knownLimitations:complete?[]:['Relationship-specific end-to-end coverage is incomplete.']})}
+const COMPLETE_IBD_RELATIONSHIPS=new Set(['Connector','DelegationConnector']);
+function relationshipCapability(kind){const rule=RELATIONSHIPS[kind],complete=COMPLETE_BDD_RELATIONSHIPS.has(kind)||COMPLETE_IBD_RELATIONSHIPS.has(kind),fixture=COMPLETE_IBD_RELATIONSHIPS.has(kind)?'e01i-complete-ibd':complete?'e01s5-bdd-relationships':null;return Object.freeze({semanticType:kind,presentationType:`${kind}Presentation`,renderer:'svg-edge-renderer',interactionController:'edge-interaction-controller',sourceKinds:rule.source,targetKinds:rule.target,requiredEditingOperations:['select','connect','reconnect','edit-label','delete-presentation','undo','redo','save-reload'],persistence:'json-project',importSupport:'profile-dependent',collaborationOperations:['add-relationship','add-edge','update-relationship','delete-relationship'],testFixtureId:fixture,maturity:complete?'working':'partial',knownLimitations:complete?[]:['Relationship-specific end-to-end coverage is incomplete.']})}
 function makeDiagram(displayName){
   const profile=DIAGRAMS[displayName];
   const elements=displayName==='Sequence Diagram'?profile.elements.filter(kind=>sequenceDirect.has(kind)):profile.elements;
@@ -83,7 +89,7 @@ function makeDiagram(displayName){
     renderer:'svg-diagram-renderer',interactionController:displayName==='Sequence Diagram'?'sequence-interaction-controller':'diagram-interaction-controller',
     requiredEditingOperations:Object.freeze(['create','select','move','resize','rename','edit-properties','connect','delete-presentation','undo','redo','save-reload']),
     persistence:'json-project',importSupport:'profile-dependent',collaborationOperations:Object.freeze(['semantic','presentation','geometry','property','relationship']),
-    testFixtureId:null,maturity:'partial',knownLimitations:Object.freeze(['No complete diagram-wide workflow qualification fixture exists.'])
+    testFixtureId:displayName==='Internal Block Diagram'?'e01i-complete-ibd':null,maturity:displayName==='Internal Block Diagram'?'working':'partial',knownLimitations:Object.freeze(displayName==='Internal Block Diagram'?[]:['No complete diagram-wide workflow qualification fixture exists.'])
   });
 }
 
