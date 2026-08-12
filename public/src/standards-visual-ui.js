@@ -28,7 +28,13 @@ function normalizeLiveRelationships(){
   if(changed)service.save?.();return changed;
 }
 
-function applyMarker(path,attribute,marker){if(marker&&marker!=='none')path.setAttribute(attribute,`url(#${marker})`);else path.removeAttribute(attribute)}
+function ensureSourceDiamondMarkers(canvas){
+  const ns='http://www.w3.org/2000/svg';let defs=canvas.querySelector('defs');if(!defs){defs=document.createElementNS(ns,'defs');canvas.prepend(defs)}
+  const ensure=(id,filled)=>{let marker=defs.querySelector(`#${id}`);if(!marker){marker=document.createElementNS(ns,'marker');marker.id=id;marker.setAttribute('markerWidth','16');marker.setAttribute('markerHeight','12');marker.setAttribute('viewBox','0 0 16 12');marker.setAttribute('refX','1');marker.setAttribute('refY','6');marker.setAttribute('orient','auto');marker.setAttribute('markerUnits','userSpaceOnUse');const shape=document.createElementNS(ns,'path');shape.setAttribute('d','M1,6 L7,1 L15,6 L7,11 Z');shape.setAttribute('fill',filled?'#263746':'white');shape.setAttribute('stroke','#263746');shape.setAttribute('stroke-width','1.5');marker.append(shape);defs.append(marker)}else marker.setAttribute('refX','1');return marker};
+  ensure('diamondSource',false);ensure('diamondFilledSource',true)
+}
+function resolvedMarker(attribute,marker){if(attribute==='marker-start'&&marker==='diamond')return'diamondSource';if(attribute==='marker-start'&&marker==='diamondFilled')return'diamondFilledSource';return marker}
+function applyMarker(path,attribute,marker){const resolved=resolvedMarker(attribute,marker);if(resolved&&resolved!=='none')path.setAttribute(attribute,`url(#${resolved})`);else path.removeAttribute(attribute)}
 function selectedAggregateRelationship(project,canvas){const selected=canvas.querySelector('path.edge.selected[data-semantic-id]');if(!selected)return null;const relationship=(project.relationships||[]).find(r=>r.id===selected.dataset.semanticId);return relationship&&['Composition','Aggregation'].includes(relationship.kind)?relationship:null}
 function installAggregateEndEditor(project,canvas){
   const properties=document.getElementById('properties');if(!properties)return;
@@ -46,6 +52,7 @@ function installPaletteGuidance(){for(const kind of ['Composition','Aggregation'
 function applyEdgeStandards(){
   if(applying)return;const service=api(),canvas=document.getElementById('canvas');if(!service||!canvas)return;applying=true;
   try{
+    ensureSourceDiamondMarkers(canvas);
     const project=service.getProject();
     for(const path of canvas.querySelectorAll('path.edge[data-semantic-id]')){
       if(path.classList.contains('sequence-message'))continue;
