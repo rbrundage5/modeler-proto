@@ -8,6 +8,7 @@ import {normalizeSuspectLinks} from './suspect-links.js';
 import {normalizeCollaborationArtifacts} from './model-reviews.js';
 import {normalizeSemanticFoundation} from './semantic-foundation.js';
 import {initializeBehaviorElement,initializeBehaviorRelationship,normalizeBehaviorModel} from './behavior-model.js';
+import {synchronizeActivityRegionMembership,synchronizeActivityRegionPresentations} from './activity-regions.js';
 import {normalizeSupportMetadata} from './support-migration.js';
 import {normalizeStructuralEndpoints} from './structural-endpoint-migration.js';
 import {normalizeStructuralTyping} from './structural-typing.js';
@@ -90,5 +91,5 @@ export function normalizeProject(p){
   requirementPolicy(p);
   for(const e of allElements(p)){if(e.kind==='Requirement')initializeRequirement(e);e.compartments=e.compartments||{};e.compartmentVisibility=e.compartmentVisibility||{};if(e.multiplicityLower==null||e.multiplicityUpper==null){const m=String(e.multiplicity||"1").trim();if(m.includes("..")){const [lo,hi]=m.split("..",2);e.multiplicityLower=lo||"0";e.multiplicityUpper=hi||"*"}else{e.multiplicityLower=m||"1";e.multiplicityUpper=m||"1"}}e.multiplicity=multiplicityFromBounds(e.multiplicityLower,e.multiplicityUpper)}
   for(const d of p.diagrams||[]){d.nodes=d.nodes||[];d.edges=d.edges||[]}
-  normalizeBddFoundations(p);normalizeBddCompletion(p);normalizeBddRelationships(p);normalizeStructuralTyping(p);normalizeStructuralEndpoints(p);migrateRelationshipPresentations(p);normalizeSupportMetadata(p);normalizeBehaviorModel(p);normalizeVerificationProject(p);normalizeSuspectLinks(p);normalizeCollaborationArtifacts(p);normalizeSemanticFoundation(p);normalizeRequirementArchitecture(p);synchronizeSemanticModel(p);normalizeIBDProject(p);refreshQualifiedNames(p);return p;
+  normalizeBddFoundations(p);normalizeBddCompletion(p);normalizeBddRelationships(p);normalizeStructuralTyping(p);normalizeStructuralEndpoints(p);migrateRelationshipPresentations(p);normalizeSupportMetadata(p);normalizeBehaviorModel(p);synchronizeActivityRegionMembership(p);for(const d of p.diagrams||[])synchronizeActivityRegionPresentations(p,d);normalizeVerificationProject(p);normalizeSuspectLinks(p);normalizeCollaborationArtifacts(p);normalizeSemanticFoundation(p);normalizeRequirementArchitecture(p);synchronizeSemanticModel(p);normalizeIBDProject(p);refreshQualifiedNames(p);return p;
 }
