@@ -22,6 +22,12 @@ export function nodesInSelectionBox(nodes,start,end,{intersect=false}={}){
   const box={left:Math.min(start.x,end.x),top:Math.min(start.y,end.y),right:Math.max(start.x,end.x),bottom:Math.max(start.y,end.y)};
   return nodes.filter(node=>{if(node.nonVisualContext||node.isContextBoundary)return false;const right=node.x+node.width,bottom=node.y+node.height;return intersect?right>=box.left&&node.x<=box.right&&bottom>=box.top&&node.y<=box.bottom:node.x>=box.left&&node.y>=box.top&&right<=box.right&&bottom<=box.bottom}).map(node=>node.id);
 }
-export function updateSelection(current,id,{additive=false,toggle=true}={}){const next=new Set(additive?current:[]);if(additive&&toggle&&next.has(id))next.delete(id);else next.add(id);return next}
+export function updateSelection(current,id,{additive=false,toggle=true,preserveSelectedGroup=true}={}){
+  const alreadySelected=current.has(id);
+  if(!additive&&preserveSelectedGroup&&alreadySelected&&current.size>1)return new Set(current);
+  const next=new Set(additive?current:[]);
+  if(additive&&toggle&&next.has(id))next.delete(id);else next.add(id);
+  return next;
+}
 export function captureGroupGeometry(nodes,selectedIds){return nodes.filter(node=>selectedIds.has(node.id)).map(node=>({id:node.id,x:node.x,y:node.y}))}
 export function moveGroup(nodes,starts,dx,dy){const byId=new Map(nodes.map(node=>[node.id,node]));for(const start of starts){const node=byId.get(start.id);if(node){node.x=start.x+dx;node.y=start.y+dy}}return nodes}
