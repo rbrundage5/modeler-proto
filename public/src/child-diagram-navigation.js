@@ -1,3 +1,4 @@
+import './repository-diagram-interactions.js';
 const SVG_NS='http://www.w3.org/2000/svg';
 const $=id=>document.getElementById(id);
 const clone=value=>typeof structuredClone==='function'?structuredClone(value):JSON.parse(JSON.stringify(value));
