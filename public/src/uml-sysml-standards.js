@@ -92,10 +92,9 @@ export function normalizeStandardRelationship(r){
     r.sourceAggregation=r.sourceAggregation||'none';r.targetAggregation=r.targetAggregation||'none';
     if(['Composition','Aggregation'].includes(r.kind)){
       const required=r.kind==='Composition'?'composite':'shared';
-      // Canonical SysML/UML tool convention: source is the whole/owner end and target is the part/child end.
-      // If an older model stored the aggregate marker at target, reverse the complete member ends so the semantic
-      // owner becomes source rather than merely moving the visual diamond to the wrong semantic endpoint.
-      if(r.targetAggregation===required&&r.sourceAggregation!=='required')swapRelationshipEnds(r);
+      // Canonical tool invariant: source is the whole/owner end; target is the part/child end.
+      // Legacy target-diamond records are reversed semantically so the whole itself becomes source.
+      if(r.targetAggregation===required&&r.sourceAggregation!==required)swapRelationshipEnds(r);
       r.sourceAggregation=required;
       r.targetAggregation='none';
       r.aggregateEnd='source';
