@@ -76,9 +76,11 @@ export function defaultElement(kind,ownerId){
 }
 export function defaultRelationship(kind,sourceId,targetId,ownerId){
   const d=RELATIONSHIPS[kind]||{};
+  const aggregateKind=kind==="Composition"?"composite":kind==="Aggregation"?"shared":"none";
   const relationship={id:uid("rel"),externalId:uid("EXT").toUpperCase(),name:"",kind,
     metaclass:d.metaclass||kind,stereotype:d.stereotype||"",sourceId,targetId,ownerId,
-    sourceRole:"",targetRole:"",sourceMultiplicity:"1",targetMultiplicity:"1",sourceNavigable:true,targetNavigable:true,sourceAggregation:"none",targetAggregation:kind==="Composition"?"composite":kind==="Aggregation"?"shared":"none",sourceEndOwned:false,targetEndOwned:["Association","Composition","Aggregation"].includes(kind),
+    sourceRole:"",targetRole:"",sourceMultiplicity:"1",targetMultiplicity:"1",sourceNavigable:true,targetNavigable:true,sourceAggregation:aggregateKind,targetAggregation:"none",sourceEndOwned:["Association","Composition","Aggregation"].includes(kind),targetEndOwned:false,
+    aggregateEnd:["Composition","Aggregation"].includes(kind)?"source":"",aggregateEndExplicit:["Composition","Aggregation"].includes(kind),
     sourceEndId:uid("end"),targetEndId:uid("end"),sourcePartWithPortPath:[],targetPartWithPortPath:[],sourceEndpointPath:[],targetEndpointPath:[],sourcePortId:"",targetPortId:"",connectorTypeRef:"",connectorKind:"assembly",itemFlowIds:[],conveyedIds:[],direction:"sourceToTarget",guard:"",weight:"1",triggerId:"",eventId:"",effect:"",messageSort:"synchronous",sequenceOrder:0,documentation:"",createdAt:new Date().toISOString(),modifiedAt:new Date().toISOString(),provenance:null,suspect:false,tags:{}};return initializeBehaviorRelationship(relationship);
 }
 export function relationshipStyle(kind){
