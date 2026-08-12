@@ -1,6 +1,8 @@
 import './infinite-diagram-workspace.js';
 import './diagram-navigation-history.js';
 import './use-case-extension-point-notation.js';
+import './sequence-message-interactions.js';
+import './state-machine-completion.js';
 const $=id=>document.getElementById(id);
 const api=()=>globalThis.SystemsModelerAPI;
 let observer=null,scheduled=false,working=false;
