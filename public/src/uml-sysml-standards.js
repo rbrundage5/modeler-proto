@@ -6,8 +6,8 @@ export const SYSML_BASELINE='SysML 1.6';
 const C=Object.freeze({
  Association:{line:'solid',sourceMarker:'none',targetMarker:'none',direction:'undirected'},
  AssociationBlock:{line:'solid',sourceMarker:'none',targetMarker:'none',direction:'undirected'},
- Aggregation:{line:'solid',sourceMarker:'diamond',targetMarker:'none',direction:'aggregate-to-part'},
- Composition:{line:'solid',sourceMarker:'diamondFilled',targetMarker:'none',direction:'composite-to-part'},
+ Aggregation:{line:'solid',sourceMarker:'none',targetMarker:'diamond',direction:'part-to-aggregate'},
+ Composition:{line:'solid',sourceMarker:'none',targetMarker:'diamondFilled',direction:'part-to-composite'},
  Generalization:{line:'solid',sourceMarker:'none',targetMarker:'triangle',direction:'specific-to-general'},
  Dependency:{line:'dashed',sourceMarker:'none',targetMarker:'open',direction:'client-to-supplier'},
  Usage:{line:'dashed',sourceMarker:'none',targetMarker:'open',direction:'client-to-supplier'},
@@ -63,24 +63,43 @@ export function relationshipStandardStyle(relationship){
   return{...base,sourceMarker,targetMarker,dashed:base.line==='dashed'};
 }
 
+export function setAggregateEnd(r,end){
+  if(!r||!['Composition','Aggregation'].includes(r.kind)||!['source','target'].includes(end))return r;
+  const aggregation=r.kind==='Composition'?'composite':'shared';
+  r.sourceAggregation=end==='source'?aggregation:'none';
+  r.targetAggregation=end==='target'?aggregation:'none';
+  r.aggregateEnd=end;
+  r.aggregateEndExplicit=true;
+  return r;
+}
+
 export function normalizeStandardRelationship(r){
   if(!r||!RELATIONSHIPS[r.kind])return r;
   const contract=standardContract(r.kind);
   if(contract.stereotype&&!r.stereotype)r.stereotype=contract.stereotype;
   if(['Association','AssociationBlock','Aggregation','Composition'].includes(r.kind)){
     r.sourceAggregation=r.sourceAggregation||'none';r.targetAggregation=r.targetAggregation||'none';
-    // Legacy builds created Composition/Aggregation with the aggregate diamond on target.
-    // The normal modeling gesture is owner/source -> part/target, so migrate only that legacy signature.
-    if(r.kind==='Composition'&&r.sourceAggregation==='none'&&r.targetAggregation==='composite'){r.sourceAggregation='composite';r.targetAggregation='none'}
-    if(r.kind==='Aggregation'&&r.sourceAggregation==='none'&&r.targetAggregation==='shared'){r.sourceAggregation='shared';r.targetAggregation='none'}
-    if(r.kind==='Composition'&&r.sourceAggregation==='none'&&r.targetAggregation==='none')r.sourceAggregation='composite';
-    if(r.kind==='Aggregation'&&r.sourceAggregation==='none'&&r.targetAggregation==='none')r.sourceAggregation='shared';
+    if(['Composition','Aggregation'].includes(r.kind)){
+      const required=r.kind==='Composition'?'composite':'shared';
+      if(r.aggregateEndExplicit&&['source','target'].includes(r.aggregateEnd))setAggregateEnd(r,r.aggregateEnd);
+      else if(r.sourceAggregation===required&&r.targetAggregation==='none'&&!r.importSource){
+        // Correct the previous UI migration. In the production gesture the user selects
+        // part/child first and whole/owner second, so the aggregate member end is target.
+        setAggregateEnd(r,'target');r.aggregateEndExplicit=false;r.correctedOwnerEndMigration=true;
+      }else if(r.targetAggregation===required&&r.sourceAggregation==='none'){
+        r.aggregateEnd='target';
+      }else if(r.sourceAggregation===required&&r.targetAggregation==='none'){
+        r.aggregateEnd='source';
+      }else if(r.sourceAggregation==='none'&&r.targetAggregation==='none'){
+        setAggregateEnd(r,'target');r.aggregateEndExplicit=false;
+      }
+    }
   }
   return r;
 }
 
 export function normalizeStandardRelationships(project){for(const r of project.relationships||[])normalizeStandardRelationship(r);return project}
 
-export function relationshipStandardIssues(r){const issues=[];if(!r||!RELATIONSHIPS[r.kind])return issues;if(['Association','AssociationBlock','Aggregation','Composition'].includes(r.kind)){const s=r.sourceAggregation||'none',t=r.targetAggregation||'none';if(!['none','shared','composite'].includes(s)||!['none','shared','composite'].includes(t))issues.push({severity:'error',code:'UML_AGGREGATION_KIND',message:`${r.kind} has an invalid UML aggregation value.`,id:r.id});if(s==='composite'&&t==='composite')issues.push({severity:'error',code:'UML_DOUBLE_COMPOSITE',message:'A binary UML Association cannot be composite at both ends.',id:r.id});if(r.kind==='Composition'&&s!=='composite'&&t!=='composite')issues.push({severity:'error',code:'UML_COMPOSITION_END',message:'Composition must have exactly one composite member end.',id:r.id});if(r.kind==='Aggregation'&&s!=='shared'&&t!=='shared')issues.push({severity:'error',code:'UML_SHARED_AGGREGATION_END',message:'Shared Aggregation must have a shared aggregate member end.',id:r.id})}return issues}
+export function relationshipStandardIssues(r){const issues=[];if(!r||!RELATIONSHIPS[r.kind])return issues;if(['Association','AssociationBlock','Aggregation','Composition'].includes(r.kind)){const s=r.sourceAggregation||'none',t=r.targetAggregation||'none';if(!['none','shared','composite'].includes(s)||!['none','shared','composite'].includes(t))issues.push({severity:'error',code:'UML_AGGREGATION_KIND',message:`${r.kind} has an invalid UML aggregation value.`,id:r.id});if(s==='composite'&&t==='composite')issues.push({severity:'error',code:'UML_DOUBLE_COMPOSITE',message:'A binary UML Association cannot be composite at both ends.',id:r.id});if(r.kind==='Composition'&&((s==='composite')+(t==='composite')!==1))issues.push({severity:'error',code:'UML_COMPOSITION_END',message:'Composition must have exactly one composite member end.',id:r.id});if(r.kind==='Aggregation'&&((s==='shared')+(t==='shared')!==1))issues.push({severity:'error',code:'UML_SHARED_AGGREGATION_END',message:'Shared Aggregation must have exactly one shared aggregate member end.',id:r.id})}return issues}
 
 export function standardsCoverageIssues(){const issues=[];for(const kind of Object.keys(RELATIONSHIPS))if(!C[kind])issues.push(`Missing relationship standards contract: ${kind}`);for(const kind of Object.keys(ELEMENTS))if(!ELEMENT_STANDARD_FAMILY[kind])issues.push(`Missing element standards family: ${kind}`);for(const [diagramType,def] of Object.entries(DIAGRAMS)){for(const kind of def.elements||[])if(!ELEMENTS[kind])issues.push(`${diagramType} allows undeclared element ${kind}`);for(const kind of def.relationships||[])if(!RELATIONSHIPS[kind])issues.push(`${diagramType} allows undeclared relationship ${kind}`)}return issues}
