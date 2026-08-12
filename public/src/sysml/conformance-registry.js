@@ -1,105 +1,19 @@
 import {DIAGRAMS,ELEMENTS,RELATIONSHIPS} from '../sysml-profile.js';
 
-/** Allowed assessment values. "working" is reserved for an end-to-end tested workflow. */
 export const MATURITY_STATUSES=Object.freeze(['working','partial','broken','missing','not-applicable','not-tested']);
-export const CLAIMED_DIAGRAM_TYPES=Object.freeze([
-  'Block Definition Diagram','Internal Block Diagram','Requirement Diagram','Use Case Diagram',
-  'Activity Diagram','State Machine Diagram','Sequence Diagram','Parametric Diagram','Package Diagram'
-]);
-
+export const CLAIMED_DIAGRAM_TYPES=Object.freeze(['Block Definition Diagram','Internal Block Diagram','Requirement Diagram','Use Case Diagram','Activity Diagram','State Machine Diagram','Sequence Diagram','Parametric Diagram','Package Diagram']);
+const ACTIVITY_VERIFIED=new Set(DIAGRAMS['Activity Diagram'].elements);
 const VERIFIED_COMBINATIONS=new Map([
-  ['Block Definition Diagram:Block','containment-presentation-identity'],
-  ['Block Definition Diagram:Package','e01s3-bdd-foundations'],
-  ['Block Definition Diagram:Enumeration','e01s3-bdd-foundations'],
-  ['Block Definition Diagram:Unit','e01s3-bdd-foundations'],
-  ['Block Definition Diagram:QuantityKind','e01s3-bdd-foundations'],
-  ['Block Definition Diagram:Signal','e01s3-bdd-foundations'],
-  ['Block Definition Diagram:Comment','e01s3-bdd-foundations'],
-  ['Block Definition Diagram:InterfaceBlock','e01s3-bdd-foundations'],
-  ['Block Definition Diagram:AssociationBlock','e01s4-bdd-elements'],
-  ['Block Definition Diagram:ConstraintBlock','e01s4-bdd-elements'],
-  ['Block Definition Diagram:InstanceSpecification','e01s4-bdd-elements'],
-  ['Block Definition Diagram:PrimitiveType','e01s4-bdd-elements'],
-  ['Block Definition Diagram:ModelLibrary','e01s4-bdd-elements'],
-  ['Block Definition Diagram:Requirement','requirements-persistence-workflow'],
-  ['Block Definition Diagram:TestCase','testcase-complete-workflow'],
-  ['Package Diagram:Model','e01s3-bdd-foundations'],
-  ['Block Definition Diagram:DataType','structural-typing-workflow'],
-  ['Block Definition Diagram:ValueType','structural-typing-workflow'],
-  ['Internal Block Diagram:ValueProperty','structural-typing-workflow'],
-  ['Parametric Diagram:ValueProperty','structural-typing-workflow'],
-  ['Internal Block Diagram:PartProperty','ibd-professional-workflow'],
-  ['Internal Block Diagram:ReferenceProperty','ibd-professional-workflow'],
-  ['Internal Block Diagram:ProxyPort','ibd-professional-workflow'],
-  ['Internal Block Diagram:FullPort','ibd-professional-workflow'],
-  ['Internal Block Diagram:Block','e01i-complete-ibd'],
-  ['Internal Block Diagram:FlowProperty','e01i-complete-ibd'],
-  ['Internal Block Diagram:ConstraintProperty','e01i-complete-ibd'],
-  ['Internal Block Diagram:Comment','e01i-complete-ibd'],
-  ['Requirement Diagram:Requirement','requirements-persistence-workflow'],
-  ['Requirement Diagram:TestCase','testcase-complete-workflow'],
-  ['Use Case Diagram:Actor','use-case-complete-workflow'],
-  ['Use Case Diagram:UseCase','use-case-complete-workflow'],
-  ['Use Case Diagram:Block','use-case-complete-workflow'],
-  ['Use Case Diagram:Package','use-case-complete-workflow'],
-  ['Use Case Diagram:Comment','use-case-complete-workflow'],
-  ['Sequence Diagram:Lifeline','sequence-professional-workflow']
+  ['Block Definition Diagram:Block','containment-presentation-identity'],['Block Definition Diagram:Package','e01s3-bdd-foundations'],['Block Definition Diagram:Enumeration','e01s3-bdd-foundations'],['Block Definition Diagram:Unit','e01s3-bdd-foundations'],['Block Definition Diagram:QuantityKind','e01s3-bdd-foundations'],['Block Definition Diagram:Signal','e01s3-bdd-foundations'],['Block Definition Diagram:Comment','e01s3-bdd-foundations'],['Block Definition Diagram:InterfaceBlock','e01s3-bdd-foundations'],['Block Definition Diagram:AssociationBlock','e01s4-bdd-elements'],['Block Definition Diagram:ConstraintBlock','e01s4-bdd-elements'],['Block Definition Diagram:InstanceSpecification','e01s4-bdd-elements'],['Block Definition Diagram:PrimitiveType','e01s4-bdd-elements'],['Block Definition Diagram:ModelLibrary','e01s4-bdd-elements'],['Block Definition Diagram:Requirement','requirements-persistence-workflow'],['Block Definition Diagram:TestCase','testcase-complete-workflow'],['Package Diagram:Model','e01s3-bdd-foundations'],['Block Definition Diagram:DataType','structural-typing-workflow'],['Block Definition Diagram:ValueType','structural-typing-workflow'],['Internal Block Diagram:ValueProperty','structural-typing-workflow'],['Parametric Diagram:ValueProperty','structural-typing-workflow'],['Internal Block Diagram:PartProperty','ibd-professional-workflow'],['Internal Block Diagram:ReferenceProperty','ibd-professional-workflow'],['Internal Block Diagram:ProxyPort','ibd-professional-workflow'],['Internal Block Diagram:FullPort','ibd-professional-workflow'],['Internal Block Diagram:Block','e01i-complete-ibd'],['Internal Block Diagram:FlowProperty','e01i-complete-ibd'],['Internal Block Diagram:ConstraintProperty','e01i-complete-ibd'],['Internal Block Diagram:Comment','e01i-complete-ibd'],['Requirement Diagram:Requirement','requirements-persistence-workflow'],['Requirement Diagram:TestCase','testcase-complete-workflow'],['Use Case Diagram:Actor','use-case-complete-workflow'],['Use Case Diagram:UseCase','use-case-complete-workflow'],['Use Case Diagram:Block','use-case-complete-workflow'],['Use Case Diagram:Package','use-case-complete-workflow'],['Use Case Diagram:Comment','use-case-complete-workflow'],['Sequence Diagram:Lifeline','sequence-professional-workflow'],...Array.from(ACTIVITY_VERIFIED,kind=>[`Activity Diagram:${kind}`,'activity-complete-workflow'])
 ]);
-const FIXTURES=Object.freeze({
-  'containment-presentation-identity':'test/containment-diagram-drop.test.mjs',
-  'ibd-professional-workflow':'test/ibd-engine.test.mjs',
-  'requirements-persistence-workflow':'test/requirements-phase-1.test.mjs',
-  'presentation-compatibility-workflow':'test/presentation-compatibility.test.mjs',
-  'use-case-complete-workflow':'test/use-case-completion.test.mjs',
-  'sequence-professional-workflow':'test/sequence-interactions.test.mjs',
-  'testcase-complete-workflow':'test/selected-element-semantics.test.mjs',
-  'structural-typing-workflow':'test/e01s2-structural-typing.test.mjs',
-  'e01s3-bdd-foundations':'test/e01s3-bdd-foundations.test.mjs',
-  'e01s4-bdd-elements':'test/e01s4-bdd-production.test.mjs',
-  'e01s5-bdd-relationships':'test/e01s5-bdd-production.test.mjs',
-  'e01i-complete-ibd':'test/e01i-ibd-production.test.mjs'
-});
+const FIXTURES=Object.freeze({'containment-presentation-identity':'test/containment-diagram-drop.test.mjs','ibd-professional-workflow':'test/ibd-engine.test.mjs','requirements-persistence-workflow':'test/requirements-phase-1.test.mjs','presentation-compatibility-workflow':'test/presentation-compatibility.test.mjs','use-case-complete-workflow':'test/use-case-completion.test.mjs','sequence-professional-workflow':'test/sequence-interactions.test.mjs','testcase-complete-workflow':'test/selected-element-semantics.test.mjs','structural-typing-workflow':'test/e01s2-structural-typing.test.mjs','e01s3-bdd-foundations':'test/e01s3-bdd-foundations.test.mjs','e01s4-bdd-elements':'test/e01s4-bdd-production.test.mjs','e01s5-bdd-relationships':'test/e01s5-bdd-production.test.mjs','e01i-complete-ibd':'test/e01i-ibd-production.test.mjs','activity-complete-workflow':'test/activity-regions.test.mjs'});
 const SPECIAL_PRESENTATIONS={Actor:'ActorPresentation',UseCase:'UseCasePresentation',Lifeline:'LifelinePresentation',CombinedFragment:'CombinedFragmentPresentation',InteractionUse:'InteractionUsePresentation',ProxyPort:'PortPresentation',FullPort:'PortPresentation',InputPin:'InputPinPresentation',OutputPin:'OutputPinPresentation'};
 const fixedSize=new Set(['ProxyPort','FullPort','InputPin','OutputPin','InitialNode','InitialPseudostate','ActivityFinalNode','FinalState','FlowFinalNode','DecisionNode','MergeNode','ChoicePseudostate','JunctionPseudostate','ShallowHistory','DeepHistory','EntryPoint','ExitPoint']);
-const contextual=new Set(['ProxyPort','FullPort','InputPin','OutputPin']);
-const sequenceDirect=new Set(['Lifeline','CombinedFragment','InteractionUse','Comment']);
-
+const contextual=new Set(['ProxyPort','FullPort','InputPin','OutputPin']);const sequenceDirect=new Set(['Lifeline','CombinedFragment','InteractionUse','Comment']);
 function presentationType(kind){return SPECIAL_PRESENTATIONS[kind]||`${kind}Presentation`}
 function editingOperations(kind){return ['select','move',...(fixedSize.has(kind)?[]:['resize']),'edit-label','edit-properties','delete-presentation','delete-semantic','undo','redo','save-reload']}
-function elementCapability(diagramType,kind){
-  const fixtureId=VERIFIED_COMBINATIONS.get(`${diagramType}:${kind}`)||null;
-  const placementMode=contextual.has(kind)?'contextual':'direct';
-  return Object.freeze({
-    semanticType:kind,presentationType:presentationType(kind),placementMode,
-    paletteCreation:placementMode==='direct',containmentPlacement:true,renderer:'svg-node-renderer',
-    selectionStrategy:'svg-presentation-selection',resizable:!fixedSize.has(kind),labelEditable:true,
-    propertyEditing:true,requiredEditingOperations:editingOperations(kind),persistence:'json-project',
-    importSupport:'profile-dependent',collaborationOperations:['add-element','add-node','update-field','move-node','resize-node','delete-node'],
-    testFixtureId:fixtureId,maturity:fixtureId?'working':'partial',
-    knownLimitations:fixtureId?[]:['The complete user-visible workflow has not been qualified by a dedicated fixture.']
-  });
-}
-const COMPLETE_BDD_RELATIONSHIPS=new Set(['Include','Extend','Association','AssociationBlock','Aggregation','Composition','Generalization','Dependency','Usage','Abstraction','Realization','InterfaceRealization','InformationFlow','ItemFlow','Trace','Refine','DeriveReqt','Satisfy','Verify','Copy','Allocate','Redefines','Subsets','Provides','Requires']);
-const COMPLETE_IBD_RELATIONSHIPS=new Set(['Connector','DelegationConnector']);
-function relationshipCapability(kind){const rule=RELATIONSHIPS[kind],complete=COMPLETE_BDD_RELATIONSHIPS.has(kind)||COMPLETE_IBD_RELATIONSHIPS.has(kind),fixture=COMPLETE_IBD_RELATIONSHIPS.has(kind)?'e01i-complete-ibd':complete?'e01s5-bdd-relationships':null;return Object.freeze({semanticType:kind,presentationType:`${kind}Presentation`,renderer:'svg-edge-renderer',interactionController:'edge-interaction-controller',sourceKinds:rule.source,targetKinds:rule.target,requiredEditingOperations:['select','connect','reconnect','edit-label','delete-presentation','undo','redo','save-reload'],persistence:'json-project',importSupport:'profile-dependent',collaborationOperations:['add-relationship','add-edge','update-relationship','delete-relationship'],testFixtureId:fixture,maturity:complete?'working':'partial',knownLimitations:complete?[]:['Relationship-specific end-to-end coverage is incomplete.']})}
-function makeDiagram(displayName){
-  const profile=DIAGRAMS[displayName];
-  const elements=displayName==='Sequence Diagram'?profile.elements.filter(kind=>sequenceDirect.has(kind)):profile.elements;
-  return Object.freeze({
-    id:profile.abbreviation,displayName,requiredSemanticContext:Object.freeze(profile.contextKinds||['Model','Package','ModelLibrary']),
-    validSemanticElements:Object.freeze([...elements]),validPresentations:Object.freeze(elements.map(presentationType)),
-    elementCapabilities:Object.freeze(Object.fromEntries(elements.map(kind=>[kind,elementCapability(displayName,kind)]))),
-    validRelationships:Object.freeze([...profile.relationships]),relationshipCapabilities:Object.freeze(Object.fromEntries(profile.relationships.map(kind=>[kind,relationshipCapability(kind)]))),
-    renderer:'svg-diagram-renderer',interactionController:displayName==='Sequence Diagram'?'sequence-interaction-controller':'diagram-interaction-controller',
-    requiredEditingOperations:Object.freeze(['create','select','move','resize','rename','edit-properties','connect','delete-presentation','undo','redo','save-reload']),
-    persistence:'json-project',importSupport:'profile-dependent',collaborationOperations:Object.freeze(['semantic','presentation','geometry','property','relationship']),
-    testFixtureId:displayName==='Internal Block Diagram'?'e01i-complete-ibd':displayName==='Use Case Diagram'?'use-case-complete-workflow':null,maturity:['Internal Block Diagram','Use Case Diagram'].includes(displayName)?'working':'partial',knownLimitations:Object.freeze(['Internal Block Diagram','Use Case Diagram'].includes(displayName)?[]:['No complete diagram-wide workflow qualification fixture exists.'])
-  });
-}
-
-export const DIAGRAM_CAPABILITIES=Object.freeze(Object.fromEntries(CLAIMED_DIAGRAM_TYPES.map(name=>[name,makeDiagram(name)])));
-export const CONFORMANCE_REGISTRY=Object.freeze({schemaVersion:1,sysmlVersion:'1.6',maturityStatuses:MATURITY_STATUSES,fixtures:FIXTURES,semanticTypes:Object.freeze(Object.keys(ELEMENTS)),diagramTypes:DIAGRAM_CAPABILITIES});
-export function diagramCapability(type){return DIAGRAM_CAPABILITIES[type]||null}
-export function elementCapabilityFor(diagramType,semanticType){return diagramCapability(diagramType)?.elementCapabilities?.[semanticType]||null}
-export function relationshipCapabilityFor(diagramType,semanticType){return diagramCapability(diagramType)?.relationshipCapabilities?.[semanticType]||null}
-export function rejectionReason(diagramType,semanticType){if(!diagramCapability(diagramType))return `Unknown diagram type: ${diagramType}.`;if(!ELEMENTS[semanticType])return `Unknown semantic element type: ${semanticType}.`;return `${semanticType} is not directly placeable on ${diagramType}; choose a compatible diagram or specialized presentation.`}
+function elementCapability(diagramType,kind){const fixtureId=VERIFIED_COMBINATIONS.get(`${diagramType}:${kind}`)||null,placementMode=contextual.has(kind)?'contextual':'direct';return Object.freeze({semanticType:kind,presentationType:presentationType(kind),placementMode,paletteCreation:placementMode==='direct',containmentPlacement:true,renderer:'svg-node-renderer',selectionStrategy:'svg-presentation-selection',resizable:!fixedSize.has(kind),labelEditable:true,propertyEditing:true,requiredEditingOperations:editingOperations(kind),persistence:'json-project',importSupport:'profile-dependent',collaborationOperations:['add-element','add-node','update-field','move-node','resize-node','delete-node'],testFixtureId:fixtureId,maturity:fixtureId?'working':'partial',knownLimitations:fixtureId?[]:['The complete user-visible workflow has not been qualified by a dedicated fixture.']})}
+const COMPLETE_BDD_RELATIONSHIPS=new Set(['Include','Extend','Association','AssociationBlock','Aggregation','Composition','Generalization','Dependency','Usage','Abstraction','Realization','InterfaceRealization','InformationFlow','ItemFlow','Trace','Refine','DeriveReqt','Satisfy','Verify','Copy','Allocate','Redefines','Subsets','Provides','Requires']);const COMPLETE_IBD_RELATIONSHIPS=new Set(['Connector','DelegationConnector']);const COMPLETE_ACTIVITY_RELATIONSHIPS=new Set(DIAGRAMS['Activity Diagram'].relationships);
+function relationshipCapability(kind){const rule=RELATIONSHIPS[kind],activity=COMPLETE_ACTIVITY_RELATIONSHIPS.has(kind),complete=COMPLETE_BDD_RELATIONSHIPS.has(kind)||COMPLETE_IBD_RELATIONSHIPS.has(kind)||activity,fixture=activity?'activity-complete-workflow':COMPLETE_IBD_RELATIONSHIPS.has(kind)?'e01i-complete-ibd':complete?'e01s5-bdd-relationships':null;return Object.freeze({semanticType:kind,presentationType:`${kind}Presentation`,renderer:'svg-edge-renderer',interactionController:'edge-interaction-controller',sourceKinds:rule.source,targetKinds:rule.target,requiredEditingOperations:['select','connect','reconnect','edit-label','delete-presentation','undo','redo','save-reload'],persistence:'json-project',importSupport:'profile-dependent',collaborationOperations:['add-relationship','add-edge','update-relationship','delete-relationship'],testFixtureId:fixture,maturity:complete?'working':'partial',knownLimitations:complete?[]:['Relationship-specific end-to-end coverage is incomplete.']})}
+function makeDiagram(displayName){const profile=DIAGRAMS[displayName],elements=displayName==='Sequence Diagram'?profile.elements.filter(kind=>sequenceDirect.has(kind)):profile.elements,complete=['Internal Block Diagram','Use Case Diagram','Activity Diagram'].includes(displayName);return Object.freeze({id:profile.abbreviation,displayName,requiredSemanticContext:Object.freeze(profile.contextKinds||['Model','Package','ModelLibrary']),validSemanticElements:Object.freeze([...elements]),validPresentations:Object.freeze(elements.map(presentationType)),elementCapabilities:Object.freeze(Object.fromEntries(elements.map(kind=>[kind,elementCapability(displayName,kind)]))),validRelationships:Object.freeze([...profile.relationships]),relationshipCapabilities:Object.freeze(Object.fromEntries(profile.relationships.map(kind=>[kind,relationshipCapability(kind)]))),renderer:'svg-diagram-renderer',interactionController:displayName==='Sequence Diagram'?'sequence-interaction-controller':'diagram-interaction-controller',requiredEditingOperations:Object.freeze(['create','select','move','resize','rename','edit-properties','connect','delete-presentation','undo','redo','save-reload']),persistence:'json-project',importSupport:'profile-dependent',collaborationOperations:Object.freeze(['semantic','presentation','geometry','property','relationship']),testFixtureId:displayName==='Internal Block Diagram'?'e01i-complete-ibd':displayName==='Use Case Diagram'?'use-case-complete-workflow':displayName==='Activity Diagram'?'activity-complete-workflow':null,maturity:complete?'working':'partial',knownLimitations:Object.freeze(complete?[]:['No complete diagram-wide workflow qualification fixture exists.'])})}
+export const DIAGRAM_CAPABILITIES=Object.freeze(Object.fromEntries(CLAIMED_DIAGRAM_TYPES.map(name=>[name,makeDiagram(name)])));export const CONFORMANCE_REGISTRY=Object.freeze({schemaVersion:1,sysmlVersion:'1.6',maturityStatuses:MATURITY_STATUSES,fixtures:FIXTURES,semanticTypes:Object.freeze(Object.keys(ELEMENTS)),diagramTypes:DIAGRAM_CAPABILITIES});export function diagramCapability(type){return DIAGRAM_CAPABILITIES[type]||null}export function elementCapabilityFor(diagramType,semanticType){return diagramCapability(diagramType)?.elementCapabilities?.[semanticType]||null}export function relationshipCapabilityFor(diagramType,semanticType){return diagramCapability(diagramType)?.relationshipCapabilities?.[semanticType]||null}export function rejectionReason(diagramType,semanticType){if(!diagramCapability(diagramType))return `Unknown diagram type: ${diagramType}.`;if(!ELEMENTS[semanticType])return `Unknown semantic element type: ${semanticType}.`;return `${semanticType} is not directly placeable on ${diagramType}; choose a compatible diagram or specialized presentation.`}
