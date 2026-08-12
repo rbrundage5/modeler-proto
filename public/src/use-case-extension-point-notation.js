@@ -11,8 +11,9 @@ export function renderUseCaseExtensionPoints(){
   working=true;
   try{
     for(const group of canvas.querySelectorAll('g.node[data-semantic-kind="UseCase"]')){
-      group.querySelectorAll('.uml-extension-points').forEach(node=>node.remove());
-      const useCaseId=group.getAttribute('data-semantic-id'),points=(p.elements||[]).filter(item=>item.kind==='ExtensionPoint'&&item.ownerId===useCaseId);
+      const useCaseId=group.getAttribute('data-semantic-id'),points=(p.elements||[]).filter(item=>item.kind==='ExtensionPoint'&&item.ownerId===useCaseId),signature=points.map(item=>`${item.id}:${item.name||''}`).join('|');
+      if(group.dataset.extensionPointSignature===signature)continue;
+      group.querySelectorAll('.uml-extension-points').forEach(node=>node.remove());group.dataset.extensionPointSignature=signature;
       if(!points.length)continue;
       const shape=group.querySelector('ellipse.shape');if(!shape)continue;
       const width=Number(shape.getAttribute('cx'))*2||180,height=Number(shape.getAttribute('cy'))*2||90,section=document.createElementNS(SVG,'g');section.setAttribute('class','uml-extension-points');
