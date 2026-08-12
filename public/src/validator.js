@@ -9,6 +9,7 @@ import {validateVerificationPlanning} from './verification-validation.js';
 import {foundationIssues} from './bdd-foundations.js';
 import {e01s4Issues} from './bdd-completion.js';
 import {bddRelationshipIssues} from './bdd-relationships.js';
+import {activityRelationshipIssues} from './behavior-model.js';
 export function validate(project){
   const issues=[],seen=new Set();
   const add=(severity,code,message,id=null)=>issues.push({severity,code,message,id});
@@ -34,6 +35,7 @@ export function validate(project){
     if(!def){add("warning","UNKNOWN_RELATIONSHIP",`${r.kind} is not supported.`,r.id);continue}
     if(!endpointAllowed(def.source,s.kind))add("error","INVALID_SOURCE",`${r.kind} cannot start at ${s.kind} ${s.name}.`,r.id);
     if(!endpointAllowed(def.target,t.kind))add("error","INVALID_TARGET",`${r.kind} cannot end at ${t.kind} ${t.name}.`,r.id);
+    issues.push(...activityRelationshipIssues(project,r));
     issues.push(...bddRelationshipIssues(project,r,{ignoreId:r.id}));
     if(['Association','Composition','Aggregation'].includes(r.kind)){
       for(const [end,value] of [['source',r.sourceMultiplicity||'1'],['target',r.targetMultiplicity||'1']]){const [lower,upper]=String(value).includes('..')?String(value).split('..',2):[String(value),String(value)];const lo=normalizeBound(lower),hi=normalizeBound(upper,true);if(lo==null||hi==null||(hi!=='*'&&Number(lo)>Number(hi)))add('error','ASSOCIATION_MULTIPLICITY',`${r.kind} ${end} end has invalid multiplicity ${value}.`,r.id)}
@@ -59,7 +61,6 @@ export function validate(project){
     }
     issues.push(...validateIBD(project,d));
   }
-  // Structural and project-environment validation.
   for(const e of project.elements||[]){
     if(["ProxyPort","FullPort"].includes(e.kind)){
       if(e.isConjugated && !(e.typeRef)) add("warning","CONJUGATED_UNTYPED",`${e.name} is conjugated but has no interface type.`,e.id);
@@ -83,11 +84,7 @@ export function validate(project){
     if(r.kind==='Message'&&!['synchronous','asynchronous','reply','create','delete'].includes(r.messageSort||'synchronous'))add("error","MESSAGE_SORT",`${r.id} has invalid message sort.`,r.id);
   }
   for(const element of allElements(project))issues.push(...foundationIssues(project,element),...e01s4Issues(project,element));
-  issues.push(...requirementIssues(project));
-  issues.push(...validateSemanticFoundation(project));
-  issues.push(...validateRequirementArchitecture(project));
-  issues.push(...validateVerificationPlanning(project));
-  return issues;
+  issues.push(...requirementIssues(project));issues.push(...validateSemanticFoundation(project));issues.push(...validateRequirementArchitecture(project));issues.push(...validateVerificationPlanning(project));return issues;
 }
 
 const QUICK_FIXES={
@@ -100,18 +97,5 @@ const QUICK_FIXES={
   ITEMFLOW_DIRECTION:{label:'Set direction source to target',apply:target=>{target.direction='sourceToTarget'}},
   MESSAGE_SORT:{label:'Set synchronous message',apply:target=>{target.messageSort='synchronous'}}
 };
-
-export function validationQuickFix(project,issue){
-  const definition=QUICK_FIXES[issue?.code];
-  if(!definition||!issue?.id)return null;
-  const target=findElement(project,issue.id)||findRelationship(project,issue.id);
-  return target?{code:issue.code,id:issue.id,label:definition.label}:null;
-}
-
-export function applyValidationQuickFix(project,issue){
-  const fix=validationQuickFix(project,issue),definition=fix&&QUICK_FIXES[fix.code];
-  if(!fix||!definition)return false;
-  const target=findElement(project,fix.id)||findRelationship(project,fix.id);
-  definition.apply(target);
-  return true;
-}
+export function validationQuickFix(project,issue){const definition=QUICK_FIXES[issue?.code];if(!definition||!issue?.id)return null;const target=findElement(project,issue.id)||findRelationship(project,issue.id);return target?{code:issue.code,id:issue.id,label:definition.label}:null;}
+export function applyValidationQuickFix(project,issue){const fix=validationQuickFix(project,issue),definition=fix&&QUICK_FIXES[fix.code];if(!fix||!definition)return false;const target=findElement(project,fix.id)||findRelationship(project,fix.id);definition.apply(target);return true;}
