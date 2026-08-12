@@ -30,6 +30,7 @@ function diagram(){return{id:'d',diagramType:'Block Definition Diagram',nodes:[
 test('detects overlap and edge readability defects before layout',()=>{
   const issues=diagramReadabilityIssues(project(),diagram());
   assert.ok(issues.some(issue=>issue.code==='NODE_OVERLAP'));
+  assert.ok(issues.some(issue=>issue.code==='PARALLEL_EDGE_OVERLAP'));
 });
 
 test('clean layout separates nodes and assigns orthogonal relationship lanes',()=>{
@@ -43,6 +44,20 @@ test('clean layout separates nodes and assigns orthogonal relationship lanes',()
   const ownerAfter=d.nodes[0],portAfter=d.nodes[3];
   assert.equal(portAfter.x-portBefore.x,ownerAfter.x-ownerBefore.x,'boundary child moves with owner in X');
   assert.equal(portAfter.y-portBefore.y,ownerAfter.y-ownerBefore.y,'boundary child moves with owner in Y');
+});
+
+test('opposite-direction relationships use separate endpoint attachments and corridors',()=>{
+  const p=project(),d=diagram();
+  p.relationships=p.relationships.filter(r=>r.id!=='r2'&&r.id!=='r3');
+  d.edges=d.edges.filter(e=>e.id!=='e2'&&e.id!=='e3');
+  p.relationships.push({id:'reverse',kind:'Dependency',sourceId:'b',targetId:'a'});
+  d.edges.push({id:'reverse-edge',relationshipId:'reverse',sourceNodeId:'nb',targetNodeId:'na',points:[]});
+  cleanDiagramLayout(p,d);
+  const forward=d.edges.find(e=>e.id==='e1'),reverse=d.edges.find(e=>e.id==='reverse-edge');
+  assert.notDeepEqual(forward.points,reverse.points,'reciprocal edges must never share the same route');
+  assert.notEqual(forward.routingLane,reverse.routingLane,'reciprocal edges receive distinct endpoint lanes');
+  assert.notDeepEqual(forward.labelPosition,reverse.labelPosition,'reciprocal labels are independently positioned');
+  assert.ok(Math.abs(forward.routingLane-reverse.routingLane)>=56,'reciprocal endpoint lanes have visible separation');
 });
 
 test('Generalization is ranked with the general classifier above the specific classifier',()=>{
