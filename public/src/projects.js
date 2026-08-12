@@ -1,3 +1,4 @@
+import './import-semantic-integrity.js';
 const KEY='systems-modeler.projects.v2',LEGACY_KEY='systems-modeler.projects.v1',ACTIVE='systems-modeler.activeProject.v1',MAX_HISTORY=20;
 const clone=v=>typeof structuredClone==='function'?structuredClone(v):JSON.parse(JSON.stringify(v));
 const now=()=>new Date().toISOString();
