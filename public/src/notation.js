@@ -14,17 +14,20 @@ export const COMPARTMENT_DEFINITIONS = Object.freeze({
   providedInterfaces:{label:'provided interfaces',kinds:[]},
   requiredInterfaces:{label:'required interfaces',kinds:[]},
   literals:{label:'literals',kinds:['EnumerationLiteral']},
-  slots:{label:'slots',kinds:['Slot']}
+  slots:{label:'slots',kinds:['Slot']},
+  extensionPoints:{label:'extension points',kinds:['ExtensionPoint']}
 });
 
 const DEFAULT_VISIBILITY={
   associationEnds:true,parts:true,references:true,values:true,flowProperties:true,ports:true,
   operations:false,constraints:true,parameters:true,providedInterfaces:true,
-  requiredInterfaces:true,literals:true,slots:true
+  requiredInterfaces:true,literals:true,slots:true,extensionPoints:true
 };
 
 export function compartmentNames(element){
-  return [...(ELEMENTS[element?.kind]?.compartments||[])];
+  const names=[...(ELEMENTS[element?.kind]?.compartments||[])];
+  if(element?.kind==='UseCase'&&!names.includes('extensionPoints'))names.push('extensionPoints');
+  return names;
 }
 
 export function supportsCompartments(element){return compartmentNames(element).length>0}
@@ -51,6 +54,7 @@ export function formatFeature(project,e){
   if(e.kind==='Operation'){const parameters=project.elements.filter(item=>item.ownerId===e.id&&item.kind==='Parameter').sort((a,b)=>(a.featureOrder??0)-(b.featureOrder??0));return `${e.name}(${parameters.filter(p=>p.direction!=='return').map(p=>`${p.direction} ${p.name}: ${typeName(project,p.typeRef)}`).join(', ')})${parameters.find(p=>p.direction==='return')?`: ${typeName(project,parameters.find(p=>p.direction==='return').typeRef)}`:''}`}
   if(e.kind==='Reception')return `«signal» ${e.name}${e.signalRef?`: ${typeName(project,e.signalRef)}`:''}`;
   if(e.kind==='EnumerationLiteral')return e.name;
+  if(e.kind==='ExtensionPoint')return e.name;
   if(e.kind==='Slot')return `${typeName(project,e.definingFeatureId)||e.name} = ${e.valueSpecification?.value??e.defaultValue??''}`;
   if(e.kind==='AssociationEnd')return `${e.navigable===false?'':'+'}${e.name}: ${typeName(project,e.typeRef)}${multiplicityText(e)}${e.aggregation&&e.aggregation!=='none'?` {${e.aggregation}}`:''}`;
   const type=e.typeRef?`: ${typeName(project,e.typeRef)}`:'';
