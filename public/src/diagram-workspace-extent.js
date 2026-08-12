@@ -5,6 +5,7 @@ const DEFAULT_GROWTH_STEP=640;
 
 const finite=(value,fallback=0)=>Number.isFinite(Number(value))?Number(value):fallback;
 const ceilStep=(value,step)=>Math.ceil(value/step)*step;
+const expandDimension=(requested,minimum,step)=>requested<=minimum?minimum:ceilStep(requested,step);
 
 function pointExtent(point){
   if(!point||typeof point!=='object')return null;
@@ -29,8 +30,8 @@ export function diagramContentExtent(diagram){
 export function diagramWorkspaceExtent(diagram,{minimumWidth=DEFAULT_WIDTH,minimumHeight=DEFAULT_HEIGHT,padding=DEFAULT_PADDING,growthStep=DEFAULT_GROWTH_STEP}={}){
   const content=diagramContentExtent(diagram),requestedWidth=Math.max(minimumWidth,finite(diagram?.canvasWidth),content.right+padding),requestedHeight=Math.max(minimumHeight,finite(diagram?.canvasHeight),content.bottom+padding);
   return{
-    width:ceilStep(requestedWidth,growthStep),
-    height:ceilStep(requestedHeight,growthStep),
+    width:expandDimension(requestedWidth,minimumWidth,growthStep),
+    height:expandDimension(requestedHeight,minimumHeight,growthStep),
     contentRight:content.right,
     contentBottom:content.bottom,
     padding,
