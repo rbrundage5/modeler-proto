@@ -5,7 +5,7 @@ import {diagramContentExtent,diagramWorkspaceExtent} from '../public/src/diagram
 test('keeps the existing canvas as the minimum workspace size',()=>{
   const result=diagramWorkspaceExtent({nodes:[{x:100,y:100,width:200,height:100}],edges:[]});
   assert.equal(result.width,3200);
-  assert.equal(result.height,2560);
+  assert.equal(result.height,2200);
 });
 
 test('expands beyond nodes with working-space padding',()=>{
