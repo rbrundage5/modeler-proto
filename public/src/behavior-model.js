@@ -1,7 +1,7 @@
 export const INTERACTION_OPERATORS=Object.freeze(['alt','opt','loop','par','break','critical','neg','assert','strict','seq','ignore','consider']);
 export const MESSAGE_KINDS=Object.freeze(['synchronous','asynchronous','reply','create','delete','signal','lost','found']);
-export const BEHAVIOR_ELEMENT_KINDS=new Set(['Behavior','Activity','Action','CallBehaviorAction','CallOperationAction','SendSignalAction','AcceptEventAction','InputPin','OutputPin','InitialNode','ActivityFinalNode','FlowFinalNode','DecisionNode','MergeNode','ForkNode','JoinNode','ObjectNode','CentralBufferNode','DataStoreNode','ActivityParameterNode','ActivityPartition','StateMachine','Region','State','InitialPseudostate','FinalState','Trigger','Interaction','Lifeline','ExecutionSpecification','CombinedFragment','InteractionOperand','Actor','UseCase','ExtensionPoint']);
-export const BEHAVIOR_RELATIONSHIP_KINDS=new Set(['ControlFlow','ObjectFlow','Transition','Message','Include','Extend']);
+export const BEHAVIOR_ELEMENT_KINDS=new Set(['Behavior','Activity','Action','CallBehaviorAction','CallOperationAction','SendSignalAction','AcceptEventAction','InputPin','OutputPin','InitialNode','ActivityFinalNode','FlowFinalNode','DecisionNode','MergeNode','ForkNode','JoinNode','ObjectNode','CentralBufferNode','DataStoreNode','ActivityParameterNode','ActivityPartition','StructuredActivityNode','ExpansionRegion','InterruptibleActivityRegion','StateMachine','Region','State','InitialPseudostate','FinalState','Trigger','Interaction','Lifeline','ExecutionSpecification','CombinedFragment','InteractionOperand','Actor','UseCase','ExtensionPoint']);
+export const BEHAVIOR_RELATIONSHIP_KINDS=new Set(['ControlFlow','ObjectFlow','InterruptingEdge','Transition','Message','Include','Extend']);
 
 export function initializeBehaviorElement(element){
   if(!element||!BEHAVIOR_ELEMENT_KINDS.has(element.kind))return element;
@@ -13,6 +13,9 @@ export function initializeBehaviorElement(element){
   if(['InputPin','OutputPin'].includes(element.kind)){element.lower??=1;element.upper??=1;element.isOrdered??=false;element.isUnique??=true;}
   if(element.kind==='ActivityParameterNode')element.parameterId??='';
   if(element.kind==='ActivityPartition'){element.orientation=['horizontal','vertical'].includes(element.orientation)?element.orientation:'vertical';element.representedElementId??='';element.memberIds=Array.isArray(element.memberIds)?element.memberIds:[];}
+  if(element.kind==='StructuredActivityNode'){element.mustIsolate=Boolean(element.mustIsolate);element.memberIds=Array.isArray(element.memberIds)?element.memberIds:[];}
+  if(element.kind==='ExpansionRegion'){element.expansionMode=['iterative','parallel','stream'].includes(element.expansionMode)?element.expansionMode:'iterative';element.memberIds=Array.isArray(element.memberIds)?element.memberIds:[];element.inputElementIds=Array.isArray(element.inputElementIds)?element.inputElementIds:[];element.outputElementIds=Array.isArray(element.outputElementIds)?element.outputElementIds:[];}
+  if(element.kind==='InterruptibleActivityRegion')element.memberIds=Array.isArray(element.memberIds)?element.memberIds:[];
   if(['ForkNode','JoinNode'].includes(element.kind))element.orientation=['horizontal','vertical'].includes(element.orientation)?element.orientation:'horizontal';
   if(element.kind==='Lifeline'){element.representedElementId??='';element.selector??='';}
   if(element.kind==='ExecutionSpecification'){element.coveredLifelineId??='';element.startMessageId??='';element.finishMessageId??='';}
@@ -31,7 +34,7 @@ export function initializeBehaviorRelationship(relationship){
     relationship.sequenceOrder=Number.isFinite(Number(relationship.sequenceOrder))?Number(relationship.sequenceOrder):0;
     relationship.operationRef??='';relationship.signalRef??='';
   }
-  if(relationship.kind==='ObjectFlow')relationship.carriedTypeId??='';
+  if(['ObjectFlow','InterruptingEdge'].includes(relationship.kind))relationship.carriedTypeId??='';
   if(relationship.kind==='Transition'){relationship.triggerIds=Array.isArray(relationship.triggerIds)?relationship.triggerIds:[];relationship.guard??='';relationship.effect??='';}
   if(relationship.kind==='Include')relationship.stereotype='include';
   if(relationship.kind==='Extend'){relationship.stereotype='extend';relationship.extensionPointId??='';}
@@ -49,19 +52,27 @@ export function validLifelineRepresentation(project,representedId){
   return Boolean(represented&&['Actor','Block','PartProperty','ReferenceProperty','InstanceSpecification','Usage','Instance'].includes(represented.kind));
 }
 
-const CONTROL_NODES=new Set(['Action','CallBehaviorAction','CallOperationAction','SendSignalAction','AcceptEventAction','InitialNode','ActivityFinalNode','FlowFinalNode','DecisionNode','MergeNode','ForkNode','JoinNode']);
+const CONTROL_NODES=new Set(['Action','CallBehaviorAction','CallOperationAction','SendSignalAction','AcceptEventAction','InitialNode','ActivityFinalNode','FlowFinalNode','DecisionNode','MergeNode','ForkNode','JoinNode','StructuredActivityNode','ExpansionRegion','InterruptibleActivityRegion']);
 const OBJECT_NODES=new Set(['Action','CallBehaviorAction','CallOperationAction','SendSignalAction','AcceptEventAction','InputPin','OutputPin','ObjectNode','ActivityParameterNode','CentralBufferNode','DataStoreNode']);
 const STATE_VERTICES=new Set(['State','CompositeState','SubmachineState','InitialPseudostate','ChoicePseudostate','JunctionPseudostate','ShallowHistory','DeepHistory','EntryPoint','ExitPoint','StateFork','StateJoin','FinalState']);
+const parentOf=(project,element)=>(project.elements||[]).find(item=>item.id===element?.ownerId)||null;
+export function interruptibleRegionOf(project,elementId){let current=(project.elements||[]).find(item=>item.id===elementId),guard=0;while(current&&guard++<100){if(current.kind==='InterruptibleActivityRegion')return current;current=parentOf(project,current)}return null}
+export function structuredActivityContainerOf(project,elementId){let current=(project.elements||[]).find(item=>item.id===elementId),guard=0;while(current&&guard++<100){if(['StructuredActivityNode','ExpansionRegion','InterruptibleActivityRegion'].includes(current.kind))return current;current=parentOf(project,current)}return null}
 export function validateBehaviorConnection(project,kind,sourceId,targetId){
   const find=id=>(project.elements||[]).find(item=>item.id===id),source=find(sourceId),target=find(targetId);
   if(!source||!target)return{valid:false,message:'Both behavioral relationship endpoints must resolve to semantic elements.'};
   if(kind==='Generalization'&&['Actor','UseCase'].includes(source.kind)){if(source.kind!==target.kind)return{valid:false,message:'Use Case Diagram Generalization must connect two Actors or two Use Cases; mixed endpoints are invalid.'};const reaches=(from,wanted,seen=new Set())=>{if(from===wanted)return true;if(seen.has(from))return false;seen.add(from);return(project.relationships||[]).filter(item=>item.kind==='Generalization'&&item.sourceId===from).some(item=>reaches(item.targetId,wanted,seen))};if(reaches(target.id,source.id))return{valid:false,message:'Generalization would create an inheritance cycle.'};return{valid:true}}
-  const rule=kind==='ControlFlow'?CONTROL_NODES:kind==='ObjectFlow'?OBJECT_NODES:kind==='Transition'?STATE_VERTICES:kind==='Message'?new Set(['Lifeline']):['Include','Extend'].includes(kind)?new Set(['UseCase']):null;
+  const rule=kind==='ControlFlow'?CONTROL_NODES:kind==='ObjectFlow'?OBJECT_NODES:kind==='InterruptingEdge'?CONTROL_NODES:kind==='Transition'?STATE_VERTICES:kind==='Message'?new Set(['Lifeline']):['Include','Extend'].includes(kind)?new Set(['UseCase']):null;
   if(!rule)return{valid:true};
   if(!rule.has(source.kind)||!rule.has(target.kind))return{valid:false,message:`${kind} cannot connect ${source.kind} to ${target.kind}. Valid endpoint kinds: ${[...rule].join(', ')}.`};
-  if(['ControlFlow','ObjectFlow'].includes(kind)){const sourceActivity=activityContextOf(project,source.id),targetActivity=activityContextOf(project,target.id);if(!sourceActivity||!targetActivity||sourceActivity.id!==targetActivity.id)return{valid:false,message:`${kind} endpoints must be owned by the same Activity context.`}}
+  if(['ControlFlow','ObjectFlow','InterruptingEdge'].includes(kind)){const sourceActivity=activityContextOf(project,source.id),targetActivity=activityContextOf(project,target.id);if(!sourceActivity||!targetActivity||sourceActivity.id!==targetActivity.id)return{valid:false,message:`${kind} endpoints must be owned by the same Activity context.`}}
   if(kind==='ControlFlow'&&['ActivityFinalNode','FlowFinalNode'].includes(source.kind))return{valid:false,message:`${source.kind} cannot be the source of a ControlFlow.`};
   if(kind==='ControlFlow'&&target.kind==='InitialNode')return{valid:false,message:'InitialNode cannot be the target of a ControlFlow.'};
+  if(kind==='InterruptingEdge'){
+    const region=interruptibleRegionOf(project,source.id);if(!region)return{valid:false,message:'InterruptingEdge source must be owned by an InterruptibleActivityRegion.'};
+    if(interruptibleRegionOf(project,target.id)?.id===region.id)return{valid:false,message:'InterruptingEdge must leave its source InterruptibleActivityRegion.'};
+    if(['ActivityFinalNode','FlowFinalNode'].includes(source.kind))return{valid:false,message:`${source.kind} cannot be the source of an InterruptingEdge.`};
+  }
   if(kind==='ObjectFlow'){
     const sources=new Set(['Action','CallBehaviorAction','CallOperationAction','SendSignalAction','AcceptEventAction','OutputPin','ObjectNode','CentralBufferNode','DataStoreNode','ActivityParameterNode']);
     const targets=new Set(['InputPin','ObjectNode','CentralBufferNode','DataStoreNode','ActivityParameterNode']);
@@ -112,7 +123,7 @@ export function validateActivityReference(project,element){
 }
 
 export function reconnectActivityFlow(project,diagram,relationship,end,selection){
-  if(!['ControlFlow','ObjectFlow'].includes(relationship?.kind))throw Error('Only Activity flows use Activity reconnection.');
+  if(!['ControlFlow','ObjectFlow','InterruptingEdge'].includes(relationship?.kind))throw Error('Only Activity flows use Activity reconnection.');
   const resolved=resolveActivityEndpoint(project,diagram,selection,end==='source'?'Source endpoint':'Target endpoint'),sourceId=end==='source'?resolved.semanticId:relationship.sourceId,targetId=end==='target'?resolved.semanticId:relationship.targetId;
   const verdict=validateBehaviorConnection(project,relationship.kind,sourceId,targetId);if(!verdict.valid)throw Error(verdict.message);
   relationship[`${end}Id`]=resolved.semanticId;return resolved;
