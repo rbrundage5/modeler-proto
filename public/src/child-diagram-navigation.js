@@ -55,7 +55,6 @@ function glyphFor(nodeGroup,node,diagram,count){
   });
   g.style.cursor='pointer';
   g.append(svgElement('rect',{x:0,y:0,width:size,height:size,rx:2,fill:'#fff',stroke:'#263746','stroke-width':1.4}));
-  // Compact SysML/Cameo-style decomposition/navigation mark: parent stem with two child branches.
   g.append(svgElement('path',{d:'M11 4 V9 M5 9 H17 M5 9 V16 M17 9 V16 M11 9 V16',fill:'none',stroke:'#263746','stroke-width':1.5,'stroke-linecap':'round','stroke-linejoin':'round'}));
   for(const cx of [5,11,17])g.append(svgElement('rect',{x:cx-2,y:15,width:4,height:4,fill:'#fff',stroke:'#263746','stroke-width':1}));
   if(count>1){
@@ -97,10 +96,18 @@ function handleCanvasDoubleClick(event){
 }
 
 let observer=null,queued=false;
+function observeCanvas(){
+  const canvas=$('canvas');
+  if(canvas&&observer)observer.observe(canvas,{childList:true,subtree:true,attributes:true,attributeFilter:['transform']});
+}
 function queueRender(){
   if(queued)return;
   queued=true;
-  requestAnimationFrame(()=>{queued=false;renderChildDiagramGlyphs()});
+  requestAnimationFrame(()=>{
+    queued=false;
+    observer?.disconnect();
+    try{renderChildDiagramGlyphs()}finally{observeCanvas()}
+  });
 }
 
 function bind(){
@@ -110,8 +117,9 @@ function bind(){
   canvas.addEventListener('dblclick',handleCanvasDoubleClick,true);
   observer?.disconnect();
   observer=new MutationObserver(queueRender);
-  observer.observe(canvas,{childList:true,subtree:true,attributes:true,attributeFilter:['transform']});
-  $('diagramSelect')?.addEventListener('change',queueRender);
+  observeCanvas();
+  const select=$('diagramSelect');
+  if(select){select.removeEventListener('change',queueRender);select.addEventListener('change',queueRender)}
   queueRender();
   return true;
 }
