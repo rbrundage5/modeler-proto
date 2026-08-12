@@ -11,44 +11,46 @@ test('every declared UML/SysML element and relationship has a standards contract
   assert.deepEqual(Object.keys(RELATIONSHIP_STANDARD_CONTRACT).sort(),Object.keys(RELATIONSHIPS).sort());
 });
 
-test('Composition preserves the composite whole on the second/target endpoint',()=>{
-  const r=defaultRelationship('Composition','part','whole','owner');
+test('Composition factory makes the whole owner the source composite end',()=>{
+  const r=defaultRelationship('Composition','whole','part','owner');
   normalizeStandardRelationship(r);
-  assert.equal(r.sourceAggregation,'none');
-  assert.equal(r.targetAggregation,'composite');
-  assert.equal(r.aggregateEnd,'target');
+  assert.equal(r.sourceId,'whole');assert.equal(r.targetId,'part');
+  assert.equal(r.sourceAggregation,'composite');assert.equal(r.targetAggregation,'none');
+  assert.equal(r.ownerEnd,'source');
   const style=relationshipStandardStyle(r);
-  assert.equal(style.sourceMarker,'none');
-  assert.equal(style.targetMarker,'diamondFilled');
+  assert.equal(style.sourceMarker,'diamondFilled');assert.equal(style.targetMarker,'none');
 });
 
-test('bad owner-source migration from the previous release is corrected for UI-created Composition',()=>{
-  const r={kind:'Composition',sourceId:'part',targetId:'whole',sourceAggregation:'composite',targetAggregation:'none'};
+test('legacy target-composite relationship is reversed so the actual whole becomes source',()=>{
+  const r={kind:'Composition',sourceId:'part',targetId:'whole',sourceRole:'child',targetRole:'owner',sourceMultiplicity:'1',targetMultiplicity:'1',sourceNavigable:true,targetNavigable:true,sourceAggregation:'none',targetAggregation:'composite',sourceEndId:'child-end',targetEndId:'owner-end'};
   normalizeStandardRelationship(r);
-  assert.equal(r.sourceAggregation,'none');
-  assert.equal(r.targetAggregation,'composite');
-  assert.equal(r.correctedOwnerEndMigration,true);
-});
-
-test('explicit imported source composite end is preserved',()=>{
-  const r={kind:'Composition',sourceId:'whole',targetId:'part',sourceAggregation:'composite',targetAggregation:'none',importSource:{file:'model.xlsx'}};
-  normalizeStandardRelationship(r);
-  assert.equal(r.sourceAggregation,'composite');
-  assert.equal(r.targetAggregation,'none');
+  assert.equal(r.sourceId,'whole');assert.equal(r.targetId,'part');
+  assert.equal(r.sourceRole,'owner');assert.equal(r.targetRole,'child');
+  assert.equal(r.sourceEndId,'owner-end');assert.equal(r.targetEndId,'child-end');
+  assert.equal(r.sourceAggregation,'composite');assert.equal(r.targetAggregation,'none');
   assert.equal(relationshipStandardStyle(r).sourceMarker,'diamondFilled');
 });
 
-test('shared Aggregation defaults to the second/whole endpoint',()=>{
-  const r=defaultRelationship('Aggregation','part','whole','owner');
+test('legacy target-shared Aggregation is reversed to aggregate source',()=>{
+  const r={kind:'Aggregation',sourceId:'part',targetId:'whole',sourceAggregation:'none',targetAggregation:'shared'};
   normalizeStandardRelationship(r);
-  assert.equal(r.sourceAggregation,'none');
-  assert.equal(r.targetAggregation,'shared');
-  assert.equal(relationshipStandardStyle(r).targetMarker,'diamond');
+  assert.equal(r.sourceId,'whole');assert.equal(r.targetId,'part');
+  assert.equal(r.sourceAggregation,'shared');assert.equal(r.targetAggregation,'none');
+  assert.equal(relationshipStandardStyle(r).sourceMarker,'diamond');
 });
 
-test('aggregate end can be explicitly switched without changing endpoints',()=>{
-  const r=defaultRelationship('Composition','part','whole','owner');normalizeStandardRelationship(r);setAggregateEnd(r,'source');
-  assert.equal(r.sourceId,'part');assert.equal(r.targetId,'whole');assert.equal(r.sourceAggregation,'composite');assert.equal(r.targetAggregation,'none');assert.equal(r.aggregateEndExplicit,true);
+test('setAggregateEnd target reverses endpoints but leaves canonical owner at source',()=>{
+  const r=defaultRelationship('Composition','whole','part','owner');setAggregateEnd(r,'target');
+  assert.equal(r.sourceId,'part');assert.equal(r.targetId,'whole');
+  assert.equal(r.sourceAggregation,'composite');assert.equal(r.targetAggregation,'none');assert.equal(r.ownerEnd,'source');
+});
+
+test('Composition and Aggregation reject a diamond on the child target end',()=>{
+  const c=relationshipStandardIssues({id:'c',kind:'Composition',sourceAggregation:'none',targetAggregation:'composite'});
+  const a=relationshipStandardIssues({id:'a',kind:'Aggregation',sourceAggregation:'none',targetAggregation:'shared'});
+  assert.ok(c.some(i=>i.code==='UML_COMPOSITION_OWNER_SOURCE'));
+  assert.ok(c.some(i=>i.code==='UML_PART_TARGET_AGGREGATION'));
+  assert.ok(a.some(i=>i.code==='UML_AGGREGATION_OWNER_SOURCE'));
 });
 
 test('Generalization and Realization use UML target-end hollow triangles',()=>{
@@ -61,10 +63,8 @@ test('Generalization and Realization use UML target-end hollow triangles',()=>{
 test('Use Case include and extend normalize required UML stereotypes',()=>{
   const include={kind:'Include',stereotype:''},extend={kind:'Extend',stereotype:''};
   normalizeStandardRelationship(include);normalizeStandardRelationship(extend);
-  assert.equal(include.stereotype,'include');
-  assert.equal(extend.stereotype,'extend');
-  assert.equal(relationshipStandardStyle(include).targetMarker,'open');
-  assert.equal(relationshipStandardStyle(include).dashed,true);
+  assert.equal(include.stereotype,'include');assert.equal(extend.stereotype,'extend');
+  assert.equal(relationshipStandardStyle(include).targetMarker,'open');assert.equal(relationshipStandardStyle(include).dashed,true);
 });
 
 test('binary Composition cannot be composite at both ends',()=>{
@@ -72,10 +72,10 @@ test('binary Composition cannot be composite at both ends',()=>{
   assert.ok(issues.some(i=>i.code==='UML_DOUBLE_COMPOSITE'));
 });
 
-test('BDD Composition creation semantics are part/child first and whole/owner second',()=>{
-  const p=createProject('Standards'),part=defaultElement('Block',p.root.id),whole=defaultElement('Block',p.root.id);part.id='part';whole.id='whole';p.elements.push(part,whole);
-  const r=normalizeBddRelationship(defaultRelationship('Composition',part.id,whole.id,p.root.id));
-  assert.equal(r.sourceAggregation,'none');
-  assert.equal(r.targetAggregation,'composite');
+test('BDD Composition creation semantics are whole owner first and part child second',()=>{
+  const p=createProject('Standards'),whole=defaultElement('Block',p.root.id),part=defaultElement('Block',p.root.id);whole.id='whole';part.id='part';p.elements.push(whole,part);
+  const r=normalizeBddRelationship(defaultRelationship('Composition',whole.id,part.id,p.root.id));
+  assert.equal(r.sourceId,'whole');assert.equal(r.targetId,'part');
+  assert.equal(r.sourceAggregation,'composite');assert.equal(r.targetAggregation,'none');
   assert.deepEqual(bddRelationshipIssues(p,r),[]);
 });
