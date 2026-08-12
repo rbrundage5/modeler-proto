@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import {cleanDiagramLayout,diagramReadabilityIssues,LAYOUT_VERSION} from '../public/src/professional-diagram-layout.js';
 
 function project(){
@@ -58,6 +59,13 @@ test('opposite-direction relationships use separate endpoint attachments and cor
   assert.notEqual(forward.routingLane,reverse.routingLane,'reciprocal edges receive distinct endpoint lanes');
   assert.notDeepEqual(forward.labelPosition,reverse.labelPosition,'reciprocal labels are independently positioned');
   assert.ok(Math.abs(forward.routingLane-reverse.routingLane)>=56,'reciprocal endpoint lanes have visible separation');
+});
+
+test('automatic cleanup is scoped to the active diagram rather than sweeping the project',()=>{
+  const source=fs.readFileSync(new URL('../public/src/professional-diagram-layout.js',import.meta.url),'utf8');
+  assert.match(source,/function cleanActiveIfNeeded\(\)/);
+  assert.doesNotMatch(source,/for\s*\(const diagram of p\.diagrams/);
+  assert.doesNotMatch(source,/cleanAllNeeded/);
 });
 
 test('Generalization is ranked with the general classifier above the specific classifier',()=>{
