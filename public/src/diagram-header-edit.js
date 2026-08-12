@@ -1,3 +1,4 @@
+import './child-diagram-navigation.js';
 const api=()=>window.SystemsModelerAPI;
 const clone=value=>typeof structuredClone==='function'?structuredClone(value):JSON.parse(JSON.stringify(value));
 const activeDiagram=project=>(project?.diagrams||[]).find(d=>d.id===project.activeDiagramId)||project?.diagrams?.[0]||null;
