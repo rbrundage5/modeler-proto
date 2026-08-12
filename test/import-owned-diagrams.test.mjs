@@ -14,17 +14,22 @@ function workbookFile(){
   ]),'Packages_Import');
   XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([
     ['External ID','Name','Owner External ID','SysML Kind'],
-    ['BLK-1','System','PKG-BDD','Block']
+    ['BLK-1','System','PKG-BDD','Block'],
+    ['BLK-2','Subsystem','PKG-BDD','Block']
   ]),'Blocks_Import');
   XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([
-    ['Diagram External ID','Diagram Name','Diagram Type','Owner External ID','Context External ID','Displayed Element IDs'],
-    ['DGM-1','System BDD','Block Definition Diagram','PKG-BDD','BLK-1','BLK-1']
+    ['Relationship External ID','Relationship Type','Source External ID','Target External ID','Owner External ID'],
+    ['REL-1','Dependency','BLK-1','BLK-2','PKG-BDD']
+  ]),'Relationships_Import');
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet([
+    ['Diagram External ID','Diagram Name','Diagram Type','Owner External ID','Context External ID','Displayed Element IDs','Relationship IDs'],
+    ['DGM-1','System BDD','Block Definition Diagram','PKG-BDD','BLK-1','BLK-1; BLK-2','REL-1']
   ]),'Diagrams_Import');
   const bytes=XLSX.write(wb,{type:'array',bookType:'xlsx'});
   return{name:'owned-diagram.xlsx',arrayBuffer:async()=>bytes};
 }
 
-test('workbook import builds a diagram presentation from Diagrams_Import displayed-element lists',async()=>{
+test('workbook import builds diagram nodes and edges from Diagrams_Import semantic lists',async()=>{
   const project=createProject('Import Diagram Test');
   const {project:imported,report}=await safeImportWorkbook(workbookFile(),project,()=>{});
   assert.equal(report.diagrams.created,1);
@@ -33,7 +38,8 @@ test('workbook import builds a diagram presentation from Diagrams_Import display
   assert.equal(diagram.diagramType,'Block Definition Diagram');
   assert.equal(diagram.ownerId,'PKG-BDD');
   assert.equal(diagram.contextId,'BLK-1');
-  assert.ok(diagram.nodes.some(n=>n.elementId==='BLK-1'),'Displayed Element IDs should build a node presentation without a separate DiagramShapes row.');
+  assert.equal(diagram.nodes.filter(n=>['BLK-1','BLK-2'].includes(n.elementId)).length,2,'Displayed Element IDs should build node presentations without separate DiagramShapes rows.');
+  assert.ok(diagram.edges.some(e=>e.relationshipId==='REL-1'),'Relationship IDs should build an edge presentation without a separate DiagramEdges row.');
   assert.deepEqual(diagramOwnershipIssues(imported,{fileName:'owned-diagram.xlsx'}),[]);
 });
 
