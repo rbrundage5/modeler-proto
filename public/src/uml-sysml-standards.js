@@ -6,8 +6,8 @@ export const SYSML_BASELINE='SysML 1.6';
 const C=Object.freeze({
  Association:{line:'solid',sourceMarker:'none',targetMarker:'none',direction:'undirected'},
  AssociationBlock:{line:'solid',sourceMarker:'none',targetMarker:'none',direction:'undirected'},
- Aggregation:{line:'solid',sourceMarker:'none',targetMarker:'diamond',direction:'part-to-aggregate'},
- Composition:{line:'solid',sourceMarker:'none',targetMarker:'diamondFilled',direction:'part-to-composite'},
+ Aggregation:{line:'solid',sourceMarker:'diamond',targetMarker:'none',direction:'aggregate-to-part'},
+ Composition:{line:'solid',sourceMarker:'diamondFilled',targetMarker:'none',direction:'composite-to-part'},
  Generalization:{line:'solid',sourceMarker:'none',targetMarker:'triangle',direction:'specific-to-general'},
  Dependency:{line:'dashed',sourceMarker:'none',targetMarker:'open',direction:'client-to-supplier'},
  Usage:{line:'dashed',sourceMarker:'none',targetMarker:'open',direction:'client-to-supplier'},
@@ -63,13 +63,24 @@ export function relationshipStandardStyle(relationship){
   return{...base,sourceMarker,targetMarker,dashed:base.line==='dashed'};
 }
 
-export function setAggregateEnd(r,end){
-  if(!r||!['Composition','Aggregation'].includes(r.kind)||!['source','target'].includes(end))return r;
+const END_FIELDS=['Id','Role','Multiplicity','Navigable','Aggregation','EndOwned','EndId','PartWithPortPath','EndpointPath','PortId'];
+export function swapRelationshipEnds(r){
+  if(!r)return r;
+  for(const suffix of END_FIELDS){const sourceKey=`source${suffix}`,targetKey=`target${suffix}`,value=r[sourceKey];r[sourceKey]=r[targetKey];r[targetKey]=value}
+  if(r.direction==='sourceToTarget')r.direction='targetToSource';else if(r.direction==='targetToSource')r.direction='sourceToTarget';
+  return r;
+}
+
+export function setAggregateEnd(r,end='source'){
+  if(!r||!['Composition','Aggregation'].includes(r.kind))return r;
   const aggregation=r.kind==='Composition'?'composite':'shared';
-  r.sourceAggregation=end==='source'?aggregation:'none';
-  r.targetAggregation=end==='target'?aggregation:'none';
-  r.aggregateEnd=end;
+  if(end==='target')swapRelationshipEnds(r);
+  r.sourceAggregation=aggregation;
+  r.targetAggregation='none';
+  r.aggregateEnd='source';
   r.aggregateEndExplicit=true;
+  r.ownerEnd='source';
+  r.ownerSourceCanonical=true;
   return r;
 }
 
@@ -81,18 +92,16 @@ export function normalizeStandardRelationship(r){
     r.sourceAggregation=r.sourceAggregation||'none';r.targetAggregation=r.targetAggregation||'none';
     if(['Composition','Aggregation'].includes(r.kind)){
       const required=r.kind==='Composition'?'composite':'shared';
-      if(r.aggregateEndExplicit&&['source','target'].includes(r.aggregateEnd))setAggregateEnd(r,r.aggregateEnd);
-      else if(r.sourceAggregation===required&&r.targetAggregation==='none'&&!r.importSource){
-        // Correct the previous UI migration. In the production gesture the user selects
-        // part/child first and whole/owner second, so the aggregate member end is target.
-        setAggregateEnd(r,'target');r.aggregateEndExplicit=false;r.correctedOwnerEndMigration=true;
-      }else if(r.targetAggregation===required&&r.sourceAggregation==='none'){
-        r.aggregateEnd='target';
-      }else if(r.sourceAggregation===required&&r.targetAggregation==='none'){
-        r.aggregateEnd='source';
-      }else if(r.sourceAggregation==='none'&&r.targetAggregation==='none'){
-        setAggregateEnd(r,'target');r.aggregateEndExplicit=false;
-      }
+      // Canonical SysML/UML tool convention: source is the whole/owner end and target is the part/child end.
+      // If an older model stored the aggregate marker at target, reverse the complete member ends so the semantic
+      // owner becomes source rather than merely moving the visual diamond to the wrong semantic endpoint.
+      if(r.targetAggregation===required&&r.sourceAggregation!=='required')swapRelationshipEnds(r);
+      r.sourceAggregation=required;
+      r.targetAggregation='none';
+      r.aggregateEnd='source';
+      r.aggregateEndExplicit=true;
+      r.ownerEnd='source';
+      r.ownerSourceCanonical=true;
     }
   }
   return r;
@@ -100,6 +109,6 @@ export function normalizeStandardRelationship(r){
 
 export function normalizeStandardRelationships(project){for(const r of project.relationships||[])normalizeStandardRelationship(r);return project}
 
-export function relationshipStandardIssues(r){const issues=[];if(!r||!RELATIONSHIPS[r.kind])return issues;if(['Association','AssociationBlock','Aggregation','Composition'].includes(r.kind)){const s=r.sourceAggregation||'none',t=r.targetAggregation||'none';if(!['none','shared','composite'].includes(s)||!['none','shared','composite'].includes(t))issues.push({severity:'error',code:'UML_AGGREGATION_KIND',message:`${r.kind} has an invalid UML aggregation value.`,id:r.id});if(s==='composite'&&t==='composite')issues.push({severity:'error',code:'UML_DOUBLE_COMPOSITE',message:'A binary UML Association cannot be composite at both ends.',id:r.id});if(r.kind==='Composition'&&((s==='composite')+(t==='composite')!==1))issues.push({severity:'error',code:'UML_COMPOSITION_END',message:'Composition must have exactly one composite member end.',id:r.id});if(r.kind==='Aggregation'&&((s==='shared')+(t==='shared')!==1))issues.push({severity:'error',code:'UML_SHARED_AGGREGATION_END',message:'Shared Aggregation must have exactly one shared aggregate member end.',id:r.id})}return issues}
+export function relationshipStandardIssues(r){const issues=[];if(!r||!RELATIONSHIPS[r.kind])return issues;if(['Association','AssociationBlock','Aggregation','Composition'].includes(r.kind)){const s=r.sourceAggregation||'none',t=r.targetAggregation||'none';if(!['none','shared','composite'].includes(s)||!['none','shared','composite'].includes(t))issues.push({severity:'error',code:'UML_AGGREGATION_KIND',message:`${r.kind} has an invalid UML aggregation value.`,id:r.id});if(s==='composite'&&t==='composite')issues.push({severity:'error',code:'UML_DOUBLE_COMPOSITE',message:'A binary UML Association cannot be composite at both ends.',id:r.id});if(r.kind==='Composition'&&s!=='composite')issues.push({severity:'error',code:'UML_COMPOSITION_OWNER_SOURCE',message:'Composition must place the composite whole/owner at the source end.',id:r.id});if(r.kind==='Aggregation'&&s!=='shared')issues.push({severity:'error',code:'UML_AGGREGATION_OWNER_SOURCE',message:'Shared Aggregation must place the aggregate whole/owner at the source end.',id:r.id});if(['Composition','Aggregation'].includes(r.kind)&&t!=='none')issues.push({severity:'error',code:'UML_PART_TARGET_AGGREGATION',message:`${r.kind} target is the part/child end and cannot carry the aggregate diamond.`,id:r.id})}return issues}
 
 export function standardsCoverageIssues(){const issues=[];for(const kind of Object.keys(RELATIONSHIPS))if(!C[kind])issues.push(`Missing relationship standards contract: ${kind}`);for(const kind of Object.keys(ELEMENTS))if(!ELEMENT_STANDARD_FAMILY[kind])issues.push(`Missing element standards family: ${kind}`);for(const [diagramType,def] of Object.entries(DIAGRAMS)){for(const kind of def.elements||[])if(!ELEMENTS[kind])issues.push(`${diagramType} allows undeclared element ${kind}`);for(const kind of def.relationships||[])if(!RELATIONSHIPS[kind])issues.push(`${diagramType} allows undeclared relationship ${kind}`)}return issues}
