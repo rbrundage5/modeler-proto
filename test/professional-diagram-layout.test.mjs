@@ -67,6 +67,7 @@ test('automatic cleanup is scoped to the active diagram rather than sweeping the
   assert.match(source,/function cleanActiveIfNeeded\(\)/);
   assert.doesNotMatch(source,/for\s*\(const diagram of p\.diagrams/);
   assert.doesNotMatch(source,/cleanAllNeeded/);
+  assert.match(source,/const p=project\(\),diagram=activeDiagram\(p\)/);
 });
 
 test('Generalization is ranked with the general classifier above the specific classifier',()=>{
