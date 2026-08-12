@@ -12,14 +12,31 @@ test('diagram navigation controller provides adjacent Back and Forward controls'
   assert.match(source,/actions\.insertBefore\(back,select\)/);
 });
 
-test('diagram navigation tracks independent back and forward stacks',()=>{
-  assert.match(source,/backStack\.push\(currentId\)/);
-  assert.match(source,/forwardStack=\[\]/);
-  assert.match(source,/forwardStack\.push\(present\)/);
-  assert.match(source,/backStack\.push\(present\)/);
+test('history uses browser-style stack operations without globally deduplicating repeated diagrams',()=>{
+  assert.match(source,/function pushHistory\(/);
+  assert.match(source,/stack\.at\(-1\)!==id/);
+  assert.match(source,/function popValid\(/);
+  assert.doesNotMatch(source,/stack\.indexOf\(id\)===index/);
+  assert.match(source,/MAX_HISTORY=100/);
 });
 
-test('history navigation updates the active diagram through the modeler API',()=>{
-  assert.match(source,/project\.activeDiagramId=id/);
-  assert.match(source,/service\.setProject\(project\)/);
+test('explicit Back and Forward navigation is transactionally suppressed from normal history recording',()=>{
+  assert.match(source,/pendingNavigation=\{target:id,direction\}/);
+  assert.match(source,/pendingNavigation\?\.target===next/);
+  assert.match(source,/forwardStack=\[\]/);
+});
+
+test('history skips stale or deleted diagrams and the current diagram',()=>{
+  assert.match(source,/validDiagram\(id\)&&id!==current/);
+  assert.match(source,/if\(validDiagram\(id\)&&id!==current\)return id/);
+});
+
+test('history navigation updates activeDiagramId through SystemsModelerAPI',()=>{
+  assert.match(source,/next\.activeDiagramId=id/);
+  assert.match(source,/service\.setProject\(next\)/);
+});
+
+test('history can be reset when project context changes',()=>{
+  assert.match(source,/export function resetDiagramNavigationHistory/);
+  assert.match(source,/reset:resetDiagramNavigationHistory/);
 });
