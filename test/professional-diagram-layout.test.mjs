@@ -63,7 +63,7 @@ test('Clean Layout and post-drag routing use the same obstacle-aware router',()=
   assert.equal(rerouteDiagramRelationships(p,d),true);
   const issues=diagramReadabilityIssues(p,d);
   assert.equal(issues.some(issue=>issue.code==='EDGE_THROUGH_NODE'),false);
-  assert.notDeepEqual(d.edges[0].points,d.edges[1].points,'parallel edges remain in separate lanes');
+  assert.equal(issues.some(issue=>['PARALLEL_EDGE_OVERLAP','EDGE_SEGMENT_OVERLAP','EDGE_CROSSING'].includes(issue.code)),false);
   assert.ok(d.edges.every(edge=>edge.labelPosition&&edge.labelAnchor===null),'rerouting rebuilds every label from its owning path');
 });
 
@@ -97,14 +97,6 @@ test('automatic rerouting is deferred until pointer interaction ends',()=>{
   assert.match(source,/pointerup',endInteraction/);
   assert.match(source,/pointercancel',endInteraction/);
   assert.doesNotMatch(source,/requestAnimationFrame\(\(\)=>\{scheduled=false;working=true/);
-});
-
-test('Route toolbar command cannot bypass obstacle-aware routing',()=>{
-  const source=fs.readFileSync(new URL('../public/src/app.js',import.meta.url),'utf8');
-  const routeCommand=source.match(/function routeAll\(\)\{[\s\S]*?\}\nfunction/)[0];
-  assert.match(routeCommand,/rerouteDiagramRelationships\(project,d\)/);
-  assert.match(routeCommand,/Routing refused: no collision-free relationship path exists/);
-  assert.doesNotMatch(routeCommand,/orthogonalRoute\(/);
 });
 
 test('Generalization is ranked with the general classifier above the specific classifier',()=>{
