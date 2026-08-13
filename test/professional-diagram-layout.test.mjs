@@ -74,6 +74,15 @@ test('automatic cleanup is scoped to the active diagram rather than sweeping the
   assert.match(source,/const p=project\(\),diagram=activeDiagram\(p\)/);
 });
 
+test('automatic rerouting is deferred until pointer interaction ends',()=>{
+  const source=fs.readFileSync(new URL('../public/src/professional-diagram-layout.js',import.meta.url),'utf8');
+  assert.match(source,/interactionActive=true;clearTimeout\(routeTimer\)/);
+  assert.match(source,/if\(interactionActive\)return/);
+  assert.match(source,/pointerup',endInteraction/);
+  assert.match(source,/pointercancel',endInteraction/);
+  assert.doesNotMatch(source,/requestAnimationFrame\(\(\)=>\{scheduled=false;working=true/);
+});
+
 test('Generalization is ranked with the general classifier above the specific classifier',()=>{
   const p=project(),d=diagram();cleanDiagramLayout(p,d);
   const parent=d.nodes.find(node=>node.elementId==='a'),child=d.nodes.find(node=>node.elementId==='c');
