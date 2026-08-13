@@ -1,3 +1,8 @@
+const applyRelationshipTreePolicy=()=>{const modelTab=document.getElementById('modelTab');if(!modelTab?.classList.contains('active'))return;for(const row of document.querySelectorAll('#tree .tree-row[data-type="relationship"]'))row.hidden=true};
+let relationshipTreePolicyScheduled=false;
+const queueRelationshipTreePolicy=()=>{if(relationshipTreePolicyScheduled)return;relationshipTreePolicyScheduled=true;requestAnimationFrame(()=>{relationshipTreePolicyScheduled=false;applyRelationshipTreePolicy()})};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{const tree=document.getElementById('tree');if(tree)new MutationObserver(queueRelationshipTreePolicy).observe(tree,{childList:true});document.getElementById('modelTab')?.addEventListener('click',queueRelationshipTreePolicy);queueRelationshipTreePolicy()},{once:true});else{const tree=document.getElementById('tree');if(tree)new MutationObserver(queueRelationshipTreePolicy).observe(tree,{childList:true});document.getElementById('modelTab')?.addEventListener('click',queueRelationshipTreePolicy);queueRelationshipTreePolicy()}
+
 /** Shared, notation-neutral diagram selection and movement helpers. */
 export function pointToSegmentDistance(point,start,end){
   const dx=end.x-start.x,dy=end.y-start.y,lengthSquared=dx*dx+dy*dy;
