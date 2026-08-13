@@ -1,3 +1,5 @@
+import './diagram-containment-tree.js';
+import './owned-semantic-content.js';
 const $=id=>document.getElementById(id);
 const clone=value=>typeof structuredClone==='function'?structuredClone(value):JSON.parse(JSON.stringify(value));
 let lastCanvasClick={elementId:null,presentationId:null,at:0};
@@ -19,14 +21,6 @@ function selectDiagramWithoutChangingRepositoryTab(diagramId){
   return true;
 }
 
-function handleTreeClickCapture(event){
-  if(!diagramsTabActive())return;
-  const row=event.target?.closest?.('.tree-row[data-type="diagram"]');if(!row)return;
-  const diagramId=row.dataset.id;if(!diagramId)return;
-  event.preventDefault();event.stopImmediatePropagation();event.stopPropagation();
-  selectDiagramWithoutChangingRepositoryTab(diagramId);
-}
-
 function childFor(elementId){
   const p=project();if(!p||!elementId)return null;
   const helper=globalThis.SystemsModelerChildDiagrams;
@@ -34,7 +28,7 @@ function childFor(elementId){
   const element=[p.root,...(p.elements||[])].find(item=>item?.id===elementId),byId=new Map((p.diagrams||[]).map(diagram=>[diagram.id,diagram]));
   if(element?.primaryChildDiagramId&&byId.has(element.primaryChildDiagramId))return byId.get(element.primaryChildDiagramId);
   for(const id of element?.childDiagramIds||[])if(byId.has(id))return byId.get(id);
-  return (p.diagrams||[]).find(diagram=>diagram.contextId===elementId)||null;
+  return (p.diagrams||[]).find(diagram=>diagram.contextId===elementId||diagram.ownerId===elementId)||null;
 }
 
 function navigateChild(elementId){
@@ -62,9 +56,10 @@ function handleTreePointerDownCapture(event){
   const row=event.target?.closest?.('.tree-row[data-type="element"]');if(!row||event.target?.closest?.('.tree-disclosure'))return;
   const elementId=row.dataset.id;if(!elementId)return;
   const now=performance.now(),same=lastTreeClick.elementId===elementId,rapid=now-lastTreeClick.at<=DOUBLE_CLICK_MS;
-  if(same&&rapid&&globalThis.SystemsModelerChildDiagrams?.revealElement){
-    lastTreeClick={elementId:null,at:0};event.preventDefault();event.stopImmediatePropagation();event.stopPropagation();
-    globalThis.SystemsModelerChildDiagrams.revealElement(elementId);return;
+  if(same&&rapid){
+    lastTreeClick={elementId:null,at:0};
+    if(childFor(elementId)){event.preventDefault();event.stopImmediatePropagation();event.stopPropagation();navigateChild(elementId);return}
+    if(globalThis.SystemsModelerChildDiagrams?.revealElement){event.preventDefault();event.stopImmediatePropagation();event.stopPropagation();globalThis.SystemsModelerChildDiagrams.revealElement(elementId);return}
   }
   lastTreeClick={elementId,at:now};
 }
