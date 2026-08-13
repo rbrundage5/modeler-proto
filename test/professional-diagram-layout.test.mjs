@@ -40,7 +40,11 @@ test('clean layout separates nodes and assigns orthogonal relationship lanes',()
   assert.equal(result.changed,true);
   assert.equal(d.layoutVersion,LAYOUT_VERSION);
   assert.equal(diagramReadabilityIssues(p,d).some(issue=>issue.code==='NODE_OVERLAP'),false);
-  assert.equal(d.edges.every(edge=>edge.points.length===2),true);
+  for(const edge of d.edges){
+    const source=d.nodes.find(node=>node.id===edge.sourceNodeId),target=d.nodes.find(node=>node.id===edge.targetNodeId),path=[{x:source.x+source.width/2,y:source.y+source.height/2},...edge.points,{x:target.x+target.width/2,y:target.y+target.height/2}];
+    assert.equal(path.every((point,index)=>!index||point.x===path[index-1].x||point.y===path[index-1].y),true,'every routed segment is orthogonal');
+  }
+  assert.equal(diagramReadabilityIssues(p,d).some(issue=>issue.code==='EDGE_THROUGH_NODE'),false);
   assert.notDeepEqual(d.edges[0].points,d.edges[1].points,'parallel relationships use distinct lanes');
   const ownerAfter=d.nodes[0],portAfter=d.nodes[3];
   assert.equal(portAfter.x-portBefore.x,ownerAfter.x-ownerBefore.x,'boundary child moves with owner in X');
@@ -91,6 +95,17 @@ test('only elements of the same semantic type share a branch row',()=>{
   assert.equal([...rows.values()].every(kinds=>new Set(kinds).size===1),true);
   assert.ok(d.nodes.find(node=>node.id==='nactor').y>d.nodes.find(node=>node.id==='na').y);
   assert.equal(d.layoutMode,'downstream-semantic-layers');
+});
+
+test('self relationships remain visible as orthogonal loops outside their element',()=>{
+  const p=project(),d=diagram();
+  p.relationships=[{id:'self',kind:'Dependency',sourceId:'a',targetId:'a'}];
+  d.edges=[{id:'self-edge',relationshipId:'self',sourceNodeId:'na',targetNodeId:'na',points:[]}];
+  cleanDiagramLayout(p,d);
+  const node=d.nodes.find(item=>item.id==='na'),edge=d.edges[0];
+  assert.ok(edge.points.some(point=>point.x>node.x+node.width||point.x<node.x));
+  assert.ok(edge.points.some(point=>point.y>node.y+node.height||point.y<node.y));
+  assert.equal(diagramReadabilityIssues(p,d).some(issue=>issue.code==='EDGE_THROUGH_NODE'),false);
 });
 
 test('Sequence diagrams are not rearranged by generic layout',()=>{
