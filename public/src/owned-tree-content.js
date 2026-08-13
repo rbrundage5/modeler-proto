@@ -29,11 +29,13 @@ export function organizeOwnedTreeContent(){
   if(working)return;const p=project(),tree=$('tree'),modelTab=$('modelTab');if(!p||!tree||!modelTab?.classList.contains('active'))return;
   working=true;
   try{
-    const relationRows=new Map([...tree.querySelectorAll('.tree-row[data-type="relationship"]')].map(row=>[row.dataset.id,row]));
+    for(const row of tree.querySelectorAll('.tree-row[data-type="relationship"]')){
+      row.hidden=true;
+      row.dataset.containmentVisibility='references-only';
+    }
     const diagramRows=new Map([...tree.querySelectorAll('.tree-row[data-type="diagram"]')].map(row=>[row.dataset.id,row]));
     const grouped=new Map();
     const add=(ownerId,row,kind)=>{if(!ownerId||!byId(p,ownerId)){markInvalid(row,`${kind} has no valid semantic owner. Fix ownerId before treating this record as contained.`);return}const key=ownerId;if(!grouped.has(key))grouped.set(key,[]);grouped.get(key).push(row)};
-    for(const relationship of p.relationships||[]){const row=relationRows.get(relationship.id);if(row)add(relationship.ownerId,row,'Relationship')}
     for(const diagram of p.diagrams||[]){const row=diagramRows.get(diagram.id);if(row)add(diagram.ownerId,row,'Diagram')}
     for(const [ownerId,rows] of grouped){rows.sort((a,b)=>String(a.querySelector('.tree-name')?.textContent||'').localeCompare(String(b.querySelector('.tree-name')?.textContent||'')));placeRowsForOwner(tree,p,ownerId,rows)}
   }finally{working=false}
