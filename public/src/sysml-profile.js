@@ -50,6 +50,7 @@ export const DIAGRAMS = {
  "Sequence Diagram":{abbreviation:"seq",contextKinds:["Interaction","Block","UseCase"],elements:seqEls,relationships:["Message"]},
  "Parametric Diagram":{abbreviation:"par",contextKinds:["Block","ConstraintBlock"],elements:["ConstraintProperty","ValueProperty","Parameter","Comment"],relationships:["BindingConnector"]},
  "Package Diagram":{abbreviation:"pkg",elements:["Package","Model","Profile","ModelLibrary","View","Viewpoint","Comment"],relationships:["NamespaceContainment","Dependency","PackageImport","ProfileApplication","Conform"]},
+ "Allocation Diagram":{abbreviation:"alloc",elements:["Package","Block","PartProperty","ReferenceProperty","Activity","Action","Requirement","TestCase","Comment"],relationships:["Allocate","Dependency","Trace","Refine"]},
  "Instance Diagram":{abbreviation:"instance",elements:["InstanceSpecification","Configuration","Slot","Comment"],relationships:["Connector","Dependency"]}
 };
 export function allowed(diagramType){return DIAGRAMS[diagramType]||{elements:[],relationships:[]}}
