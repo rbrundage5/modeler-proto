@@ -41,7 +41,7 @@ const ICONS={
 };
 const aliases={
  'Block Definition Diagram':'Diagram','Internal Block Diagram':'Diagram','Requirement Diagram':'Diagram','Use Case Diagram':'Diagram','Activity Diagram':'Diagram','State Machine Diagram':'Diagram','Sequence Diagram':'Diagram','Parametric Diagram':'Diagram','Package Diagram':'Diagram','Instance Diagram':'Diagram',
- CallOperationAction:'Action',SendSignalAction:'Signal',AcceptEventAction:'Action',InputPin:'Parameter',OutputPin:'Parameter',ActivityParameterNode:'Parameter',CentralBufferNode:'ObjectNode',DataStoreNode:'ObjectNode',StructuredActivityNode:'Activity',ExpansionRegion:'Activity',InterruptibleActivityRegion:'Activity',ActivityPartition:'Package',ChoicePseudostate:'DecisionNode',JunctionPseudostate:'DecisionNode',ShallowHistory:'State',DeepHistory:'State',EntryPoint:'InitialPseudostate',ExitPoint:'FinalState',StateFork:'ForkNode',StateJoin:'JoinNode',SubmachineState:'State',Region:'Package',ExecutionSpecification:'Lifeline',InteractionOperand:'CombinedFragment',Gate:'Parameter',InteractionUse:'Interaction',TimeConstraint:'ConstraintProperty',DurationConstraint:'ConstraintProperty',TagDefinition:'ValueProperty'
+ CallOperationAction:'Action',SendSignalAction:'Signal',AcceptEventAction:'Action',AcceptTimeEventAction:'Action',InputPin:'Parameter',OutputPin:'Parameter',ActivityParameterNode:'Parameter',CentralBufferNode:'ObjectNode',DataStoreNode:'ObjectNode',StructuredActivityNode:'Activity',ExpansionRegion:'Activity',InterruptibleActivityRegion:'Activity',ActivityPartition:'Package',ChoicePseudostate:'DecisionNode',JunctionPseudostate:'DecisionNode',ShallowHistory:'State',DeepHistory:'State',EntryPoint:'InitialPseudostate',ExitPoint:'FinalState',StateFork:'ForkNode',StateJoin:'JoinNode',SubmachineState:'State',Region:'Package',ExecutionSpecification:'Lifeline',DestructionOccurrence:'FinalState',StateInvariant:'State',InteractionOperand:'CombinedFragment',Gate:'Parameter',InteractionUse:'Interaction',TimeConstraint:'ConstraintProperty',DurationConstraint:'ConstraintProperty',TagDefinition:'ValueProperty',View:'Package',Viewpoint:'Requirement'
 };
 export function sysmlIcon(kind){const key=aliases[kind]||kind;const maker=ICONS[key]||(()=>classifier(`<text x="10" y="14" text-anchor="middle" font-size="7" font-family="sans-serif" fill="${A}">${String(kind||'Element').slice(0,2)}</text>`));return maker()}
 
@@ -58,6 +58,7 @@ const RELATIONSHIP_ICONS={
 };
 for(const kind of ['AssociationBlock','DelegationConnector','ItemFlow'])RELATIONSHIP_ICONS[kind]=RELATIONSHIP_ICONS.Connector;
 for(const kind of ['Usage','Abstraction','Redefines','Subsets','Requires','Satisfy','Verify','Refine','DeriveReqt','Trace','Copy','Allocate','Include','Extend','VariantBinding'])RELATIONSHIP_ICONS[kind]=RELATIONSHIP_ICONS.Dependency;
+for(const kind of ['NamespaceContainment','PackageImport','ProfileApplication','Conform'])RELATIONSHIP_ICONS[kind]=RELATIONSHIP_ICONS.Dependency;
 for(const kind of ['Realization','InterfaceRealization','Provides'])RELATIONSHIP_ICONS[kind]=()=>svg(`<path d="M2 10h11" stroke="${A}" stroke-dasharray="3 2"/><path d="m18 10-6-4v8z" fill="white" stroke="${A}"/>`,'realization');
 RELATIONSHIP_ICONS.InformationFlow=RELATIONSHIP_ICONS.ControlFlow;
 for(const kind of ['InterruptingEdge','Transition','Message'])RELATIONSHIP_ICONS[kind]=RELATIONSHIP_ICONS.ControlFlow;
