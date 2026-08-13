@@ -1,0 +1,1 @@
+Import completeness acceptance requires preserving typed elements, ownership, ports, properties, connectors, item flows, behavior metadata, diagram ownership, child-diagram links, shapes, and relationship presentations from the source workbook.
