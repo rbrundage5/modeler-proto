@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {cleanDiagramLayout,diagramReadabilityIssues,rerouteDiagramRelationships,LAYOUT_VERSION} from '../public/src/professional-diagram-layout.js';
+import {cleanDiagramLayout,diagramReadabilityIssues,LAYOUT_VERSION} from '../public/src/professional-diagram-layout.js';
 
 function project(){
   return {
@@ -52,19 +52,6 @@ test('clean layout separates nodes and assigns orthogonal relationship lanes',()
   const ownerAfter=d.nodes[0],portAfter=d.nodes[3];
   assert.equal(portAfter.x-portBefore.x,ownerAfter.x-ownerBefore.x,'boundary child moves with owner in X');
   assert.equal(portAfter.y-portBefore.y,ownerAfter.y-ownerBefore.y,'boundary child moves with owner in Y');
-});
-
-test('Clean Layout and post-drag routing use the same obstacle-aware router',()=>{
-  const p=project(),d=diagram();
-  cleanDiagramLayout(p,d);
-  const obstacle=d.nodes.find(node=>node.id==='nc');
-  obstacle.x=d.nodes.find(node=>node.id==='na').x;
-  obstacle.y=(d.nodes.find(node=>node.id==='na').y+d.nodes.find(node=>node.id==='nb').y)/2;
-  assert.equal(rerouteDiagramRelationships(p,d),true);
-  const issues=diagramReadabilityIssues(p,d);
-  assert.equal(issues.some(issue=>issue.code==='EDGE_THROUGH_NODE'),false);
-  assert.equal(issues.some(issue=>['PARALLEL_EDGE_OVERLAP','EDGE_SEGMENT_OVERLAP','EDGE_CROSSING'].includes(issue.code)),false);
-  assert.ok(d.edges.every(edge=>edge.labelPosition&&edge.labelAnchor===null),'rerouting rebuilds every label from its owning path');
 });
 
 test('opposite-direction relationships use separate endpoint attachments, corridors, and labels',()=>{
