@@ -50,17 +50,15 @@ export function preferredChildDiagram(p,elementId){
   return children.find(diagram=>diagram.id===element?.primaryChildDiagramId)||children.find(diagram=>diagram.isPrimary===true)||children.find(diagram=>preferred&&diagram.diagramType===preferred)||children.slice().sort((a,b)=>String(a.name||a.id).localeCompare(String(b.name||b.id)))[0];
 }
 
+function linkDiagram(element,diagram,{primary=false}={}){if(!element)return false;let changed=false;element.childDiagramIds=Array.isArray(element.childDiagramIds)?element.childDiagramIds:[];if(!element.childDiagramIds.includes(diagram.id)){element.childDiagramIds.push(diagram.id);changed=true}const preferred=PREFERRED[element.kind];if(primary&&!element.primaryChildDiagramId&&(preferred===diagram.diagramType||element.childDiagramIds.length===1)){element.primaryChildDiagramId=diagram.id;changed=true}return changed}
 export function normalizeDiagramContainment(p){
   if(!p)return false;let changed=false;const known=new Set([p.root?.id,...(p.elements||[]).map(item=>item.id)]);
   for(const diagram of p.diagrams||[]){
-    const context=semanticElement(p,diagram.contextId),owner=semanticElement(p,diagram.ownerId);
-    if(context&&canOwnChildDiagram(context.kind,diagram.diagramType)&&diagram.ownerId!==context.id){diagram.ownerId=context.id;changed=true}
-    else if(!owner&&context){diagram.ownerId=context.id;changed=true}
-    else if(!known.has(diagram.ownerId)&&p.root?.id){diagram.ownerId=p.root.id;changed=true}
-    const semanticOwner=semanticElement(p,diagram.ownerId);if(!semanticOwner)continue;
-    semanticOwner.childDiagramIds=Array.isArray(semanticOwner.childDiagramIds)?semanticOwner.childDiagramIds:[];
-    if(!semanticOwner.childDiagramIds.includes(diagram.id)){semanticOwner.childDiagramIds.push(diagram.id);changed=true}
-    const preferred=PREFERRED[semanticOwner.kind];if(!semanticOwner.primaryChildDiagramId&&(preferred===diagram.diagramType||semanticOwner.childDiagramIds.length===1)){semanticOwner.primaryChildDiagramId=diagram.id;changed=true}
+    const context=semanticElement(p,diagram.contextId);let owner=semanticElement(p,diagram.ownerId);
+    if(!owner&&context){diagram.ownerId=context.id;owner=context;changed=true}
+    else if(!owner&&!known.has(diagram.ownerId)&&p.root?.id){diagram.ownerId=p.root.id;owner=p.root;changed=true}
+    if(owner)changed=linkDiagram(owner,diagram,{primary:!context})||changed;
+    if(context&&canOwnChildDiagram(context.kind,diagram.diagramType))changed=linkDiagram(context,diagram,{primary:true})||changed;
   }
   return changed;
 }
