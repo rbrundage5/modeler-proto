@@ -1,0 +1,1 @@
+Relationship semantics remain in project.relationships with ownerId intact. The Model containment browser intentionally omits ordinary relationship rows to keep package containment readable. Relationships remain discoverable through diagrams, References, validation, import/export, and semantic APIs.
