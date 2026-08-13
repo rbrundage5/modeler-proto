@@ -1,4 +1,5 @@
 import './diagram-containment-tree.js';
+import './owned-semantic-content.js';
 const $=id=>document.getElementById(id);
 const clone=value=>typeof structuredClone==='function'?structuredClone(value):JSON.parse(JSON.stringify(value));
 let lastCanvasClick={elementId:null,presentationId:null,at:0};
