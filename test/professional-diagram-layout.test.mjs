@@ -76,6 +76,23 @@ test('Generalization is ranked with the general classifier above the specific cl
   assert.ok(parent.y<child.y);
 });
 
+test('only elements of the same semantic type share a branch row',()=>{
+  const p=project(),d=diagram();
+  p.elements.push({id:'actor',kind:'Actor',name:'Operator'});
+  p.relationships.push({id:'r4',kind:'Dependency',sourceId:'a',targetId:'actor'});
+  d.nodes.push({id:'nactor',elementId:'actor',x:190,y:130,width:180,height:90});
+  d.edges.push({id:'e4',relationshipId:'r4',sourceNodeId:'na',targetNodeId:'nactor',points:[]});
+  cleanDiagramLayout(p,d);
+  const rows=new Map();
+  for(const node of d.nodes.filter(node=>!node.parentPresentationId)){
+    if(!rows.has(node.y))rows.set(node.y,[]);
+    rows.get(node.y).push(p.elements.find(element=>element.id===node.elementId)?.kind);
+  }
+  assert.equal([...rows.values()].every(kinds=>new Set(kinds).size===1),true);
+  assert.ok(d.nodes.find(node=>node.id==='nactor').y>d.nodes.find(node=>node.id==='na').y);
+  assert.equal(d.layoutMode,'downstream-semantic-layers');
+});
+
 test('Sequence diagrams are not rearranged by generic layout',()=>{
   const p=project(),d=diagram();d.diagramType='Sequence Diagram';const before=structuredClone(d.nodes);
   const result=cleanDiagramLayout(p,d);
