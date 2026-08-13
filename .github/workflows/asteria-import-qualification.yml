@@ -1,0 +1,27 @@
+name: Asteria Import Qualification
+
+on:
+  push:
+    branches:
+      - agent/asteria-complete-import-correction
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  qualify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Existing Node test suite
+        run: npm test
+      - name: Existing audit suite
+        run: npm run check
+      - name: Existing browser suite
+        run: npm run test:browser
