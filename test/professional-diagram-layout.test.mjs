@@ -36,6 +36,7 @@ test('detects overlap and edge readability defects before layout',()=>{
 
 test('clean layout separates nodes and assigns orthogonal relationship lanes',()=>{
   const p=project(),d=diagram(),portBefore={x:d.nodes[3].x,y:d.nodes[3].y},ownerBefore={x:d.nodes[0].x,y:d.nodes[0].y};
+  d.edges[0].labelPosition={x:999,y:10};d.edges[0].labelAnchor={fraction:0,offsetX:900,offsetY:-500};
   const result=cleanDiagramLayout(p,d);
   assert.equal(result.changed,true);
   assert.equal(d.layoutVersion,LAYOUT_VERSION);
@@ -46,6 +47,8 @@ test('clean layout separates nodes and assigns orthogonal relationship lanes',()
   }
   assert.equal(diagramReadabilityIssues(p,d).some(issue=>issue.code==='EDGE_THROUGH_NODE'),false);
   assert.notDeepEqual(d.edges[0].points,d.edges[1].points,'parallel relationships use distinct lanes');
+  assert.equal(d.edges[0].labelAnchor,null,'rerouting invalidates the stale label anchor');
+  assert.notDeepEqual(d.edges[0].labelPosition,{x:999,y:10},'label is placed from its current owning route');
   const ownerAfter=d.nodes[0],portAfter=d.nodes[3];
   assert.equal(portAfter.x-portBefore.x,ownerAfter.x-ownerBefore.x,'boundary child moves with owner in X');
   assert.equal(portAfter.y-portBefore.y,ownerAfter.y-ownerBefore.y,'boundary child moves with owner in Y');
