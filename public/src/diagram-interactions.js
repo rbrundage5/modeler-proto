@@ -1,3 +1,4 @@
+import './relationship-tree-policy.js';
 /** Shared, notation-neutral diagram selection and movement helpers. */
 export function pointToSegmentDistance(point,start,end){
   const dx=end.x-start.x,dy=end.y-start.y,lengthSquared=dx*dx+dy*dy;
