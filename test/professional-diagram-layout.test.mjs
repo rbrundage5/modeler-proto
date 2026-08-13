@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {cleanDiagramLayout,diagramReadabilityIssues,LAYOUT_VERSION} from '../public/src/professional-diagram-layout.js';
+import {cleanDiagramLayout,routeDiagramRelationships,diagramReadabilityIssues,LAYOUT_VERSION} from '../public/src/professional-diagram-layout.js';
 
 function project(){
   return {
@@ -138,4 +138,21 @@ test('Sequence diagrams are not rearranged by generic layout',()=>{
   const result=cleanDiagramLayout(p,d);
   assert.equal(result.changed,false);
   assert.deepEqual(d.nodes,before);
+});
+
+test('explicit routing is transactional when an endpoint presentation is unavailable',()=>{
+  const p=project(),d=diagram(),before=structuredClone(d);
+  d.edges[0].targetNodeId='missing-presentation';
+  const attempted=structuredClone(d),result=routeDiagramRelationships(p,d);
+  assert.equal(result.changed,false);
+  assert.match(result.reason,/collision-free route/i);
+  assert.deepEqual(d,attempted,'failed routing restores the complete pre-route presentation');
+  assert.notDeepEqual(d,before,'the test fixture retains its intentionally unresolved endpoint');
+});
+
+test('Route command uses the transactional professional router without geometry-commit hooks',()=>{
+  const source=fs.readFileSync(new URL('../public/src/app.js',import.meta.url),'utf8');
+  assert.match(source,/function routeAll\(\).*routeDiagramRelationships\(project,d\)/);
+  assert.doesNotMatch(source,/function routeAll\(\).*orthogonalRoute\(s,t,index,edges\.length\)/);
+  assert.doesNotMatch(source,/function commitLocal\([^\n]*routeDiagramRelationships/);
 });
