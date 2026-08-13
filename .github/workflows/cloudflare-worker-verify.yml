@@ -1,0 +1,24 @@
+name: Cloudflare Worker Verify
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  verify-worker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Audit Wrangler configuration
+        run: node scripts/wrangler-audit.mjs
+      - name: Verify Worker bundle
+        run: npm run versions:dry-run
+      - name: Verify deploy bundle
+        run: npm run deploy:dry-run
