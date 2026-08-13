@@ -1,0 +1,17 @@
+const DB_NAME='systems-modeler.projects.db',DB_VERSION=1,STORE='projects';
+export const IMPORT_RECOVERY_MAX_BYTES=524288,IMPORT_RECOVERY_MAX_COUNT=2;
+const clone=value=>typeof structuredClone==='function'?structuredClone(value):JSON.parse(JSON.stringify(value));
+const now=()=>new Date().toISOString();
+export const serializedBytes=value=>{const json=JSON.stringify(value);return typeof TextEncoder!=='undefined'?new TextEncoder().encode(json).byteLength:json.length};
+export function isQuotaError(error){return error?.name==='QuotaExceededError'||/quota/i.test(String(error?.message||''))}
+export function safeLegacyWrite(storage,key,value){try{storage?.setItem?.(key,value);return{stored:true,quota:false}}catch(error){if(isQuotaError(error))return{stored:false,quota:true};throw error}}
+export function boundedRecoveryHistory(existingHistory=[],previousProject=null,{maxBytes=IMPORT_RECOVERY_MAX_BYTES,maxCount=IMPORT_RECOVERY_MAX_COUNT}={}){
+  const compact=(existingHistory||[]).filter(item=>item&&!item.project).slice(-maxCount).map(clone);
+  if(previousProject){const bytes=serializedBytes(previousProject);compact.push({savedAt:now(),reason:'before-workbook-import',projectBytes:bytes,revision:previousProject.revision||0,projectId:previousProject.id||'',name:previousProject.name||''})}
+  let history=compact.slice(-maxCount);while(serializedBytes(history)>maxBytes&&history.length)history.shift();return history;
+}
+function openDb(indexedDBRef=globalThis.indexedDB){return new Promise((resolve,reject)=>{if(!indexedDBRef)return reject(new Error('IndexedDB is unavailable.'));const request=indexedDBRef.open(DB_NAME,DB_VERSION);request.onupgradeneeded=()=>{const db=request.result;if(!db.objectStoreNames.contains(STORE))db.createObjectStore(STORE,{keyPath:'id'})};request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error||new Error('Could not open project database.'))})}
+function getRecord(db,id){return new Promise((resolve,reject)=>{const tx=db.transaction(STORE,'readonly'),request=tx.objectStore(STORE).get(id);request.onsuccess=()=>resolve(request.result||null);request.onerror=()=>reject(request.error)})}
+function putRecord(db,record){return new Promise((resolve,reject)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(record);tx.oncomplete=()=>resolve(record);tx.onerror=()=>reject(tx.error||new Error('Project database write failed.'));tx.onabort=()=>reject(tx.error||new Error('Project database write aborted.'))})}
+export async function persistImportedProject(project,{previousProject=null,indexedDBRef=globalThis.indexedDB,legacyStorage=globalThis.localStorage}={}){
+  if(!project?.id)throw new Error('Imported project requires a stable project ID before persistence.');const db=await openDb(indexedDBRef);try{const existing=await getRecord(db,project.id),beforeBytes=existing?.project?serializedBytes(existing.project):0,afterBytes=serializedBytes(project),history=boundedRecoveryHistory(existing?.history,previousProject);const record={id:project.id,name:project.name||existing?.name||'Untitled Project',createdAt:existing?.createdAt||now(),updatedAt:now(),archived:Boolean(existing?.archived),project:clone(project),history};await putRecord(db,record);const legacy=safeLegacyWrite(legacyStorage,'systems-modeler.activeProject.v1',project.id);return{record,beforeBytes,afterBytes,growthBytes:afterBytes-beforeBytes,historyBytes:serializedBytes(history),historyCount:history.length,legacyQuotaExceeded:legacy.quota}}finally{db.close?.()}}
