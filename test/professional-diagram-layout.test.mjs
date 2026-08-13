@@ -92,7 +92,7 @@ test('Generalization is ranked with the general classifier above the specific cl
 test('only elements of the same semantic type share a branch row',()=>{
   const p=project(),d=diagram();
   p.elements.push({id:'actor',kind:'Actor',name:'Operator'});
-  p.relationships.push({id:'r4',kind:'Dependency',sourceId:'a',targetId:'actor'});
+  p.relationships.push({id:'r4',kind:'Composition',sourceId:'a',targetId:'actor'});
   d.nodes.push({id:'nactor',elementId:'actor',x:190,y:130,width:180,height:90});
   d.edges.push({id:'e4',relationshipId:'r4',sourceNodeId:'na',targetNodeId:'nactor',points:[]});
   cleanDiagramLayout(p,d);
@@ -103,7 +103,20 @@ test('only elements of the same semantic type share a branch row',()=>{
   }
   assert.equal([...rows.values()].every(kinds=>new Set(kinds).size===1),true);
   assert.ok(d.nodes.find(node=>node.id==='nactor').y>d.nodes.find(node=>node.id==='na').y);
-  assert.equal(d.layoutMode,'downstream-semantic-layers');
+  assert.equal(d.layoutMode,'logical-hierarchical-downstream');
+});
+
+test('dependency suppliers are upstream and disconnected hierarchies stack vertically',()=>{
+  const p=project(),d=diagram();
+  p.elements.push({id:'x',kind:'Block',name:'X'},{id:'y',kind:'Block',name:'Y'});
+  p.relationships.push({id:'rxy',kind:'Composition',sourceId:'x',targetId:'y'});
+  d.nodes.push({id:'nx',elementId:'x',x:900,y:100,width:220,height:90},{id:'ny',elementId:'y',x:900,y:300,width:220,height:90});
+  d.edges.push({id:'exy',relationshipId:'rxy',sourceNodeId:'nx',targetNodeId:'ny',points:[]});
+  cleanDiagramLayout(p,d);
+  const supplier=d.nodes.find(node=>node.id==='nb'),client=d.nodes.find(node=>node.id==='na');
+  assert.ok(supplier.y<client.y,'Dependency target supplier is placed upstream of its client');
+  const firstBottom=Math.max(...['na','nb','nc'].map(id=>{const node=d.nodes.find(item=>item.id===id);return node.y+node.height}));
+  assert.ok(d.nodes.find(node=>node.id==='nx').y>firstBottom,'independent hierarchy starts below the preceding hierarchy');
 });
 
 test('self relationships remain visible as orthogonal loops outside their element',()=>{
