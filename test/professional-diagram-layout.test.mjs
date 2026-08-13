@@ -156,3 +156,21 @@ test('Route command uses the transactional professional router without geometry-
   assert.doesNotMatch(source,/function routeAll\(\).*orthogonalRoute\(s,t,index,edges\.length\)/);
   assert.doesNotMatch(source,/function commitLocal\([^\n]*routeDiagramRelationships/);
 });
+
+test('dense fan-out routes do not reject hidden endpoint-internal legs as visible overlap',()=>{
+  const p=project(),d=diagram();
+  p.relationships=[];d.edges=[];
+  for(let index=0;index<6;index++){
+    const elementId=`child-${index}`,nodeId=`child-node-${index}`,relationshipId=`fan-${index}`;
+    p.elements.push({id:elementId,kind:'Block',name:`Child ${index}`});
+    p.relationships.push({id:relationshipId,kind:'Composition',sourceId:'a',targetId:elementId});
+    d.nodes.push({id:nodeId,elementId,x:100+index*80,y:300,width:180,height:90});
+    d.edges.push({id:`fan-edge-${index}`,relationshipId,sourceNodeId:'na',targetNodeId:nodeId,points:[]});
+  }
+  const clean=cleanDiagramLayout(p,d),routed=routeDiagramRelationships(p,d);
+  assert.equal(clean.changed,true,clean.reason);
+  assert.equal(routed.changed,true,routed.reason);
+  assert.ok(d.nodes.filter(node=>node.id.startsWith('child-node-')).every(node=>node.y>d.nodes.find(item=>item.id==='na').y));
+  const blocking=diagramReadabilityIssues(p,d).filter(issue=>['EDGE_THROUGH_NODE','PARALLEL_EDGE_OVERLAP','EDGE_SEGMENT_OVERLAP'].includes(issue.code));
+  assert.deepEqual(blocking,[]);
+});
