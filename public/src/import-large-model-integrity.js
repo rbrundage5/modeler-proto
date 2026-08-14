@@ -13,7 +13,6 @@ const elementById=(project,id)=>allElements(project).find(item=>item.id===id)||n
 const relationshipById=(project,id)=>(project.relationships||[]).find(item=>item.id===id)||null;
 
 function modelSize(project){return (project.elements?.length||0)+(project.relationships?.length||0)+(project.diagrams||[]).reduce((n,d)=>n+(d.nodes?.length||0)+(d.edges?.length||0),0)}
-function stableDiagramId(diagram){return text(diagram?.externalId)||text(diagram?.id)}
 function diagramKeys(diagram){return new Set([text(diagram?.id),text(diagram?.externalId)].filter(Boolean))}
 function log(message,kind='ok'){api()?.log?.(message,kind)}
 
@@ -29,6 +28,15 @@ async function workbookDiagramIntent(file){
   return{diagramIds,displayedByDiagram,relationshipsByDiagram};
 }
 
+function shieldExistingDiagramAliases(before,working,intent){
+  for(const diagram of working.diagrams||[]){
+    const explicit=[...diagramKeys(diagram)].some(key=>intent.diagramIds.has(key));
+    if(explicit)continue;
+    diagram.__preImportName=diagram.name;diagram.__preImportQualifiedName=diagram.qualifiedNameString;
+    diagram.name=`__existing_diagram_${diagram.id}`;diagram.qualifiedNameString='';
+  }
+}
+
 function preserveExistingDiagrams(before,after,intent){
   const incoming=intent.diagramIds,afterByKey=new Map();for(const diagram of after.diagrams||[])for(const key of diagramKeys(diagram))if(!afterByKey.has(key))afterByKey.set(key,diagram);
   let restored=0;
@@ -38,6 +46,7 @@ function preserveExistingDiagrams(before,after,intent){
     if(current){const index=after.diagrams.indexOf(current);after.diagrams[index]=clone(prior);restored++;}
     else{after.diagrams.push(clone(prior));restored++;}
   }
+  for(const diagram of after.diagrams||[]){delete diagram.__preImportName;delete diagram.__preImportQualifiedName}
   if(before.activeDiagramId&&(after.diagrams||[]).some(d=>d.id===before.activeDiagramId))after.activeDiagramId=before.activeDiagramId;
   return restored;
 }
@@ -51,7 +60,7 @@ function inferredElements(project,diagram){
   const context=elementById(project,diagram.contextId),owner=elementById(project,diagram.ownerId),scope=context||owner||project.root,desc=descendantIds(project,scope.id),direct=(project.elements||[]).filter(e=>e.ownerId===scope.id),inScope=(project.elements||[]).filter(e=>desc.has(e.id));
   const kinds=new Set(allowed(diagram.diagramType)?.elements||[]);let candidates=[];
   if(diagram.diagramType==='Internal Block Diagram')candidates=direct.filter(e=>['PartProperty','ReferenceProperty','ProxyPort','FullPort','ValueProperty','FlowProperty'].includes(e.kind));
-  else if(diagram.diagramType==='Activity Diagram')candidates=direct.filter(e=>e.ownerId===scope.id);
+  else if(diagram.diagramType==='Activity Diagram')candidates=direct;
   else if(diagram.diagramType==='State Machine Diagram')candidates=direct;
   else if(diagram.diagramType==='Sequence Diagram')candidates=direct.filter(e=>['Lifeline','CombinedFragment','InteractionUse','ExecutionSpecification','Comment'].includes(e.kind));
   else if(diagram.diagramType==='Parametric Diagram')candidates=direct.filter(e=>['ConstraintProperty','ConstraintParameter','ValueProperty','PartProperty','ReferenceProperty'].includes(e.kind));
@@ -75,6 +84,7 @@ function optimizeContainmentForScale(project){if(modelSize(project)<LARGE_MODEL_
 
 async function importTransaction(file){
   const service=api();if(!service?.getProject||!service?.setProject)throw new Error('Systems Modeler API is unavailable.');const before=clone(service.getProject()),working=clone(before),intent=await workbookDiagramIntent(file);
+  shieldExistingDiagramAliases(before,working,intent);
   await importWorkbook(file,working,(message,kind)=>log(message,kind),{strict:true});
   const restored=preserveExistingDiagrams(before,working,intent),hydrated=hydrateImportedDiagrams(working,intent),large=optimizeContainmentForScale(working),issues=validate(working),errors=issues.filter(issue=>issue.severity==='error');
   if(errors.length)throw new Error(`Import blocked after merge validation with ${errors.length} error(s).`);
