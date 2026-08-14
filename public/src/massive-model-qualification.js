@@ -1,7 +1,6 @@
 import {buildProjectIndex,indexedElement,indexedRelationship} from './model-index.js';
 import {modelScale} from './model-scale.js';
 import {projectChunkPlan} from './chunked-project-store.js';
-import {repositoryViewport} from './repository-viewport.js';
 import {diagramRenderSet} from './diagram-viewport.js';
 import {validateDirtyProject} from './incremental-validation.js';
 
