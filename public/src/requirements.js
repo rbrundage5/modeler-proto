@@ -1,5 +1,5 @@
 export const REQUIREMENT_TYPES=['Requirement','Abstract Requirement','Business Requirement','Functional Requirement','Interface Requirement','Performance Requirement','Physical Requirement','Design Constraint','Stakeholder','Business','Mission','Capability','System','Subsystem','Interface','Functional','Performance','Physical','Environmental','Safety','Security','Reliability','Maintainability','Regulatory','Design constraint','Verification','Derived'];
-export const DEFAULT_REQUIREMENT_POLICY={requireId:true,requireText:true,uniqueId:true,statuses:['Draft','In Review','Approved','Rejected','Retired'],priorities:['Low','Medium','High','Critical'],verificationMethods:['Analysis','Demonstration','Inspection','Test']};
+export const DEFAULT_REQUIREMENT_POLICY={requireId:true,requireText:true,uniqueId:true,statuses:['Draft','In Review','Approved','Baseline','Rejected','Retired'],priorities:['Low','Medium','High','Critical'],verificationMethods:['Analysis','Demonstration','Inspection','Test']};
 
 export function requirementPolicy(project){
   project.settings=project.settings||{};
