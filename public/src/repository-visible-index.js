@@ -1,0 +1,12 @@
+import {indexedChildren,projectIndex} from './model-index.js';
+
+const compare=(a,b)=>a.kind==='Requirement'&&b.kind==='Requirement'?(a.requirementOrder??0)-(b.requirementOrder??0)||String(a.name||'').localeCompare(String(b.name||'')):String(a.name||'').localeCompare(String(b.name||''));
+
+export class RepositoryVisibleIndex{
+  constructor(project,{collapsed=new Set(),sort=compare}={}){this.project=project;this.collapsed=new Set(collapsed);this.sort=sort;this.children=new Map();this.visibleSize=new Map();this.rebuild()}
+  rebuild(){projectIndex(this.project);this.children.clear();this.visibleSize.clear();const root=this.project.root;if(!root)return this;const stack=[{element:root,visited:false}];while(stack.length){const frame=stack.pop(),id=frame.element.id;if(frame.visited){const children=this.children.get(id)||[];let size=1;if(!this.collapsed.has(id))for(const child of children)size+=this.visibleSize.get(child.id)||1;this.visibleSize.set(id,size);continue}const children=[...indexedChildren(this.project,id)].sort(this.sort);this.children.set(id,children);stack.push({element:frame.element,visited:true});if(!this.collapsed.has(id))for(let i=children.length-1;i>=0;i--)stack.push({element:children[i],visited:false})}return this}
+  setCollapsed(ids){this.collapsed=new Set(ids||[]);return this.rebuild()}
+  total(){return this.visibleSize.get(this.project.root?.id)||0}
+  window(start,count){const result=[],end=Math.min(this.total(),start+count);if(start>=end||!this.project.root)return result;const walk=(element,depth,base)=>{if(result.length>=count)return;base??=0;const ownIndex=base;if(ownIndex>=start&&ownIndex<end)result.push({id:element.id,element,depth,hasChildren:(this.children.get(element.id)||[]).length>0,isCollapsed:this.collapsed.has(element.id)});if(this.collapsed.has(element.id))return;let cursor=base+1;for(const child of this.children.get(element.id)||[]){const size=this.visibleSize.get(child.id)||1;if(cursor+size<=start){cursor+=size;continue}if(cursor>=end||result.length>=count)break;walk(child,depth+1,cursor);cursor+=size}};walk(this.project.root,0,0);return result}
+  indexOf(id){if(!id||!this.project.root)return-1;let found=-1;const walk=(element,base)=>{if(element.id===id){found=base;return true}if(this.collapsed.has(element.id))return false;let cursor=base+1;for(const child of this.children.get(element.id)||[]){if(walk(child,cursor))return true;cursor+=this.visibleSize.get(child.id)||1}return false};walk(this.project.root,0);return found}
+}
