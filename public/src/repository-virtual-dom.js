@@ -1,0 +1,5 @@
+export class VirtualRepositoryDom{
+  constructor(container,{rowHeight=28,renderRow}={}){this.container=container;this.rowHeight=rowHeight;this.renderRow=renderRow;this.top=document.createElement('div');this.body=document.createElement('div');this.bottom=document.createElement('div');this.top.className='virtual-tree-spacer virtual-tree-spacer-top';this.body.className='virtual-tree-window';this.bottom.className='virtual-tree-spacer virtual-tree-spacer-bottom';container.replaceChildren(this.top,this.body,this.bottom)}
+  render(window){const top=window.start*this.rowHeight,bottom=Math.max(0,window.totalHeight-window.end*this.rowHeight);this.top.style.height=`${top}px`;this.bottom.style.height=`${bottom}px`;this.body.replaceChildren();for(const row of window.rows){const node=this.renderRow(row);node.style.minHeight=`${this.rowHeight}px`;node.dataset.virtualIndex=String(window.start+this.body.childElementCount);this.body.append(node)}return this.body.childElementCount}
+  rowCount(){return this.body.childElementCount}
+}
