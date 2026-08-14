@@ -1,0 +1,1 @@
+export const MASSIVE_MODEL_CONTRACT=Object.freeze({semanticRecordQualification:[100000,500000,1000000],arbitraryHardLimit:false,workingSetDriven:true,stableIdIndexedLookup:true,ownerAdjacencyIndex:true,relationshipAdjacencyIndex:true,presentationAdjacencyIndex:true,transactionalImportsRequired:true,correctnessMayDegradeForScale:false});

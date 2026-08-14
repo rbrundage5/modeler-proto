@@ -1,0 +1,1 @@
+export function* recordPages(records,{pageSize=5000}={}){const size=Math.max(1,pageSize);for(let start=0;start<records.length;start+=size)yield{start,end:Math.min(records.length,start+size),records:records.slice(start,start+size)}}export function pageCount(count,pageSize=5000){return Math.ceil(count/Math.max(1,pageSize))}

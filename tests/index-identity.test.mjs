@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {buildProjectIndex,indexedElement} from '../public/src/model-index.js';
+test('index rebuild observes normalized replacements without stale object identity',()=>{const p={root:{id:'root'},elements:[{id:'e',name:'before'}],relationships:[],diagrams:[]};buildProjectIndex(p);p.elements=[{id:'e',name:'after'}];buildProjectIndex(p);assert.equal(indexedElement(p,'e').name,'after')});

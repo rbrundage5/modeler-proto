@@ -1,0 +1,1 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {workerRequest,workerResult,workerFailure} from '../public/src/worker-protocol.js';test('worker protocol correlates asynchronous heavy tasks',()=>{const r=workerRequest('validate',{ids:['e1']});assert.equal(workerResult(r,{issues:[]}).id,r.id);assert.equal(workerFailure(r,new Error('x')).ok,false)});

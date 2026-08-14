@@ -1,0 +1,1 @@
+const versions=new WeakMap();export function indexVersion(project){return versions.get(project)||0}export function bumpIndexVersion(project){const next=indexVersion(project)+1;versions.set(project,next);return next}export function resetIndexVersion(project){versions.set(project,1);return 1}

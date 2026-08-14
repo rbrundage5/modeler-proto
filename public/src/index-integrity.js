@@ -1,0 +1,3 @@
+import {projectIndex} from './model-index.js';
+export function indexIntegrityIssues(project){const i=projectIndex(project),issues=[];if(i.elements.size!==(project.elements?.length||0)+(project.root?1:0))issues.push('ELEMENT_INDEX_COUNT_MISMATCH');if(i.relationships.size!==(project.relationships?.length||0))issues.push('RELATIONSHIP_INDEX_COUNT_MISMATCH');if(i.diagrams.size!==(project.diagrams?.length||0))issues.push('DIAGRAM_INDEX_COUNT_MISMATCH');return issues}
+export function assertIndexIntegrity(project){const issues=indexIntegrityIssues(project);if(issues.length)throw new Error(issues.join(', '));return true}
