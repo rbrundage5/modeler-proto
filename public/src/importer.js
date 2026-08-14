@@ -73,29 +73,30 @@ function importElements(sheets,ctx){
   for(const sheet of sheets)for(const row of sortedRows(sheet.rows)){
     const externalId=text(valueFor(row,'externalId'))||uid('imported');
     const name=text(valueFor(row,'name'))||externalId;
-    const rawKind=sheet.definition.kindFromColumn?row[sheet.definition.kindFromColumn]:valueFor(row,'kind');
+    const rawKind=sheet.definition.forceKind?sheet.definition.kind:(sheet.definition.kindFromColumn?row[sheet.definition.kindFromColumn]:valueFor(row,'kind'));
     const kind=normalizeKind(rawKind||valueFor(row,'metaclass')||valueFor(row,'stereotype'),sheet.definition.kind||'');
     const action=text(valueFor(row,'action')).toLowerCase()||'merge';
     if(!kind){ctx.report.warnings.push(`${sheet.name} row ${row.__rowNumber}: unsupported element kind.`);continue;}
     if(RELATIONSHIP_ARTIFACT_KINDS.has(kind)){ctx.report.elements.skipped++;continue;}
     let element=findByAlias(ctx.project.elements,ctx.elementAlias,externalId);
+    if(element&&sheet.definition.referenceOnly){addAliases(ctx.elementAlias,element,externalId);ctx.report.elements.skipped++;continue;}
     if(element&&(ctx.duplicatePolicy==='skip'||action==='skip')){ctx.report.elements.skipped++;continue;}
     if(action==='delete'){if(element){removeElement(ctx.project,element.id);ctx.report.elements.updated++;}continue;}
     if(!element){element=defaultElement(kind,ctx.project.root.id);element.id=externalId;ctx.project.elements.push(element);ctx.report.elements.created++;}else ctx.report.elements.updated++;
 
-    const ownerRaw=text(valueFor(row,'owner'));
+    const ownerRaw=normalizedKey(sheet.name).includes('capabilitymeasures')?(splitIds(row['Applies To Capability IDs'])[0]||text(valueFor(row,'owner'))):text(valueFor(row,'owner'));
     const typeRaw=text(valueFor(row,'typeRef'));
     const lower=text(valueFor(row,'lower')),upper=text(valueFor(row,'upper'));
     Object.assign(element,{
-      externalId,name,kind,metaclass:text(valueFor(row,'metaclass'))||element.metaclass,
+      externalId,name:name||element.name,kind:element.kind||kind,metaclass:text(valueFor(row,'metaclass'))||element.metaclass,
       stereotype:text(valueFor(row,'stereotype'))||element.stereotype,
-      ownerId:ownerRaw||ctx.project.root.id,ownerQualifiedNameString:text(valueFor(row,'ownerQualifiedName')),
+      ownerId:ownerRaw||element.ownerId||ctx.project.root.id,ownerQualifiedNameString:text(valueFor(row,'ownerQualifiedName'))||element.ownerQualifiedNameString,
       qualifiedNameString:text(valueFor(row,'qualifiedName'))||element.qualifiedNameString,
-      documentation:text(valueFor(row,'documentation')),
+      documentation:text(valueFor(row,'documentation'))||element.documentation,
       requirementId:kind==='Requirement'?(text(valueFor(row,'requirementId'))||externalId):text(valueFor(row,'requirementId')),
-      requirementText:text(valueFor(row,'requirementText')),
+      requirementText:text(valueFor(row,'requirementText'))||element.requirementText,
       parentRequirementId:text(valueFor(row,'parentRequirement')),
-      typeRef:typeRaw,typeQualifiedNameString:text(valueFor(row,'typeQualifiedName')),
+      typeRef:typeRaw||element.typeRef,typeQualifiedNameString:text(valueFor(row,'typeQualifiedName'))||element.typeQualifiedNameString,
       multiplicity:text(valueFor(row,'multiplicity'))||(lower||upper?`${lower||0}..${upper||'*'}`:element.multiplicity||'1'),
       lower:lower===''?element.lower:numberOr(lower,0),upper:upper===''?element.upper:(upper==='*'?'*':numberOr(upper,1)),
       aggregation:text(valueFor(row,'aggregation'))||element.aggregation||'none',direction:text(valueFor(row,'direction'))||element.direction||'inout',
@@ -206,8 +207,10 @@ function importRelationships(sheets,ctx){
     if(kind==='ItemFlow'){
       const connectorRaw=text(row['Connector ID']||row['Connector External ID']||row['Realizing Connector ID']),connectorId=resolveAlias(ctx.relationshipAlias,connectorRaw)||connectorRaw,connector=ctx.project.relationships.find(r=>r.id===connectorId);
       if(connector){const externalId=text(valueFor(row,'relationshipId'))||text(valueFor(row,'externalId'))||uid('flow');let flow=findByAlias(ctx.project.relationships,ctx.relationshipAlias,externalId);if(!flow){flow=defaultRelationship('ItemFlow',connector.sourceId,connector.targetId,connector.ownerId);flow.id=externalId;ctx.project.relationships.push(flow);ctx.report.relationships.created++}else ctx.report.relationships.updated++;const conveyedClassifierIds=splitIds(row['Type Interface Block ID']||row['Conveyed Classifier IDs']||row['Conveyed Classifier ID']||row['Item ID']||valueFor(row,'conveyedIds')).map(id=>resolveAlias(ctx.elementAlias,id)||id);Object.assign(flow,{externalId,connectorId:connector.id,sourceId:connector.sourceId,targetId:connector.targetId,conveyedClassifierIds,conveyedIds:[...conveyedClassifierIds],itemPropertyId:resolveAlias(ctx.elementAlias,text(row['Item Property ID']))||text(row['Item Property ID']),direction:text(row['Direction']||row['Item Flow Direction'])||'sourceToTarget',documentation:text(row['Documentation']||flow.documentation),importSource:{file:ctx.fileName,sheet:sheet.name,row:row.__rowNumber}});connector.itemFlowIds=connector.itemFlowIds||[];if(!connector.itemFlowIds.includes(flow.id))connector.itemFlowIds.push(flow.id);addAliases(ctx.relationshipAlias,flow,flow.id);continue}
+      if(connectorRaw){ctx.report.relationships.skipped++;continue;}
     }
     const endpoints=relationshipEndpoints(sheet,row,ctx),incomingMessageSort=text(valueFor(row,'messageSort')),allowsOpenEnd=kind==='Message'&&(incomingMessageSort==='lost'&&endpoints.source||incomingMessageSort==='found'&&endpoints.target);if((!endpoints.source||!endpoints.target)&&!allowsOpenEnd){ctx.report.warnings.push(`${sheet.name} row ${row.__rowNumber}: blank relationship endpoint.`);continue;}
+    if(resolveAlias(ctx.relationshipAlias,endpoints.source)||resolveAlias(ctx.relationshipAlias,endpoints.target)||(!['Connector','ItemFlow'].includes(kind)&&[endpoints.source,endpoints.target].some(id=>/\.(?:CONN|FLOW)\./i.test(id)))){ctx.report.relationships.skipped++;continue;}
     if(sheet.definition.allowEndpointReferences){
       ensureRelationshipEndpointReference(ctx,endpoints.source,text(row['Source Unit']||row['Source Name']),sheet,row);
       ensureRelationshipEndpointReference(ctx,endpoints.target,text(row['Target Unit']||row['Target Name']),sheet,row);
@@ -283,7 +286,7 @@ function importDiagramNodes(sheets,ctx){for(const sheet of sheets)for(const row 
   const presentationId=text(valueFor(row,'presentationId'))||uid('node');let node=diagram.nodes.find(n=>n.id===presentationId||n.elementId===elementId);
   if(!node){node={id:presentationId,elementId};diagram.nodes.push(node);ctx.report.presentations.created++;}
   const parentPresentationId=text(row['Parent Presentation ID']||row['Boundary Owner Presentation ID']);
-  const endpointPath=splitIds(row['Endpoint Path']||row['Nested Property Path']).map(id=>resolveAlias(ctx.elementAlias,id)||id),propertyIds=splitIds(row['Property Path IDs']||row['Nested Property Path IDs']||row['Nested Property Path']).map(id=>resolveAlias(ctx.elementAlias,id)||id),propertyPath=propertyIds.map(propertyId=>{const property=ctx.project.elements.find(item=>item.id===propertyId);return{propertyId,typeId:property?.typeRef||''}});Object.assign(node,{x:numberOr(valueFor(row,'x'),node.x??80),y:numberOr(valueFor(row,'y'),node.y??80),width:numberOr(valueFor(row,'width'),node.width??190),height:numberOr(valueFor(row,'height'),node.height??110),zIndex:numberOr(row['Z Order'],node.zIndex??0),parentPresentationId,boundaryOwnerNodeId:parentPresentationId||node.boundaryOwnerNodeId,portSide:text(row['Port Side']||row['Boundary Side']).toLowerCase()||node.portSide,perimeterOffset:numberOr(row['Perimeter Offset']??row['Relative Position'],node.perimeterOffset),endpointPath:endpointPath.length?endpointPath:node.endpointPath,propertyPath:propertyPath.length?propertyPath:node.propertyPath,collapsed:/^(?:true|yes|1)$/i.test(text(row['Collapsed']))||Boolean(node.collapsed),relativeX:numberOr(row['Relative X'],node.relativeX),relativeY:numberOr(row['Relative Y'],node.relativeY),compartmentDisplay:text(row['Compartment Display']),stereotypeDisplay:text(row['Stereotype Display']),layer:text(row['Layer']||'default')});ctx.presentationAlias.set(presentationId,node.id);
+  const endpointPath=splitIds(row['Endpoint Path']||row['Nested Property Path']).map(id=>resolveAlias(ctx.elementAlias,id)||id),propertyIds=splitIds(row['Property Path IDs']||row['Nested Property Path IDs']||row['Nested Property Path']).map(id=>resolveAlias(ctx.elementAlias,id)||id),element=ctx.project.elements.find(item=>item.id===elementId),propertyPath=(propertyIds.length?propertyIds:(['PartProperty','ReferenceProperty'].includes(element?.kind)?[elementId]:[])).map(propertyId=>{const property=ctx.project.elements.find(item=>item.id===propertyId);return{propertyId,typeId:property?.typeRef||''}});Object.assign(node,{x:numberOr(valueFor(row,'x'),node.x??80),y:numberOr(valueFor(row,'y'),node.y??80),width:numberOr(valueFor(row,'width'),node.width??190),height:numberOr(valueFor(row,'height'),node.height??110),zIndex:numberOr(row['Z Order'],node.zIndex??0),parentPresentationId,boundaryOwnerNodeId:parentPresentationId||node.boundaryOwnerNodeId,portSide:text(row['Port Side']||row['Boundary Side']).toLowerCase()||node.portSide,perimeterOffset:numberOr(row['Perimeter Offset']??row['Relative Position'],node.perimeterOffset),endpointPath:endpointPath.length?endpointPath:node.endpointPath,propertyPath:propertyPath.length?propertyPath:node.propertyPath,collapsed:/^(?:true|yes|1)$/i.test(text(row['Collapsed']))||Boolean(node.collapsed),relativeX:numberOr(row['Relative X'],node.relativeX),relativeY:numberOr(row['Relative Y'],node.relativeY),compartmentDisplay:text(row['Compartment Display']),stereotypeDisplay:text(row['Stereotype Display']),layer:text(row['Layer']||'default')});ctx.presentationAlias.set(presentationId,node.id);
 }}
 
 function importDiagramEdges(sheets,ctx){for(const sheet of sheets)for(const row of sortedRows(sheet.rows)){
