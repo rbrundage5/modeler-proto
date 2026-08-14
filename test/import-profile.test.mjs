@@ -36,6 +36,7 @@ test('CATIA aliases and kinds normalize correctly',()=>{
   assert.equal(valueFor(row,'typeRef'),'BLK-TYPE');
   assert.equal(normalizeKind('SysML::PartProperty'),'PartProperty');
   assert.equal(normalizeKind('Property','PartProperty'),'PartProperty');
+  assert.equal(normalizeKind('Class','Requirement'),'Requirement');
   assert.equal(normalizeKind('OpaqueAction','Action'),'Action');
   assert.equal(normalizeKind('initial','State'),'InitialPseudostate');
   assert.equal(normalizeKind('final','State'),'FinalState');
