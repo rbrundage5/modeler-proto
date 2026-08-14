@@ -3,7 +3,13 @@ export const DEFAULT_REQUIREMENT_POLICY={requireId:true,requireText:true,uniqueI
 
 export function requirementPolicy(project){
   project.settings=project.settings||{};
-  return project.settings.requirements={...DEFAULT_REQUIREMENT_POLICY,...project.settings.requirements};
+  const stored=project.settings.requirements||{},mergeVocabulary=(required,custom)=>[...new Set([...required,...(Array.isArray(custom)?custom:[])])];
+  return project.settings.requirements={
+    ...DEFAULT_REQUIREMENT_POLICY,...stored,
+    statuses:mergeVocabulary(DEFAULT_REQUIREMENT_POLICY.statuses,stored.statuses),
+    priorities:mergeVocabulary(DEFAULT_REQUIREMENT_POLICY.priorities,stored.priorities),
+    verificationMethods:mergeVocabulary(DEFAULT_REQUIREMENT_POLICY.verificationMethods,stored.verificationMethods)
+  };
 }
 
 export function initializeRequirement(element,now=new Date().toISOString()){
