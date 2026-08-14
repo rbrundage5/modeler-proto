@@ -2,6 +2,7 @@ import {uid,defaultElement,defaultRelationship,refreshQualifiedNames} from './mo
 import {readWorkbook} from './import/core/workbook-reader.js';
 import {catiaCameoProfile,valueFor,normalizeKind,normalizeRelationshipKind,splitIds,booleanValue,normalizedKey} from './import/profiles/catia-cameo.js';
 import {createImportReport,finishImportReport} from './import/core/report.js';
+import {isDiagramArtifactElement} from './model-repository-visibility.js';
 import {preserveRequirementLevel} from './import/fidelity-level.js';
 import {preserveStateBehaviors} from './import/fidelity-state.js';
 import {preserveLifelineRepresentation} from './import/fidelity-lifeline.js';
@@ -81,6 +82,7 @@ function importElements(sheets,ctx){
     if(normalizedKey(sheet.name).includes('ports')){if(/fullport/i.test(stereotype))kind='FullPort';else if(/proxyport/i.test(stereotype))kind='ProxyPort';}
     const action=text(valueFor(row,'action')).toLowerCase()||'merge';
     if(!kind){ctx.report.warnings.push(`${sheet.name} row ${row.__rowNumber}: unsupported element kind.`);continue;}
+    if(isDiagramArtifactElement({kind,metaclass:valueFor(row,'metaclass'),stereotype:valueFor(row,'stereotype')})){ctx.report.elements.skipped++;continue;}
     let element=findByAlias(ctx.project.elements,ctx.elementAlias,externalId);
     if(element&&(ctx.duplicatePolicy==='skip'||action==='skip')){ctx.report.elements.skipped++;continue;}
     if(action==='delete'){if(element){removeElement(ctx.project,element.id);ctx.report.elements.updated++;}continue;}
