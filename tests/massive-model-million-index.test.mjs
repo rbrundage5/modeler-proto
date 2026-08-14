@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {buildProjectIndex,indexedElement} from '../public/src/model-index.js';
+test('million-element index remains addressable without recursive traversal',()=>{const count=1_000_000,project={root:{id:'root'},elements:Array.from({length:count},(_,i)=>({id:`e${i}`,ownerId:'root'})),relationships:[],diagrams:[]};buildProjectIndex(project);assert.equal(indexedElement(project,'e999999')?.id,'e999999');assert.equal(indexedElement(project,'e500000')?.id,'e500000')});
