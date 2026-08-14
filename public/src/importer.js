@@ -41,6 +41,7 @@ export async function importWorkbook(file,project,log,options={}){
     importConnectorEnds(ordered.filter(s=>s.definition?.role==='connectorEnds'),ctx);
     linkImplicitItemFlows(ctx);
     createDerivedRelationships(ctx);
+    coalesceImportedRelationships(ctx);
 
     onProgress({phase:'presentations',percent:70});
     importDiagramNodes(ordered.filter(s=>s.definition?.role==='diagramNodes'),ctx);
@@ -112,6 +113,7 @@ function importElements(sheets,ctx){
       provenance:text(valueFor(row,'provenance'))
     });
     normalizeImportedRequirementFields(element);
+    normalizeImportedTestCaseFields(element);
     attachBehaviorFields(element,row);attachInstanceFields(element,row);
     addAliases(ctx.elementAlias,element,element.id);ctx.pendingElementRefs.push(element);
     ctx.report.provenance.push({externalId,sheet:sheet.name,row:row.__rowNumber});
@@ -136,6 +138,36 @@ export function normalizeImportedRequirementFields(element){
   element.lifecycleStatus=canonical||'Draft';element.priority=element.priority||'Medium';
   const supported=['Analysis','Demonstration','Inspection','Test'];if(!supported.includes(element.verificationMethod)){if(element.verificationMethod)element.verificationObjective=element.verificationObjective||element.verificationMethod;element.verificationMethod='Analysis';}
   return element;
+}
+function normalizeImportedTestCaseFields(element){
+  if(element.kind!=='TestCase')return element;
+  element.verificationCaseId=text(element.verificationCaseId)||text(element.externalId)||text(element.id);
+  element.verificationObjective=text(element.verificationObjective)||text(element.documentation)||text(element.name)||'Verify the referenced requirement.';
+  const methods=['Analysis','Demonstration','Inspection','Test'],method=methods.find(value=>normalizedKey(value)===normalizedKey(element.verificationMethod));
+  if(element.verificationMethod&&!method)element.importedVerificationMethod=element.verificationMethod;
+  element.verificationMethod=method||'Test';
+  const levels=['Component','Subsystem','System','Integration','Acceptance'],level=levels.find(value=>normalizedKey(value)===normalizedKey(element.verificationLevel));
+  if(element.verificationLevel&&!level)element.importedVerificationLevel=element.verificationLevel;
+  element.verificationLevel=level||'System';
+  const statuses=['Draft','Planned','Ready','Deferred','Cancelled'],status=statuses.find(value=>normalizedKey(value)===normalizedKey(element.plannedStatus));
+  if(element.plannedStatus&&!status)element.importedPlannedStatus=element.plannedStatus;
+  element.plannedStatus=status||'Draft';element.executionStatus=element.executionStatus||'Unavailable';
+  return element;
+}
+function coalesceImportedRelationships(ctx){
+  const canonical=new Map(),replacement=new Map(),retained=[];
+  for(const relationship of ctx.project.relationships){
+    const key=[relationship.kind,relationship.sourceId,relationship.targetId].join('\u0000'),existing=canonical.get(key);
+    if(!existing){canonical.set(key,relationship);retained.push(relationship);continue}
+    replacement.set(relationship.id,existing.id);
+    existing.alternateExternalIds=[...new Set([...(existing.alternateExternalIds||[]),relationship.externalId||relationship.id].filter(Boolean))];
+    for(const alias of [relationship.id,relationship.externalId])setAlias(ctx.relationshipAlias,alias,existing.id,true);
+    ctx.report.relationships.skipped++;
+  }
+  if(!replacement.size)return;
+  ctx.project.relationships=retained;
+  for(const diagram of ctx.project.diagrams)for(const edge of diagram.edges||[])if(replacement.has(edge.relationshipId))edge.relationshipId=replacement.get(edge.relationshipId);
+  for(const relationship of retained)for(const field of ['connectorId','realizingRelationshipId'])if(replacement.has(relationship[field]))relationship[field]=replacement.get(relationship[field]);
 }
 function attachWorkbookFidelity(element,row,sheet,ctx){
   preserveRequirementLevel(element,row);preserveStateBehaviors(element,row);preserveLifelineRepresentation(element,row);
