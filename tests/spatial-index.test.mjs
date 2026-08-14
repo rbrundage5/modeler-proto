@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {SpatialIndex} from '../public/src/spatial-index.js';
+test('spatial index restricts diagram work to viewport candidates',()=>{const index=new SpatialIndex({cellSize:100});for(let i=0;i<100000;i++)index.insert(`n${i}`,{x:(i%1000)*20,y:Math.floor(i/1000)*20,width:10,height:10});const visible=index.query({x:500,y:500,width:800,height:600});assert.ok(visible.length>0);assert.ok(visible.length<10000);assert.ok(visible.every(item=>item.box.x<=1300&&item.box.y<=1100))});
