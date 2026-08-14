@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {DiagramSpatialIndex} from '../public/src/diagram-spatial-index.js';
+
+test('node and edge movement update spatial queries incrementally',()=>{const a={id:'a',x:0,y:0,width:100,height:60},b={id:'b',x:1000,y:0,width:100,height:60},edge={id:'e',sourceNodeId:'a',targetNodeId:'b'},diagram={nodes:[a,b],edges:[edge]},index=new DiagramSpatialIndex(diagram);assert.ok(index.query({x:0,y:0,width:200,height:100},{margin:0}).nodes.some(n=>n.id==='a'));a.x=3000;index.updateNode(a);assert.equal(index.query({x:0,y:0,width:200,height:100},{margin:0}).nodes.some(n=>n.id==='a'),false);assert.equal(index.query({x:2900,y:0,width:300,height:100},{margin:0}).nodes.some(n=>n.id==='a'),true)});
