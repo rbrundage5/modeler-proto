@@ -1,0 +1,1 @@
+let sequence=0;export function workerRequest(type,payload={}){return{id:`work-${++sequence}`,type,payload}}export function workerResult(request,result){return{id:request.id,type:request.type,ok:true,result}}export function workerFailure(request,error){return{id:request.id,type:request.type,ok:false,error:String(error?.message||error)}}
