@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {classifyWorkbookMatrices} from '../public/src/import/core/workbook-reader.js';
+const profile={defaultHeaderGroups:[['External ID'],['Name']],matchSheet:()=>({role:'elements',headerGroups:[['External ID'],['Name']]})};
+test('classifies 100k workbook rows after worker decode without SheetJS',()=>{const matrix=[['External ID','Name','Kind']];for(let i=0;i<100000;i++)matrix.push([`E-${i}`,`Element ${i}`,'Block']);const parsed=classifyWorkbookMatrices([{name:'Elements',matrix}],profile);assert.equal(parsed.sheets[0].rows.length,100000);assert.equal(parsed.sheets[0].rows[99999]['External ID'],'E-99999')});
