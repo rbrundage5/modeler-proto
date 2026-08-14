@@ -63,6 +63,7 @@ export async function importWorkbook(file,project,log,options={}){
 
 function createContext(project,report,fileName,duplicatePolicy,strict){
   project.elements=project.elements||[];project.relationships=project.relationships||[];project.diagrams=project.diagrams||[];
+  for(const element of project.elements)normalizeImportedRequirementFields(element);
   const elementAlias=new Map(),diagramAlias=new Map(),relationshipAlias=new Map(),presentationAlias=new Map();
   for(const element of [project.root,...project.elements])addAliases(elementAlias,element,element.id);
   for(const diagram of project.diagrams)addAliases(diagramAlias,diagram,diagram.id);
@@ -118,7 +119,22 @@ function importElements(sheets,ctx){
   }
 }
 
-function normalizeImportedRequirementFields(element){if(element.kind!=='Requirement')return;element.lifecycleStatus=element.lifecycleStatus||'Draft';element.priority=element.priority||'Medium';const supported=['Analysis','Demonstration','Inspection','Test'];if(!supported.includes(element.verificationMethod)){if(element.verificationMethod)element.verificationObjective=element.verificationObjective||element.verificationMethod;element.verificationMethod='Analysis';}}
+export function normalizeImportedRequirementFields(element){
+  if(element.kind!=='Requirement')return element;
+  const statuses=['Draft','In Review','Approved','Baseline','Rejected','Retired'];
+  const aliases=new Map([
+    ['review','In Review'],['inreview','In Review'],['pendingreview','In Review'],
+    ['active','Approved'],['current','Approved'],['released','Approved'],['validated','Approved'],['complete','Approved'],['completed','Approved'],['final','Approved'],
+    ['baselined','Baseline'],
+    ['obsolete','Retired'],['deprecated','Retired'],['archived','Retired'],['inactive','Retired']
+  ]);
+  const sourceStatus=text(element.lifecycleStatus);
+  const canonical=statuses.find(status=>normalizedKey(status)===normalizedKey(sourceStatus))||aliases.get(normalizedKey(sourceStatus));
+  if(sourceStatus&&!canonical)element.importedLifecycleStatus=sourceStatus;
+  element.lifecycleStatus=canonical||'Draft';element.priority=element.priority||'Medium';
+  const supported=['Analysis','Demonstration','Inspection','Test'];if(!supported.includes(element.verificationMethod)){if(element.verificationMethod)element.verificationObjective=element.verificationObjective||element.verificationMethod;element.verificationMethod='Analysis';}
+  return element;
+}
 function attachWorkbookFidelity(element,row,sheet,ctx){
   preserveRequirementLevel(element,row);preserveStateBehaviors(element,row);preserveLifelineRepresentation(element,row);
   const symbol=text(row['Symbol']);if(symbol)element.symbol=symbol;
