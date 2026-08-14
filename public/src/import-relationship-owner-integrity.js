@@ -17,6 +17,7 @@ function governanceStableKey(relationship){
 function isDescendantOf(project,id,ancestorId,{allowAncestor=false}={}){let current=byId(project,id),seen=new Set();while(current&&!seen.has(current.id)){seen.add(current.id);if(current.id===ancestorId)return allowAncestor||id!==ancestorId;current=byId(project,current.ownerId)}return false}
 function governanceOwnerIsValid(project,ownerId){const owner=byId(project,ownerId);return owner?.kind==='Package'&&owner.id!==GOVERNANCE_PACKAGE_ID&&isDescendantOf(project,owner.id,GOVERNANCE_PACKAGE_ID)}
 function expectedGovernanceOwner(project,relationship){
+  const target=byId(project,relationship.targetId);if(target?.kind==='Package'&&governanceOwnerIsValid(project,target.id))return target;
   const source=byId(project,relationship.sourceId);if(source?.kind!=='Requirement')return null;
   const sourceOwner=byId(project,source.ownerId);if(sourceOwner?.kind==='Package'&&governanceOwnerIsValid(project,sourceOwner.id))return sourceOwner;
   const ownerQN=String(relationship.ownerQualifiedNameString||'').trim();if(ownerQN){const match=(project.elements||[]).find(element=>element.kind==='Package'&&qualifiedName(project,element.id)===ownerQN&&governanceOwnerIsValid(project,element.id));if(match)return match}
@@ -50,6 +51,6 @@ function ownershipFingerprint(){const p=api()?.getProject?.();if(!p)return'';con
 function monitorImports(){setInterval(()=>{const fingerprint=ownershipFingerprint();if(!fingerprint||fingerprint===lastFingerprint)return;lastFingerprint=fingerprint;repairCurrent()},250)}
 function wrapSetProject(){const service=api();if(!service?.setProject||wrapped)return false;const original=service.setProject.bind(service);service.setProject=project=>{if(repairing)return original(project);const next=clone(project),result=repairImportedRelationshipOwners(next);if(result.errors.length)result.errors.forEach(error=>log(`Import ownership error: ${error.relationshipId}: ${error.message}`,'error'));const value=original(next);if(result.changed)queueMicrotask(()=>{const parts=[];if(result.deduplicated.length)parts.push(`${result.deduplicated.length} duplicate Governance relationship(s) removed`);if(result.repairs.length)parts.push(`${result.repairs.length} owner(s) normalized`);log(`Import ownership normalization: ${parts.join('; ')}.`,'warn')});return value};wrapped=true;repairCurrent();monitorImports();return true}
 function boot(){if(wrapSetProject())return;let attempts=0;const timer=setInterval(()=>{attempts+=1;if(wrapSetProject()||attempts>100)clearInterval(timer)},50)}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();window.addEventListener('systems-modeler-ready',boot);
+if(typeof document!=='undefined'){if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();globalThis.addEventListener?.('systems-modeler-ready',boot)}
 
 globalThis.SystemsModelerImportRelationshipOwners={repair:repairImportedRelationshipOwners,repairCurrent,dedupeGovernanceRelationships,governanceOwnerIsValid};

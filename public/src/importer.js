@@ -210,6 +210,8 @@ function importRelationships(sheets,ctx){
       if(connectorRaw){ctx.report.relationships.skipped++;continue;}
     }
     const endpoints=relationshipEndpoints(sheet,row,ctx),incomingMessageSort=text(valueFor(row,'messageSort')),allowsOpenEnd=kind==='Message'&&(incomingMessageSort==='lost'&&endpoints.source||incomingMessageSort==='found'&&endpoints.target);if((!endpoints.source||!endpoints.target)&&!allowsOpenEnd){ctx.report.warnings.push(`${sheet.name} row ${row.__rowNumber}: blank relationship endpoint.`);continue;}
+    const diagramEndpoint=[endpoints.source,endpoints.target].some(id=>resolveAlias(ctx.diagramAlias,id)||ctx.project.diagrams.some(diagram=>diagram.id===id||diagram.externalId===id));
+    if(diagramEndpoint){ctx.report.relationships.skipped++;ctx.report.warnings.push(`${sheet.name} row ${row.__rowNumber}: diagram-artifact relationship excluded from the semantic model repository.`);continue;}
     if(resolveAlias(ctx.relationshipAlias,endpoints.source)||resolveAlias(ctx.relationshipAlias,endpoints.target)||(!['Connector','ItemFlow'].includes(kind)&&[endpoints.source,endpoints.target].some(id=>/\.(?:CONN|FLOW)\./i.test(id)))){ctx.report.relationships.skipped++;continue;}
     if(sheet.definition.allowEndpointReferences){
       ensureRelationshipEndpointReference(ctx,endpoints.source,text(row['Source Unit']||row['Source Name']),sheet,row);
