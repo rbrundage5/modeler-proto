@@ -1,0 +1,5 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {buildProjectIndex} from '../public/src/model-index.js';import {dependencyClosure,descendantClosure} from '../public/src/incremental-dependencies.js';
+
+test('dependency closure follows indexed adjacency instead of scanning the repository',()=>{const count=500000,elements=Array.from({length:count},(_,i)=>({id:`e${i}`,ownerId:i<10?'root':`e${i%10}`})),relationships=[{id:'r1',sourceId:'e1',targetId:'e2'}],diagrams:[{id:'d1',nodes:[{id:'n1',elementId:'e1'}],edges:[]}],project={root:{id:'root'},elements,relationships,diagrams};buildProjectIndex(project);const closure=dependencyClosure(project,{elementIds:['e1']});assert.ok(closure.relationships.has('r1'));assert.ok(closure.diagrams.has('d1'));assert.ok(closure.owners.has('root'));assert.ok(closure.elements.size<20)});
+
+test('descendant closure walks only indexed descendants',()=>{const project={root:{id:'root'},elements:[{id:'a',ownerId:'root'},{id:'b',ownerId:'a'},{id:'c',ownerId:'b'},{id:'x',ownerId:'root'}],relationships:[],diagrams:[]};buildProjectIndex(project);assert.deepEqual([...descendantClosure(project,['a'])],['a','b','c'])});
