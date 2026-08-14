@@ -139,7 +139,7 @@ export function normalizeImportedRequirementFields(element){
   const supported=['Analysis','Demonstration','Inspection','Test'];if(!supported.includes(element.verificationMethod)){if(element.verificationMethod)element.verificationObjective=element.verificationObjective||element.verificationMethod;element.verificationMethod='Analysis';}
   return element;
 }
-function normalizeImportedTestCaseFields(element){
+export function normalizeImportedTestCaseFields(element){
   if(element.kind!=='TestCase')return element;
   element.verificationCaseId=text(element.verificationCaseId)||text(element.externalId)||text(element.id);
   element.verificationObjective=text(element.verificationObjective)||text(element.documentation)||text(element.name)||'Verify the referenced requirement.';
@@ -154,7 +154,7 @@ function normalizeImportedTestCaseFields(element){
   element.plannedStatus=status||'Draft';element.executionStatus=element.executionStatus||'Unavailable';
   return element;
 }
-function coalesceImportedRelationships(ctx){
+export function coalesceImportedRelationships(ctx){
   const canonical=new Map(),replacement=new Map(),retained=[];
   for(const relationship of ctx.project.relationships){
     const key=[relationship.kind,relationship.sourceId,relationship.targetId].join('\u0000'),existing=canonical.get(key);
