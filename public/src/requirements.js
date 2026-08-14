@@ -1,9 +1,15 @@
 export const REQUIREMENT_TYPES=['Requirement','Abstract Requirement','Business Requirement','Functional Requirement','Interface Requirement','Performance Requirement','Physical Requirement','Design Constraint','Stakeholder','Business','Mission','Capability','System','Subsystem','Interface','Functional','Performance','Physical','Environmental','Safety','Security','Reliability','Maintainability','Regulatory','Design constraint','Verification','Derived'];
-export const DEFAULT_REQUIREMENT_POLICY={requireId:true,requireText:true,uniqueId:true,statuses:['Draft','In Review','Approved','Rejected','Retired'],priorities:['Low','Medium','High','Critical'],verificationMethods:['Analysis','Demonstration','Inspection','Test']};
+export const DEFAULT_REQUIREMENT_POLICY={requireId:true,requireText:true,uniqueId:true,statuses:['Draft','In Review','Approved','Baseline','Rejected','Retired'],priorities:['Low','Medium','High','Critical'],verificationMethods:['Analysis','Demonstration','Inspection','Test']};
 
 export function requirementPolicy(project){
   project.settings=project.settings||{};
-  return project.settings.requirements={...DEFAULT_REQUIREMENT_POLICY,...project.settings.requirements};
+  const stored=project.settings.requirements||{},mergeVocabulary=(required,custom)=>[...new Set([...required,...(Array.isArray(custom)?custom:[])])];
+  return project.settings.requirements={
+    ...DEFAULT_REQUIREMENT_POLICY,...stored,
+    statuses:mergeVocabulary(DEFAULT_REQUIREMENT_POLICY.statuses,stored.statuses),
+    priorities:mergeVocabulary(DEFAULT_REQUIREMENT_POLICY.priorities,stored.priorities),
+    verificationMethods:mergeVocabulary(DEFAULT_REQUIREMENT_POLICY.verificationMethods,stored.verificationMethods)
+  };
 }
 
 export function initializeRequirement(element,now=new Date().toISOString()){
