@@ -35,11 +35,13 @@ export function elementKernelEntry(kind){
   const working=qualified.length>0&&qualified.every(item=>item.capability.maturity==='working');
   const partial=qualified.some(item=>item.capability?.maturity==='partial');
   const maturity=working?'working':partial||qualified.length?'partial':'not-tested';
+  const explicitOwnerKinds=semantic.ownerKinds||[];
+  const presentationMode=diagramTypes.length?'direct':explicitOwnerKinds.length?'owned':'none';
   return freeze({
     recordKind:'element',canonicalType:kind,metaclass:semantic.metaclass||kind,stereotype:semantic.stereotype||'',
-    ownerKinds:freeze([...(semantic.ownerKinds||['Model','Package','ModelLibrary'])]),compartments:freeze([...(semantic.compartments||[])]),
+    ownerKinds:freeze([...(semantic.ownerKinds||['Model','Package','ModelLibrary'])]),compartments:freeze([...(semantic.compartments||[])]),presentationMode,
     diagramTypes:freeze(diagramTypes),capabilities:freeze(capabilities.map(({diagramType,capability})=>freeze({diagramType,maturity:capability?.maturity||'not-tested',presentationType:capability?.presentationType||null,placementMode:capability?.placementMode||null,testFixtureId:capability?.testFixtureId||null}))),
-    maturity,supportStatus:supportStatus(maturity,{presentable:diagramTypes.length>0}),
+    maturity,supportStatus:supportStatus(maturity,{presentable:presentationMode!=='none'}),
     knownLimitations:freeze([...new Set(qualified.flatMap(item=>item.capability.knownLimitations||[]))])
   });
 }
@@ -60,7 +62,7 @@ export function relationshipKernelEntry(kind){
 }
 
 export const CAPABILITY_KERNEL=freeze({
-  schemaVersion:1,sysmlVersion:SYSML_VERSION,
+  schemaVersion:2,sysmlVersion:SYSML_VERSION,
   diagrams:freeze(Object.fromEntries(Object.keys(DIAGRAMS).map(type=>[type,diagramKernelEntry(type)]))),
   elements:freeze(Object.fromEntries(Object.keys(ELEMENTS).map(kind=>[kind,elementKernelEntry(kind)]))),
   relationships:freeze(Object.fromEntries(Object.keys(RELATIONSHIPS).map(kind=>[kind,relationshipKernelEntry(kind)])))
