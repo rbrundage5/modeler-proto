@@ -1,0 +1,4 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {QUALIFICATION_TIERS,syntheticRepository,qualifyRepository,qualificationPass} from '../public/src/massive-model-qualification.js';
+test('qualification matrix explicitly covers 100k 500k and 1m tiers',()=>assert.deepEqual(QUALIFICATION_TIERS,[100000,500000,1000000]));
+test('100k end-to-end working-set qualification remains bounded',()=>{const project=syntheticRepository(100000,{relationshipRatio:.25,diagramNodeCap:50000}),result=qualifyRepository(project);assert.equal(qualificationPass(result),true);assert.ok(result.renderedNodes<5000);assert.ok(result.dirtyValidated<100)});
+test('million-record qualification dataset can be constructed without recursion',()=>{const project=syntheticRepository(1000000,{relationshipRatio:0,diagramNodeCap:1000});assert.equal(project.elements.length,1000000);assert.equal(project.diagrams[0].nodes.length,1000)});
