@@ -5,6 +5,10 @@ import {finalizeImportedProject} from '../public/src/import-semantic-integrity.j
 
 const clone=value=>structuredClone(value);
 
+test('import finalization coalesces equivalent relationships and rewires diagram edges',()=>{const project=createProject('Duplicates'),a=add(project,'Block','a','A'),b=add(project,'Block','b','B'),first=defaultRelationship('Dependency',a.id,b.id,project.root.id),duplicate=defaultRelationship('Dependency',a.id,b.id,project.root.id);Object.assign(first,{id:'rel-a',externalId:'rel-a'});Object.assign(duplicate,{id:'rel-b',externalId:'rel-b'});project.relationships.push(first,duplicate);project.diagrams.push({id:'d',name:'D',diagramType:'Block Definition Diagram',ownerId:project.root.id,contextId:project.root.id,nodes:[],edges:[{id:'edge',relationshipId:'rel-b'}]});const result=finalizeImportedProject(createProject('Before'),project);assert.equal(result.project.relationships.length,1);assert.equal(result.project.relationships[0].id,'rel-a');assert.deepEqual(result.project.relationships[0].alternateExternalIds,['rel-b']);assert.equal(result.project.diagrams[0].edges[0].relationshipId,'rel-a')});
+
+test('pre-existing semantic errors do not block an unrelated workbook delta',()=>{const original=createProject('Existing'),broken=add(original,'PartProperty','broken','Broken');broken.typeRef='missing';const staged=clone(original);add(staged,'Block','new-block','New Block');const result=finalizeImportedProject(original,staged);assert.ok(!result.errors.some(message=>message.includes('TYPE_UNRESOLVED')))});
+
 function add(project,kind,id,name,ownerId=project.root.id){const e=defaultElement(kind,ownerId);e.id=id;e.externalId=id;e.name=name;project.elements.push(e);return e}
 
 test('qualified owner path repairs a bogus auto-created owner package',()=>{
