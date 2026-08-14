@@ -101,6 +101,7 @@ function importElements(sheets,ctx){
       isExternalReference:Boolean(sheet.definition.referenceOnly),importSource:{file:ctx.fileName,sheet:sheet.name,row:row.__rowNumber,profile:'catia-cameo-workbook-v2-fsbs-grindavik'},
       provenance:text(valueFor(row,'provenance'))
     });
+    normalizeImportedRequirementFields(element);
     attachBehaviorFields(element,row);attachInstanceFields(element,row);
     addAliases(ctx.elementAlias,element,element.id);ctx.pendingElementRefs.push(element);
     ctx.report.provenance.push({externalId,sheet:sheet.name,row:row.__rowNumber});
@@ -109,6 +110,8 @@ function importElements(sheets,ctx){
     for(const req of splitIds(valueFor(row,'relatedRequirements')))ctx.pendingDerived.push({kind:'Trace',source:externalId,target:req,owner:ownerRaw});
   }
 }
+
+function normalizeImportedRequirementFields(element){if(element.kind!=='Requirement')return;element.lifecycleStatus=element.lifecycleStatus||'Draft';element.priority=element.priority||'Medium';const supported=['Analysis','Demonstration','Inspection','Test'];if(!supported.includes(element.verificationMethod)){if(element.verificationMethod)element.verificationObjective=element.verificationObjective||element.verificationMethod;element.verificationMethod='Analysis';}}
 
 function attachBehaviorFields(element,row){
   const trigger=text(valueFor(row,'trigger')),guard=text(valueFor(row,'guard')),effect=text(valueFor(row,'effect'));
@@ -262,7 +265,11 @@ function normalizeDiagramType(value){const raw=text(value);const k=normalizedKey
 function sortedRows(rows){return[...rows].sort((a,b)=>(Number(valueFor(a,'order'))||999999)-(Number(valueFor(b,'order'))||999999));}
 function minimumOrder(rows){return Math.min(...rows.map(r=>Number(valueFor(r,'order'))||999999),999999);}
 function resolveAlias(map,value){return map.get(text(value))||map.get(text(value).toLowerCase())||'';}
-function addAliases(map,item,id){for(const value of [id,item.id,item.externalId,item.name,item.qualifiedNameString])if(text(value)){map.set(text(value),id);map.set(text(value).toLowerCase(),id);}}
+function addAliases(map,item,id){
+  for(const value of [id,item.id,item.externalId])setAlias(map,value,id,true);
+  for(const value of [item.name,item.qualifiedNameString])setAlias(map,value,id,false);
+}
+function setAlias(map,value,id,stable){const alias=text(value);if(!alias)return;for(const key of [alias,alias.toLowerCase()])if(stable||!map.has(key))map.set(key,id);}
 function findByAlias(items,map,value){const id=resolveAlias(map,value)||value;return items.find(item=>item.id===id||item.externalId===value);}
 function removeElement(project,id){project.elements=project.elements.filter(e=>e.id!==id&&e.ownerId!==id);project.relationships=project.relationships.filter(r=>r.sourceId!==id&&r.targetId!==id);for(const d of project.diagrams){d.nodes=(d.nodes||[]).filter(n=>n.elementId!==id);d.edges=(d.edges||[]).filter(edge=>project.relationships.some(r=>r.id===edge.relationshipId));}}
 function replaceProject(target,source){for(const key of Object.keys(target))delete target[key];Object.assign(target,source);}
