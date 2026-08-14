@@ -1,0 +1,1 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {indexVersion,bumpIndexVersion,resetIndexVersion} from '../public/src/index-version.js';test('index versions support cheap cache invalidation tokens',()=>{const p={};assert.equal(indexVersion(p),0);assert.equal(resetIndexVersion(p),1);assert.equal(bumpIndexVersion(p),2);assert.equal(indexVersion(p),2)});
