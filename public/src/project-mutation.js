@@ -1,10 +1,11 @@
 import {indexElementAdded,indexElementRemoved,indexElementUpdated,indexRelationshipAdded,indexRelationshipRemoved,indexRelationshipUpdated} from './model-index-mutations.js';
+import {indexedRelationshipsFor} from './model-index.js';
 import {recordSemanticChange} from './incremental-change-set.js';
 
 // Canonical mutation helpers for massive repositories. These keep canonical arrays, runtime
 // indexes, and dirty dependency sets coherent without repository-wide rescans.
 export function addElement(project,element){project.elements??=[];project.elements.push(element);indexElementAdded(project,element);recordSemanticChange(project,{elementIds:[element.id],ownerIds:[element.ownerId]});return element}
-export function removeElement(project,element){const ownerId=element.ownerId,related=(project.relationships||[]).filter(r=>r.sourceId===element.id||r.targetId===element.id).map(r=>r.id),at=(project.elements||[]).indexOf(element);if(at>=0)project.elements.splice(at,1);indexElementRemoved(project,element);recordSemanticChange(project,{relationshipIds:related,ownerIds:[ownerId]});return element}
+export function removeElement(project,element){const ownerId=element.ownerId,related=indexedRelationshipsFor(project,element.id).map(r=>r.id),at=(project.elements||[]).indexOf(element);if(at>=0)project.elements.splice(at,1);indexElementRemoved(project,element);recordSemanticChange(project,{relationshipIds:related,ownerIds:[ownerId]});return element}
 export function moveElement(project,element,ownerId){return updateElement(project,element,{ownerId})}
 export function updateElement(project,element,patch){const previousOwnerId=element.ownerId,previousExternalId=element.externalId;Object.assign(element,patch);indexElementUpdated(project,element,{previousExternalId,previousOwnerId});recordSemanticChange(project,{elementIds:[element.id],ownerIds:[previousOwnerId,element.ownerId],includeDescendants:Boolean(patch.name!==undefined||patch.ownerId!==undefined)});return element}
 export function addRelationship(project,relationship){project.relationships??=[];project.relationships.push(relationship);indexRelationshipAdded(project,relationship);recordSemanticChange(project,{relationshipIds:[relationship.id],elementIds:[relationship.sourceId,relationship.targetId]});return relationship}
