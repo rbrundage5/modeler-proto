@@ -1,3 +1,0 @@
-import {transformProjectsSource} from './projects-source-transform.js';
-async function boot(){const response=await fetch('/src/projects.js',{cache:'no-store'});if(!response.ok)throw new Error(`Could not load Projects source (${response.status}).`);const transformed=transformProjectsSource(await response.text()),blob=new Blob([transformed],{type:'text/javascript'}),url=URL.createObjectURL(blob);try{await import(url)}finally{URL.revokeObjectURL(url)}}
-boot().catch(error=>{console.error('Chunked Projects bootstrap failed',error);window.SystemsModelerAPI?.log?.(`Projects persistence bootstrap failed: ${error.message}`,'error')});

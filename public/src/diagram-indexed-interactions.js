@@ -1,6 +1,0 @@
-import {diagramRenderSet} from './diagram-viewport.js';
-
-function selectionRect(start,end){return{x:Math.min(start.x,end.x),y:Math.min(start.y,end.y),width:Math.abs(end.x-start.x),height:Math.abs(end.y-start.y)}}
-export function indexedNodesInSelectionBox(diagram,start,end,{intersect=false}={}){const rect=selectionRect(start,end),set=diagramRenderSet(diagram,rect,{margin:0,overscan:0}),right=rect.x+rect.width,bottom=rect.y+rect.height;return set.nodes.filter(node=>{if(node.nonVisualContext||node.isContextBoundary)return false;const nr=node.x+node.width,nb=node.y+node.height;return intersect?nr>=rect.x&&node.x<=right&&nb>=rect.y&&node.y<=bottom:node.x>=rect.x&&node.y>=rect.y&&nr<=right&&nb<=bottom}).map(node=>node.id)}
-export function indexedSelectedNodes(diagram,ids){const set=diagramRenderSet(diagram,{x:0,y:0,width:0,height:0},{margin:0,overscan:0,selectedNodeIds:[...ids]});const wanted=new Set(ids);return set.nodes.filter(node=>wanted.has(node.id))}
-export function indexedSelectionBounds(diagram,ids){const nodes=indexedSelectedNodes(diagram,ids);if(!nodes.length)return null;const x=Math.min(...nodes.map(n=>n.x)),y=Math.min(...nodes.map(n=>n.y)),r=Math.max(...nodes.map(n=>n.x+n.width)),b=Math.max(...nodes.map(n=>n.y+n.height));return{x,y,width:r-x,height:b-y,nodes}}
